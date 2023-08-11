@@ -1,0 +1,23 @@
+<template>
+    <v-btn @click="currentPage='main'" variant="text" icon="mdi-arrow-left"></v-btn>
+    <v-toolbar-title v-show="!showSearch">contacts</v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-text-field v-show="showSearch" style="margin-right: 1rem;"
+        :loading="loading"
+        density="compact"
+        variant="solo"
+        label="search"
+        append-inner-icon=""
+        single-line
+        hide-details
+        @click:append-inner="onClick"
+      ></v-text-field>
+    <v-btn @click="showSearch = !showSearch" variant="text" :icon='showSearch ? "mdi-close" : "mdi-plus"'></v-btn>
+</template>
+
+<script setup>
+import {ref, inject} from 'vue';
+const currentPage=inject('currentPage')
+const showSearch=ref(false)
+
+</script>
