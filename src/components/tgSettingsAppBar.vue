@@ -6,7 +6,6 @@
 </template>
 
 <script setup>
-import {inject} from 'vue';
+import { inject, ref } from 'vue';
 const currentPage=inject('currentPage')
-
 </script>

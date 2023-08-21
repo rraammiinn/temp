@@ -1,78 +1,38 @@
 <template>
-    <div class="result" v-for="comment in comments" :key="comment.id">
-      <div>{{ comment.email }}</div>
-      <div>{{ comment.id }}</div>
-    </div>
-    <InfiniteLoading @top="top" @infinite="load" />
-  </template>
+  <v-infinite-scroll
+    height="300"
+    side="both"
+    @load="load"
+  >
+    <template v-for="(item, index) in items" :key="item">
+      <div :class="['px-2', index % 2 === 0 ? 'bg-grey-lighten-2' : '']">
+        Item number {{ item }}
+      </div>
+    </template>
+  </v-infinite-scroll>
+</template>
 
-<style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
+
+<script>
+  export default {
+    data: () => ({
+      items: Array.from({ length: 50 }, (k, v) => v + 1),
+    }),
+
+    methods: {
+      load ({ side, done }) {
+        setTimeout(() => {
+          if (side === 'start') {
+            const arr = Array.from({ length: 10 }, (k, v) => this.items[0] - (10 - v))
+            this.items = [...arr, ...this.items]
+          } else if (side === 'end') {
+            const arr = Array.from({ length: 10 }, (k, v) => this.items.at(-1) + 1 + v)
+            this.items = [...this.items, ...arr]
+          }
+
+          done('ok')
+        }, 1000)
+      },
+    },
   }
-
-  .result {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-weight: 300;
-    width: 400px;
-    padding: 10px;
-    text-align: center;
-    margin: 0 auto 10px auto;
-    background: #eceef0;
-    border-radius: 10px;
-  }
-</style>
-
-
-<script setup>
-  import { ref } from "vue";
-  import InfiniteLoading from "v3-infinite-loading";
-  import "v3-infinite-loading/lib/style.css";
-
-  let comments = ref([]);
-  let page = 1;
-  const load = async $state => {
-    console.log("loading...");
-
-    try {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/comments?_limit=10&_page=" + page
-      );
-      const json = await response.json();
-      if (json.length < 10) $state.complete();
-      else {
-        comments.value.push(...json);
-        $state.loaded();
-      }
-      page++;
-    } catch (error) {
-      $state.error();
-    }
-  };
-
-  const top = async $state => {
-    console.log("loading...");
-
-    try {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/comments?_limit=10&_page=" + page
-      );
-      const json = await response.json();
-      if (json.length < 10) $state.complete();
-      else {
-        comments.value=[...json, ...comments.value];
-        $state.loaded();
-      }
-      page++;
-    } catch (error) {
-      $state.error();
-    }
-  };
 </script>

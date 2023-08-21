@@ -1,6 +1,6 @@
 <template>
       <!-- <v-list :items="users"  item-props  lines="three"> -->
-        <div v-for="user in users" @click="currentPage='chat'" :key="user.id">
+        <div v-for="user in users" @click="currentPage='chat';other=user" :key="user.id">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
             :title="user.name"
@@ -66,6 +66,7 @@ async function getUsers(){
 
 
 const currentPage=inject('currentPage')
+const other=inject('other')
 
 const items=ref([
   {prependAvatar:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwDJ2a1CRPF6uU1g3JWNmPnLUJkkPImYSh-Q&usqp=CAU',name:'s',mail:'xxx@gmail.com',isSaved:false},
