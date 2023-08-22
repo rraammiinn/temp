@@ -12,7 +12,7 @@
   <!-- <v-btn @click="log">log</v-btn> -->
 
 
-      <v-list :items="items"  item-props  lines="three">
+      <v-list :items="Object.keys(lastChats)"  item-props  lines="three">
         <!-- <template v-slot:subtitle="{ subtitle }">
           <div v-html="subtitle"></div>
         </template> -->
@@ -22,11 +22,11 @@
             :subtitle="authData.record.username"
           ></v-list-item> -->
 
-        <div v-for="item in items" @click="currentPage='chat'">
+        <div v-for="[id,chat] in Object.entries(lastChats)" @click="currentPage='chat';other=getUserFromId(id)">
             <v-list-item class="listItem"
-            :prepend-avatar="item.prependAvatar"
-            :title="item.title"
-            :subtitle="item.subtitle"
+            :prepend-avatar="`/api/files/users/${id}/${getUserFromId(id).avatar}`"
+            :title="getUserFromId(id).name"
+            :subtitle="chat.text"
           ></v-list-item>
           <v-divider></v-divider>
         </div>
@@ -44,6 +44,9 @@
   <script setup>
   import { ref, inject } from 'vue';
   const currentPage=inject('currentPage')
+  const other=inject('other')
+  const lastChats=inject('lastChats')
+  const users=inject('users')
 
 
   //tst...................................................
@@ -76,6 +79,11 @@ console.log(u)
 });
 console.log(m)
   }
+
+
+  function getUserFromId(id){
+    return users.value.find(u=>u.id==id)
+}
 
   //tst...................................................
 

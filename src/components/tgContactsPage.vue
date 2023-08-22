@@ -36,11 +36,11 @@
 import { ref, inject, onMounted } from 'vue';
 import pb from '@/main';
 
-const users=ref()
+// const users=ref()
 // users.value=await pb.collection('users').getFullList({sort: '-created',})
-await getUsers()
+// await getUsers()
 
-pb.collection('users').subscribe('*', getUsers);
+// pb.collection('users').subscribe('*', getUsers);
 
 // onMounted(
 // getUsers
@@ -57,16 +57,17 @@ pb.collection('users').subscribe('*', getUsers);
 
 // )
 
-async function getUsers(){
-    users.value = await pb.collection('users').getFullList({
-    sort: '-created',
-});
-}
+// async function getUsers(){
+//     users.value = await pb.collection('users').getFullList({
+//     sort: '-created',
+// });
+// }
 
 
 
 const currentPage=inject('currentPage')
 const other=inject('other')
+const users=inject('users')
 
 const items=ref([
   {prependAvatar:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwDJ2a1CRPF6uU1g3JWNmPnLUJkkPImYSh-Q&usqp=CAU',name:'s',mail:'xxx@gmail.com',isSaved:false},

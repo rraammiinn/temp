@@ -1,8 +1,8 @@
 <template>
     <div class="main">
-
-    <v-card color="#96571d" style="width: fit-content;" :class="{fromYou:(chat.from==pb.authStore.model.id), card:true}" v-for="chat in chats" :text="chat.text"></v-card>
-
+<template v-for="chat in chats">
+    <v-card color="#96571d" style="width: fit-content;" :class="{fromYou:(chat.from==pb.authStore.model.id), card:true}"  v-if="chat.from==other.id || chat.to==other.id" :text="chat.text"></v-card>
+</template>
     <v-text-field style="position: fixed;bottom: 1rem;width: 90%;"
         :loading="loading"
         density="compact"
@@ -39,17 +39,17 @@ import { ref, inject } from 'vue';
 import pb from '@/main';
 
 const other=inject('other')
-
+const chats=inject('chats')
 // const chats=ref([
 //     {you:true,msg:'lorcdc  cdcidc           dccccccccccccccccccccccnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuucccccucuccddddddddddddwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxccccccc ...njgnnghhhhhhhhkm4jn5hhhhhhhhhhhhhhhhjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjllllllllllllllllllllllllllllllllllllllllrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuubbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'},
 //     {you:false,msg:'cddddddddddddd   cccccccccccccccccccccccccccccnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuucccccucuccddddddddddddwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxcccccccccc asoijhijj ...njgnnghhhhhhhhkm4jn5hhhhhhhhhhhhhhhhjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjllllllllllllllllllllllllllllllllllllllllrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuubbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'},
 //     {you:true,msg:'ojdcodo dcjdn cdciiiiiiiic  dddddddddddddddddnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuucccccucuccddddddddddddwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxcddddddddddddddddddddddddddddddiic c . ...njgnnghhhhhhhhkm4jn5hhhhhhhhhhhhhhhhjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjllllllllllllllllllllllllllllllllllllllllrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuubbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'}
 // ])
 
-const chats = ref(await pb.collection('messages').getFullList({
-    sort: 'created',
-    filter:`from = "${other.value.id}" || to = "${other.value.id}"`
-}));
+// const chats = ref(await pb.collection('messages').getFullList({
+//     sort: 'created',
+//     filter:`from = "${other.value.id}" || to = "${other.value.id}"`
+// }));
 
 
 async function send(){
@@ -69,13 +69,13 @@ const msg=ref('')
 
 
 
-pb.collection('messages').subscribe('*', function (e) {
-    // console.log(e.record);
+// pb.collection('messages').subscribe('*', function (e) {
+//     // console.log(e.record);
 
-    if(e.action=='create' && (e.record.from==other.value.id || e.record.to==other.value.id)){
-        chats.value.push(e.record)
-    }
-});
+//     if(e.action=='create' && (e.record.from==other.value.id || e.record.to==other.value.id)){
+//         chats.value.push(e.record)
+//     }
+// });
 
 // pb.collection('messages').unsubscribe();
 </script>
