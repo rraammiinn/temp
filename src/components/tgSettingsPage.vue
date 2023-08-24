@@ -28,7 +28,7 @@ v-model="file"
 prepend-icon="mdi-upload"
 variant="outlined"
 v-model="file"
-@change="upload"
+@change="upload_"
 
 ></v-file-input>
 
@@ -93,8 +93,34 @@ const name =ref('')
 const bio =ref('')
 
 
+async function upload()
+{
+    const pickerOpts = {
+  types: [
+    {
+      description: "avatar",
+      accept: {
+        "image/*": [],
+      },
+    },
+  ],
+  excludeAcceptAllOption: true,
+  multiple: false,
+};
 
-async function upload(){
+    var formData = new FormData();
+    const handler = await window.showOpenFilePicker(pickerOpts)
+    const image = await handler[0].getFile()
+    console.log(image)
+
+    formData.append('avatar', image);
+    await pb.collection('users').update(pb.authStore.model.id, formData);
+    
+}
+
+
+
+async function upload_(){
     var formData = new FormData();
     formData.append('avatar', file.value[0]);
     await pb.collection('users').update(pb.authStore.model.id, formData);

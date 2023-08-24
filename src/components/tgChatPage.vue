@@ -14,6 +14,8 @@
         @click:append-inner="send"
         v-model="msg"
         color="#96571d"
+        prepend-inner-icon="mdi-image"
+        @click:prepend-inner="selectFile"
       ></v-text-field>
 
     </div>
@@ -51,16 +53,51 @@ const chats=inject('chats')
 //     filter:`from = "${other.value.id}" || to = "${other.value.id}"`
 // }));
 
+var files=[];
+var handlers=[];
+
+async function selectFile(){
+    const pickerOpts = {
+  types: [
+    {
+      description: "avatar",
+      accept: {
+        "image/*": [],
+      },
+    },
+  ],
+  excludeAcceptAllOption: true,
+  multiple: true,
+};
+
+    
+    handlers = await window.showOpenFilePicker(pickerOpts)
+    files = handlers.map(async(handler) => await handler.getFile())
+    console.log(files)
+
+    // formData.append('avatar', image);
+    // await pb.collection('users').update(pb.authStore.model.id, formData);
+ 
+}
+
 
 async function send(){
+    var formData = new FormData();
     chats.value.push({you:true,msg:msg.value})
     console.log(other)
-    const record = await pb.collection('messages').create({
-    "from": pb.authStore.model.id,
-    "to": other.value.id,
-    "text": msg.value,
-    "seen": false
-});
+    // files.forEach(file => formData.append('files', file))
+    // formData.append('files', files)
+    formData.append('from', pb.authStore.model.id)
+    formData.append('to', other.value.id)
+    formData.append('text', msg.value)
+    formData.append('seen', false)
+
+    for (const handler of handlers){
+      formData.append('files', await handler.getFile())
+    }
+
+    
+    const record = await pb.collection('messages').create(formData);
 
 }
 
