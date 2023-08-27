@@ -17,9 +17,7 @@
       ></v-text-field>
 <v-btn @click="showSearch = !showSearch" variant="text" :icon='showSearch ? "mdi-close" : "mdi-magnify"'></v-btn>
 
-<!-- <v-btn variant="text" icon="mdi-filter"></v-btn> -->
 
-<!-- <v-btn variant="text" icon="mdi-dots-vertical"></v-btn> -->
 </template>
 
 <script setup>

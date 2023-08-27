@@ -1,4 +1,3 @@
-import { inject } from 'vue';
 <template>
         <img style="margin-top: -1rem;width: 100%;" :src="`/api/files/users/${pb.authStore.model.id}/${pb.authStore.model.avatar}`" alt="">
         <v-divider/>
@@ -7,7 +6,7 @@ import { inject } from 'vue';
         <v-divider/>
         <v-list-item title="" value="">
             <div style="display: flex;align-items:center;align-content: center;">
-                <v-switch v-model="dark" label="dark mode" color="primary" inset></v-switch>
+                <v-switch @change="changeTheme" v-model="dark" label="dark mode" color="primary" inset></v-switch>
             </div>
         </v-list-item>
         
@@ -15,7 +14,7 @@ import { inject } from 'vue';
 
 <style scoped>
 *:hover{
-    color: #1867C0
+    color: var(--tgPrimary)
 }
 </style>
 
@@ -25,5 +24,10 @@ import {inject} from 'vue';
 const dark=inject('dark')
 const currentPage=inject('currentPage')
 const drawer=inject('drawer')
+
+
+function changeTheme(){
+    localStorage.setItem('tgDark',dark.value.toString())
+}
 
 </script>

@@ -1,12 +1,4 @@
-// import InfiniteLoading from "v3-infinite-loading";
-// import "v3-infinite-loading/lib/style.css"; //required if you're not going to override default slots
 
-
-/**
- * main.js
- *
- * Bootstraps Vuetify and other plugins then mounts the App`
- */
 import PocketBase from 'pocketbase';
 
 const pb = new PocketBase('/');

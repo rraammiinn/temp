@@ -1,18 +1,4 @@
 <template>
-      <!-- <v-file-input
-prepend-icon="mdi-upload"
-variant="outlined"
-v-model="file"
-@change="upload"
-
-></v-file-input>
-
-<input style="width: 3rem;height: 3rem;border-radius: 50%;background-color: rgba(0, 0, 0, 0);" multiple ref="fileInput" type="file" id="fileInput" @change="(e)=>{upload(e.target.files)}"> -->
-
-
-
-
-
 
 
     <div class="main">
@@ -115,7 +101,7 @@ async function upload()
 
     formData.append('avatar', image);
     await pb.collection('users').update(pb.authStore.model.id, formData);
-    
+
 }
 
 
@@ -124,21 +110,10 @@ async function upload_(){
     var formData = new FormData();
     formData.append('avatar', file.value[0]);
     await pb.collection('users').update(pb.authStore.model.id, formData);
-    //  for (let file of files) {
-    //     formData.append('image', file);
-    // }
-    // await pb.collection('tst').create(formData);
+
 }
 
-// const fileInput = ref();
-// this.$ref
-// fileInput.addEventListener('change', async function () {
-//     for (let file of fileInput.value.files) {
-//         formData.append('documents', file);
-//     }
-//     await pb.collection('tst').create(formData);
 
-// });
 
 async function change(){
     await pb.collection('users').update(pb.authStore.model.id, {'name':name.value, 'bio':bio.value});
