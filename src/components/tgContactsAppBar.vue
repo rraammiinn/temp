@@ -11,13 +11,15 @@
         single-line
         hide-details
         @click:append-inner="onClick"
+        v-model="userSearch"
       ></v-text-field>
-    <v-btn @click="showSearch = !showSearch" variant="text" :icon='showSearch ? "mdi-close" : "mdi-plus"'></v-btn>
+    <v-btn @click="showSearch = !showSearch;userSearch='';" variant="text" :icon='showSearch ? "mdi-close" : "mdi-plus"'></v-btn>
 </template>
 
 <script setup>
 import {ref, inject} from 'vue';
 const currentPage=inject('currentPage')
 const showSearch=ref(false)
+const userSearch=inject('userSearch')
 
 </script>

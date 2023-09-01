@@ -6,9 +6,25 @@
     <v-btn @click="getM">get m</v-btn>
 
 
-      <v-list :items="Object.keys(lastChats)"  item-props  lines="three">
+    <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
-        <div v-for="lastChat in lastChats" @click="currentPage='chat';other=lastChat.user">
+<div v-for="searchChat in searchChats" @click="currentPage='chat';other=searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'];initChatId=searchChat.id">
+    <v-list-item class="listItem"
+    :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
+    :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
+    :subtitle="searchChat.text"
+  ></v-list-item>
+  <v-divider></v-divider>
+</div>
+</v-list>
+
+
+
+
+
+      <v-list v-else :items="Object.keys(lastChats)"  item-props  lines="three">
+
+        <div v-for="lastChat in lastChats" @click="currentPage='chat';other=lastChat.user;initChatId=''">
             <v-list-item v-if="lastChat.lastChat" class="listItem"
             :prepend-avatar="`/api/files/users/${lastChat.user.id}/${lastChat.user.avatar}`"
             :title="lastChat.user.name"
@@ -28,11 +44,15 @@
 </style>
 
   <script setup>
-  import { ref, inject } from 'vue';
+  import { ref, inject, watchEffect } from 'vue';
   const currentPage=inject('currentPage')
   const other=inject('other')
   const lastChats=inject('lastChats')
   const users=inject('users')
+  const chatSearch=inject('chatSearch')
+  const searchChats=ref([])
+  const initChatId=inject('initChatId')
+
 
 
   //tst...................................................
@@ -71,5 +91,9 @@ console.log(m)
     return users.value.find(u=>u.id==id)
 }
 
-
+watchEffect(async ()=>{
+  if(chatSearch.value){
+    searchChats.value=await pb.collection('messages').getFullList({filter:`text ~ "${chatSearch.value}"`,expand:'from,to'})
+  }
+})
   </script>

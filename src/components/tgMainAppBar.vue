@@ -5,7 +5,7 @@
 
 <v-spacer></v-spacer>
 
-<v-text-field v-show="showSearch" style="margin-right: 1rem;"
+<v-text-field v-show="(showSearch||chatSearch)" style="margin-right: 1rem;"
         :loading="loading"
         density="compact"
         variant="solo"
@@ -14,8 +14,9 @@
         single-line
         hide-details
         @click:append-inner="onClick"
+        v-model="chatSearch"
       ></v-text-field>
-<v-btn @click="showSearch = !showSearch" variant="text" :icon='showSearch ? "mdi-close" : "mdi-magnify"'></v-btn>
+<v-btn @click="showSearch = !showSearch;chatSearch='';" variant="text" :icon='(showSearch||chatSearch) ? "mdi-close" : "mdi-magnify"'></v-btn>
 
 
 </template>
@@ -25,4 +26,5 @@
 
     const drawer=inject('drawer')
     const showSearch=ref(false)
+    const chatSearch=inject('chatSearch')
 </script>
