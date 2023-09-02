@@ -8,7 +8,7 @@
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
-<div v-for="searchChat in searchChats" @click="currentPage='chat';other=searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'];initChatId=searchChat.id">
+<div v-for="searchChat in searchChats" @click="previousPage='main';currentPage='chat';other=searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'];initChatId=searchChat.id">
     <v-list-item class="listItem"
     :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
     :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
@@ -24,7 +24,7 @@
 
       <v-list v-else :items="Object.keys(lastChats)"  item-props  lines="three">
 
-        <div v-for="lastChat in lastChats" @click="currentPage='chat';other=lastChat.user;initChatId=''">
+        <div v-for="lastChat in lastChats" @click="previousPage='main';currentPage='chat';other=lastChat.user;initChatId=''">
             <v-list-item v-if="lastChat.lastChat" class="listItem"
             :prepend-avatar="`/api/files/users/${lastChat.user.id}/${lastChat.user.avatar}`"
             :title="lastChat.user.name"
@@ -52,6 +52,8 @@
   const chatSearch=inject('chatSearch')
   const searchChats=ref([])
   const initChatId=inject('initChatId')
+  const previousPage=inject('previousPage')
+
 
 
 

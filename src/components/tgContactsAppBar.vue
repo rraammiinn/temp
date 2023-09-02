@@ -1,8 +1,8 @@
 <template>
     <v-btn @click="currentPage='main'" variant="text" icon="mdi-arrow-left"></v-btn>
-    <v-toolbar-title v-show="!showSearch">contacts</v-toolbar-title>
+    <v-toolbar-title v-show="(!showSearch && !userSearch)">contacts</v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-text-field v-show="showSearch" style="margin-right: 1rem;"
+    <v-text-field v-show="(showSearch||userSearch)" style="margin-right: 1rem;"
         :loading="loading"
         density="compact"
         variant="solo"
@@ -13,7 +13,7 @@
         @click:append-inner="onClick"
         v-model="userSearch"
       ></v-text-field>
-    <v-btn @click="showSearch = !showSearch;userSearch='';" variant="text" :icon='showSearch ? "mdi-close" : "mdi-plus"'></v-btn>
+    <v-btn @click="showSearch = !showSearch;userSearch='';" variant="text" :icon='(showSearch||userSearch) ? "mdi-close" : "mdi-plus"'></v-btn>
 </template>
 
 <script setup>

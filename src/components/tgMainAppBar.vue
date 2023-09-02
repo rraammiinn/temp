@@ -1,7 +1,7 @@
 <template>
 <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-<v-toolbar-title v-show="!showSearch">tgram</v-toolbar-title>
+<v-toolbar-title v-show="(!showSearch && !chatSearch)">tgram</v-toolbar-title>
 
 <v-spacer></v-spacer>
 

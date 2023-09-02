@@ -1,6 +1,7 @@
 <template>
+  <tg-user-page v-show="showUser"></tg-user-page>
 
-    <div class="main">
+<div v-show="!showUser" class="main">
 
 <v-infinite-scroll v-on="{load:(startEnabled||endEnabled)?load:null}" ref="iScroll" :side="scrollSide">
   <!-- <template #loading></template> -->
@@ -93,7 +94,7 @@ import { ref, inject, onMounted, computed } from 'vue';
 import pb from '@/main';
 
 // const side=ref('both')
-
+const showUser=inject('showUser')
 const iScroll=ref()
 const chatsContainer=ref()
 // iScroll.value.scrollTop=10;
@@ -178,6 +179,7 @@ const msg=ref('')
 
 import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
 import { VInfiniteScroll } from 'vuetify/labs/VInfiniteScroll'
+import TgUserPage from './tgUserPage.vue';
 
 const sheet=ref(false)
 const image=ref('')
