@@ -1,9 +1,9 @@
 <template>
 
-    <v-text-field v-model="pass"></v-text-field>
+    <!-- <v-text-field v-model="pass"></v-text-field>
     <v-btn @click="signIn">sign in</v-btn>
     <v-btn @click="getU"> get u</v-btn>
-    <v-btn @click="getM">get m</v-btn>
+    <v-btn @click="getM">get m</v-btn> -->
 
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
@@ -40,6 +40,18 @@
 .listItem:hover{
     color: var(--tgPrimary);
     background-color:var(--tgPrimaryHover);
+}
+.v-list-item-subtitle{
+  display: block !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+.v-list-item-title{
+  display: block !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
 

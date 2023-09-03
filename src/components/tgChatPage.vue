@@ -1,7 +1,7 @@
 <template>
   <tg-user-page v-show="showUser"></tg-user-page>
 
-<div v-show="!showUser" class="main">
+<div class="main">
 
 <v-infinite-scroll v-on="{load:(startEnabled||endEnabled)?load:null}" ref="iScroll" :side="scrollSide">
   <!-- <template #loading></template> -->

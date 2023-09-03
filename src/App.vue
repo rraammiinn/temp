@@ -3,7 +3,8 @@
   <v-app :class="{'dark':dark}" :theme="dark ? 'dark' : 'light'">
     <v-main>
       <suspense>
-  <tg-provider>
+        <tg-log-in-page v-if="currentPage=='login'"></tg-log-in-page>
+  <tg-provider v-else>
       <tg-main>
         <template #main><suspense><tg-main-page v-if="currentPage=='main'"></tg-main-page></suspense><suspense><tg-chat-page v-if="currentPage=='chat'"></tg-chat-page></suspense><tg-settings-page v-if="currentPage=='settings'"></tg-settings-page><suspense><tg-contacts-page v-if="currentPage=='contacts'"></tg-contacts-page></suspense></template>
         <template #sideBarItems><tg-side-bar-items></tg-side-bar-items></template>
@@ -17,6 +18,7 @@
 </template>
 
 <script setup>
+import pb from '@/main';
 // import PocketBase from 'pocketbase';
 import { ref, provide } from 'vue';
 import tgMain from './components/tgMain.vue';
@@ -32,6 +34,7 @@ import tgContactsAppBar from './components/tgContactsAppBar.vue';
 import tgProvider from './tgProvider.vue';
 import tgUserPage from './components/tgUserPage.vue';
 import tgUserAppBar from './components/tgUserAppBar.vue';
+import tgLogInPage from './components/tgLogInPage.vue';
 
 // import tst from './components/tst.vue';
 
@@ -41,7 +44,7 @@ provide('dark', dark)
 provide('drawer', drawer)
 
 
-const currentPage=ref('main')
+const currentPage=ref(pb.authStore.isValid ? 'main' : 'login')
 provide('currentPage', currentPage)
 
 

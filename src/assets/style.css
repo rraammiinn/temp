@@ -22,3 +22,18 @@
   --tgBg:#212121;
   --tgBrown:#3f2a15;
 }
+
+
+
+.v-list-item-subtitle{
+  display: block !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+.v-list-item-title{
+  display: block !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}

@@ -2,7 +2,7 @@
 
 
     <div class="main">
-        <img style="width: 100%;" :src="`/api/files/users/${pb.authStore.model.id}/${pb.authStore.model.avatar}`" alt="">
+        <img v-if="isLoggedIn" style="width: 100%;" :src="`/api/files/users/${pb.authStore.model.id}/${pb.authStore.model.avatar}`" alt="">
         <div style="width: 100%;margin-bottom: 1rem;">
             <v-btn @click="upload" icon="mdi-upload" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
         </div>
@@ -59,10 +59,13 @@ import pb from '@/main';
 import { inject, ref } from 'vue';
 
 const isLoggedIn = inject('isLoggedIn')
+const currentPage=inject('currentPage')
+
 
 async function logIn(){
-    authData.value = await pb.collection('users').authWithOAuth2({ provider: 'google' });
-    isLoggedIn.value = pb.authStore.isValid
+    // authData.value = await pb.collection('users').authWithOAuth2({ provider: 'google' });
+    // isLoggedIn.value = pb.authStore.isValid
+    currentPage.value='login'
 }
 function logOut(){
     pb.authStore.clear();
