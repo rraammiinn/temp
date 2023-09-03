@@ -1,0 +1,9 @@
+{
+    "name": "tgram",
+    "short_name": "tg",
+    "start_url": "/",
+    "display": "standalone",
+    "description": "tgram",
+    "icons":[{"src":"pencil.svg","type":"image/svg+xml"},{"src":"icon.png","type":"image/png","sizes": "256x256"}]
+
+}
