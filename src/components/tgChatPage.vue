@@ -3,8 +3,24 @@
 
 <div class="main">
 
-<v-infinite-scroll v-on="{load:(startEnabled||endEnabled)?load:null}" ref="iScroll" :side="scrollSide">
-  <!-- <template #loading></template> -->
+  <div ref="scrollable"  class="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
+    <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
+    <template v-for="chat in allChats" :key="chat.id">
+    <v-card :id="chat.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(chat.from==pb.authStore.model.id), card:true}"  :text="chat.text" :title="getUserFromId(chat.from).name" :prepend-avatar="`/api/files/users/${chat.from}/${getUserFromId(chat.from).avatar}`">
+      <v-divider v-if="chat.files.length"></v-divider>
+      <div v-if="chat.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
+        <template  v-for="file in chat.files" :key="file">
+          <img @click="sheet = !sheet;image=`/api/files/messages/${chat.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${chat.id}/${file}`">
+        </template>
+      </div>
+    </v-card>
+</template>
+</div>
+  </div>
+
+
+<!-- <v-infinite-scroll v-on="{load:(startEnabled||endEnabled)?load:null}" ref="iScroll" :side="scrollSide">
+  <template #loading><v-progress-linear indeterminate></v-progress-linear></template>
   <div style="padding-bottom: 3rem;" ref="chatsContainer">
 <template v-for="chat in allChats" :key="chat.id">
     <v-card :id="chat.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(chat.from==pb.authStore.model.id), card:true}"  :text="chat.text" :title="getUserFromId(chat.from).name" :prepend-avatar="`/api/files/users/${chat.from}/${getUserFromId(chat.from).avatar}`">
@@ -14,13 +30,10 @@
           <img @click="sheet = !sheet;image=`/api/files/messages/${chat.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${chat.id}/${file}`">
         </template>
       </div>
-      <!-- <template  v-for="file in chat.files" :key="file">
-        <v-img @click="sheet = !sheet;image=`/api/files/messages/${chat.id}/${file}`" width="calc(100%-1rem)" style="border-radius: .3rem;margin: .5rem;" :src="`/api/files/messages/${chat.id}/${file}`"></v-img>
-      </template> -->
     </v-card>
 </template>
 </div>
-</v-infinite-scroll>
+</v-infinite-scroll> -->
 
 
 
@@ -63,13 +76,18 @@
         append-inner-icon="mdi-send"
         single-line
         hide-details
-        @click:append-inner="send"
+        @click:append-inner.stop="send"
         v-model="msg"
         prepend-inner-icon="mdi-image"
-        @click:prepend-inner="selectFile"
+        @click:prepend-inner.stop="fileInput?.click()"
         ></v-textarea>
 
     </div>
+    <input multiple accept="image/*" ref="fileInput" @change="upload_" type="file" hidden>
+
+    <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;bottom: 5rem;right: 1.5rem;" color="primary" size="3.5rem" elevation="24"></v-btn>
+
+
 </template>
 
 
@@ -85,21 +103,35 @@
     margin-bottom: 3rem;
 }
 .fromYou{
-    margin-left: auto;
+    /* margin-left: auto; */
+    align-self: flex-end;
 }
 </style>
 
 <script setup>
-import { ref, inject, onMounted, computed } from 'vue';
+import { ref, inject, onMounted, computed, onUpdated } from 'vue';
 import pb from '@/main';
 
 // const side=ref('both')
+const initChatId=inject('initChatId')
+const showGoToBottom=ref(false)
+
+
+function upload_(){
+  handlers.value=[]
+  for (var i=0;i<fileInput.value.files.length;i++){
+    handlers.value.push(fileInput.value.files[i])
+  }
+  // fileInput.value.files.forEach(file => {
+  //   handlers.value.append(structuredClone(file))
+  // });
+}
+const fileInput=ref()
+
 const showUser=inject('showUser')
 const iScroll=ref()
 const chatsContainer=ref()
 // iScroll.value.scrollTop=10;
-onMounted(()=>{
-  if(initChatId){document.getElementById(initChatId.value).scrollIntoView({block:'center'});}else{chatsContainer.value.scrollIntoView({block:'center'});}})
 
 function scrolll(){console.log('.....')}
 
@@ -165,11 +197,14 @@ async function send(){
     formData.append('seen', false)
 
     for (const handler of handlers.value){
-      formData.append('files', await handler.getFile())
+
+      formData.append('files', handler)
     }
 
     
     const record = await pb.collection('messages').create(formData);
+    msg.value=''
+    handlers.value=[]
 
 }
 
@@ -183,9 +218,11 @@ import TgUserPage from './tgUserPage.vue';
 
 const sheet=ref(false)
 const image=ref('')
-const startEnabled=ref(true)
-const endEnabled=ref(true)
-const scrollSide = computed(()=>{if(startEnabled.value && endEnabled.value)return 'both'; else if(startEnabled.value)return 'start'; else if(endEnabled.value)return 'end'; else return '';})
+// const startEnabled=ref(true)
+// const endEnabled=ref(true)
+var startEnabled=true
+var endEnabled=true
+// const scrollSide = computed(()=>{if(startEnabled.value && endEnabled.value)return 'both'; else if(startEnabled.value)return 'start'; else if(endEnabled.value)return 'end'; else return '';})
 
 
 
@@ -207,67 +244,57 @@ const scrollSide = computed(()=>{if(startEnabled.value && endEnabled.value)retur
 //   endEnabled=!endEnabled
 // }, 1000);
 
-async function load ({ side, done }) {
-  console.log('side : ',side)
-  var new10Chats=[]
-  if(side=='end' && endEnabled.value){
-    // startEnabled=false
-    console.log('enddddd.....')
-    console.log(endEnabled.value)
-    console.log(scrollSide)
-    // endEnabled=false
-    try{
-      // startEnabled=false
-    new10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created > "${chats.value[chats.value.length-1].created}"`, sort: 'created'})).items
-    if(!new10Chats.length){
-      endEnabled.value=false;
-      pb.collection('messages').subscribe('*', function (e) {
-    if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
-        newChats.value.push(e.record)
-    }
-});}
-    chats.value=[...chats.value, ...new10Chats]
-    }
-    catch{}
-    // console.log('new chats : ', newChats)
+// async function load ({ side, done }) {
+//   console.log('side : ',side)
+//   var new10Chats=[]
+//   if(side=='end' && endEnabled.value){
+//     console.log('enddddd.....')
+//     console.log(endEnabled.value)
+//     console.log(scrollSide)
+//     try{
+//     new10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created > "${chats.value[chats.value.length-1].created}"`, sort: 'created'})).items
+//     if(!new10Chats.length){
+//       endEnabled.value=false;
+//       pb.collection('messages').subscribe('*', function (e) {
+//     if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
+//         newChats.value.push(e.record)
+//     }
+// });}
+//     chats.value=[...chats.value, ...new10Chats]
+//     }
+//     catch{}
 
+//     done('ok');
+//   }
+//   if(side=='start' && startEnabled.value){
+//     startEnabled.value=false
+//     endEnabled.value=false
+//     const chatId=chats.value[1].id
+//         document.getElementById(chatId)?.scrollIntoView({block:'start'});
 
-    // startEnabled=true
-    // endEnabled=true
-  }
-  if(side=='start' && startEnabled.value){
-    // startEnabled=false
-    // endEnabled=false
-    try{
-      // endEnabled=false
-    new10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created < "${chats.value[0].created}"`, sort: '-created'})).items.toReversed()
-    if(!new10Chats.length)startEnabled.value=false;
-    chats.value=[...new10Chats, ...chats.value]
-    }
-    catch{}
-    console.log('new chats : ', new10Chats)
-    // startEnabled=true
-    // endEnabled=true
-  }
+  
+//     try{
+//     new10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created < "${chats.value[0].created}"`, sort: '-created'})).items.reverse()
+//     setTimeout(() => {
+//       chats.value=[...new10Chats, ...chats.value]
+//       document.getElementById(chatId)?.scrollIntoView({block:'start'});
+//       startEnabled.value = !!new10Chats.length
+//       done('ok');
+//     }, 100);
+//     }
+//     catch{}
+//     console.log('new chats : ', new10Chats)
 
-  // console.log('new chats : ', newChats)
+//     endEnabled.value=true
+//   }
 
-// setTimeout(() => {
-//   done('ok');
-// }, 100);
-
-
-
-// console.log('chats : ',chats.value)
-done('ok');
-}
+// }
 
 
 const chats=ref([])
 const newChats=ref([])
 const allChats=computed(()=>[...chats.value, ...newChats.value])
 var initChat=[]
-const initChatId=inject('initChatId')
 
 try{
   if(initChatId.value){
@@ -278,19 +305,36 @@ try{
   }
 
 
-initChat=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created <= "${initChat[0].created}"`, sort: '-created'})).items.toReversed()
+initChat=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created <= "${initChat[0].created}"`, sort: '-created'})).items.reverse()
   if(initChat.length<10){
-    startEnabled.value=false
+    // startEnabled.value=false
+    startEnabled=false;
+    isTop=false;
+    try{
+      const extraChats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created > "${initChat[initChat.length-1].created}"`, sort: 'created'})).items
+      initChat=[...initChat, ...extraChats]
+    }
+    catch{}
     // side.value='end'
   }
 
 }
-catch{
-  startEnabled.value=false
+catch(e){
+  console.log('errrooooorrr..... : ',e)
+  // startEnabled.value=false
+  startEnabled=false;
+  isTop=false;
   // side.value='end'
   initChat=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}")`, sort: 'created'})).items
 }
 chats.value=initChat
+
+if(initChat.length<10){
+  endEnabled=false;
+      pb.collection('messages').subscribe('*', function (e) {
+    if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
+        newChats.value.push(e.record)
+    }})}
 
 // if(!initChat[0]){
 //   startEnabled=false
@@ -309,4 +353,78 @@ chats.value=initChat
 //   chats.value=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}")`, sort: '-created'})).items.toReversed()
 // }
 console.log(chats.value)
+
+
+onMounted(()=>{if(initChatId.value){document.getElementById(initChatId.value)?.scrollIntoView({block:'center'});}else{chatsContainer.value?.scrollIntoView({block:'center'});}})
+
+onMounted(()=>{scrollable.value.addEventListener('scroll', scrollHandler)})
+
+function scrollHandler(e){
+  if(e.target.scrollTop==0 && startEnabled){
+    previousScrollHeight=e.target.scrollHeight
+    getPreviousChats(e);console.log('start');}
+  else if(e.target.scrollTop+e.target.clientHeight==e.target.scrollHeight && endEnabled){
+    getNextChats();console.log('end');}
+  else{
+    showGoToBottom.value = (endEnabled || e.target.scrollHeight - e.target.scrollTop > 5000) && (startScrollTop < e.target.scrollTop);
+    startScrollTop=e.target.scrollTop;
+  }
+}
+
+async function getPreviousChats(e){
+  try{
+    isTop=true
+    const previous10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created < "${chats.value[0].created}"`, sort: '-created'})).items.reverse()
+    if(previous10Chats.length<10){startEnabled=false;isTop=false};
+      chats.value=[...previous10Chats, ...chats.value]
+
+      // scrollHeight=e.target.scrollHeight
+      // setTimeout(() => {
+      //   e.target.scrollTop=e.target.scrollHeight-previousScrollHeight
+      // }, 1000);
+      // previousScrollHeight=e.target.scrollHeight
+    }
+    catch{}
+}
+
+async function getNextChats(){
+    try{
+      isTop=false
+      const new10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}") && created > "${chats.value[chats.value.length-1].created}"`, sort: 'created'})).items
+      chats.value=[...chats.value, ...new10Chats]
+      if(new10Chats.length<10){
+  endEnabled=false;
+      pb.collection('messages').subscribe('*', function (e) {
+    if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
+        newChats.value.push(e.record)
+    }})}
+    }
+    catch{}
+}
+
+onUpdated(()=>{if(isTop){scrollable.value.scrollTop=scrollable.value.scrollHeight-previousScrollHeight;previousScrollHeight=scrollable.value.scrollHeight;isTop=false;}else if(isGoToBottom){scrollable.value.scrollTop=scrollable.value.scrollHeight;isGoToBottom=false;showGoToBottom.value=false;}})
+
+var isTop=false;
+var isGoToBottom=false
+var previousScrollHeight;
+// var scrollHeight;
+
+
+
+
+const scrollable=ref();
+
+
+
+async function goToBottom(){
+  if(endEnabled){
+  startEnabled=true
+  endEnabled=false
+  chats.value=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}")`, sort: '-created'})).items.reverse()
+  isGoToBottom=true
+  if(chats.value.length<10)startEnabled=false;}
+  else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
+}
+var startScrollTop=0
+
 </script>

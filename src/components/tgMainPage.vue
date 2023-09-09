@@ -8,7 +8,7 @@
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
-<div v-for="searchChat in searchChats" @click="previousPage='main';currentPage='chat';other=searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'];initChatId=searchChat.id">
+<div v-for="searchChat in searchChats" @click="initChatId=searchChat.id;previousPage='main';currentPage='chat';other=searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'];">
     <v-list-item class="listItem"
     :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
     :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
@@ -30,9 +30,17 @@
             :title="lastChat.user.name"
             :subtitle="lastChat.lastChat.text"
           ></v-list-item>
-          <v-divider></v-divider>
+          <v-divider v-if="lastChat.lastChat"></v-divider>
         </div>
       </v-list>
+
+      <div v-show="showActionButton" style="position: fixed;bottom: 1.5rem;right: 1.5rem;display: flex;flex-direction: column;align-items: flex-end;">
+        <div v-show="showActionButtonItems">
+          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add channel</v-chip><v-btn color="primary" icon="mdi-podcast" rounded size="2.5rem" elevation="24"></v-btn></div>
+          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add group</v-chip><v-btn color="primary" icon="mdi-contacts" rounded size="2.5rem" elevation="24"></v-btn></div>
+        </div>
+        <v-btn @click="showActionButtonItems=!showActionButtonItems" :icon="showActionButtonItems ? 'mdi-close' : 'mdi-plus'" style="border-radius: 50%;margin-top: 1rem;" :color="showActionButtonItems ? 'error' : 'primary'" size="3.5rem" elevation="24"></v-btn>
+      </div>
 
   </template>
 
@@ -56,7 +64,7 @@
 </style>
 
   <script setup>
-  import { ref, inject, watchEffect } from 'vue';
+  import { ref, inject, watchEffect, onMounted } from 'vue';
   const currentPage=inject('currentPage')
   const other=inject('other')
   const lastChats=inject('lastChats')
@@ -69,6 +77,8 @@
 
 
 
+  var startScrollTop=0
+  onMounted(()=>{document.querySelector('.v-layout>.v-main').addEventListener('scroll',(e)=>{showActionButton.value = startScrollTop > e.target.scrollTop;startScrollTop=e.target.scrollTop;showActionButtonItems.value=false;},{passive:true})})
   //tst...................................................
   import pb from '@/main';
 
@@ -110,4 +120,7 @@ watchEffect(async ()=>{
     searchChats.value=await pb.collection('messages').getFullList({filter:`text ~ "${chatSearch.value}"`,expand:'from,to'})
   }
 })
+
+const showActionButton=ref(true)
+const showActionButtonItems=ref(false)
   </script>

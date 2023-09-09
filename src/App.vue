@@ -15,11 +15,11 @@
     </v-main>
   </v-app>
 
+
 </template>
 
 <script setup>
 import pb from '@/main';
-// import PocketBase from 'pocketbase';
 import { ref, provide } from 'vue';
 import tgMain from './components/tgMain.vue';
 import tgSideBarItems from './components/tgSideBarItems.vue';

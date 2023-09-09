@@ -46,21 +46,6 @@ async function passwordLogIn(){
         // authData = await pb.collection('users').create({"username":`"${email.value}"`, "email":`"${email.value}"`, "password":`"${password.value}"`, "passwordConfirm":`"${confirmPassword.value}"`, "emailVisibility": "true"});
         const formData = new FormData();
         formData.append('name', email.value.substring(0, email.value.indexOf('@')))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
         formData.append('username', email.value.substring(0, email.value.indexOf('@')))
         formData.append('email', email.value)
         formData.append('password', password.value)
