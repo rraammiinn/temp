@@ -36,11 +36,19 @@
 
       <div v-show="showActionButton" style="position: fixed;bottom: 1.5rem;right: 1.5rem;display: flex;flex-direction: column;align-items: flex-end;">
         <div v-show="showActionButtonItems">
-          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add channel</v-chip><v-btn color="primary" icon="mdi-podcast" rounded size="2.5rem" elevation="24"></v-btn></div>
-          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add group</v-chip><v-btn color="primary" icon="mdi-contacts" rounded size="2.5rem" elevation="24"></v-btn></div>
+          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add channel</v-chip><v-btn @click="showChannelCreationForm=true" color="primary" icon="mdi-podcast" rounded size="2.5rem" elevation="24"></v-btn></div>
+          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add group</v-chip><v-btn @click="showGroupCreationForm=true" color="primary" icon="mdi-contacts" rounded size="2.5rem" elevation="24"></v-btn></div>
         </div>
         <v-btn @click="showActionButtonItems=!showActionButtonItems" :icon="showActionButtonItems ? 'mdi-close' : 'mdi-plus'" style="border-radius: 50%;margin-top: 1rem;" :color="showActionButtonItems ? 'error' : 'primary'" size="3.5rem" elevation="24"></v-btn>
       </div>
+
+          <v-dialog persistent transition="dialog-bottom-transition" v-model="showGroupCreationForm">
+            <tg-create-group-form v-model="newGroup" @click:create="createNewGroup" @click:cancel="showGroupCreationForm=false;newGroup={};"></tg-create-group-form>
+          </v-dialog>
+
+          <v-dialog persistent transition="dialog-bottom-transition" v-model="showChannelCreationForm">
+            <tg-create-channel-form v-model="newChannel" @click:create="createNewChannel" @click:cancel="showChannelCreationForm=false;newChannel={};"></tg-create-channel-form>
+          </v-dialog>
 
   </template>
 
@@ -65,6 +73,10 @@
 
   <script setup>
   import { ref, inject, watchEffect, onMounted } from 'vue';
+  import tgCreateGroupForm from './tgCreateGroupForm.vue';
+  import tgCreateChannelForm from './tgCreateChannelForm.vue'
+
+
   const currentPage=inject('currentPage')
   const other=inject('other')
   const lastChats=inject('lastChats')
@@ -74,7 +86,13 @@
   const initChatId=inject('initChatId')
   const previousPage=inject('previousPage')
 
+  const newGroup=ref({})
+  const newChannel=ref({})
 
+
+
+const showGroupCreationForm=ref(false)
+const showChannelCreationForm=ref(false)
 
 
   var startScrollTop=0
@@ -123,4 +141,36 @@ watchEffect(async ()=>{
 
 const showActionButton=ref(true)
 const showActionButtonItems=ref(false)
+
+
+async function createNewGroup(){
+  if(!newGroup.value.name)return;
+
+  var formData = new FormData();
+  formData.append('owner',pb.authStore.model.id)
+  formData.append('name',newGroup.value.name)
+  formData.append('about',newGroup.value.about || '')
+  if(newGroup.value.avatar?.[0])formData.append('avatar',newGroup.value.avatar[0])
+
+  const record = await pb.collection('groups').create(formData);
+  newGroup.value={}
+  showGroupCreationForm.value=false
+
+}
+
+
+async function createNewChannel(){
+  if(!newChannel.value.name)return;
+
+  var formData = new FormData();
+  formData.append('owner',pb.authStore.model.id)
+  formData.append('name',newChannel.value.name)
+  formData.append('about',newChannel.value.about || '')
+  if(newChannel.value.avatar?.[0])formData.append('avatar',newChannel.value.avatar[0])
+
+  const record = await pb.collection('channels').create(formData);
+  newChannel.value={}
+  showChannelCreationForm.value=false
+
+}
   </script>

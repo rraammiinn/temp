@@ -5,13 +5,18 @@
 
   <div ref="scrollable"  class="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
     <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
-    <template v-for="chat in allChats" :key="chat.id">
+    <template v-for="chat,i in allChats" :key="chat.id">
+      <v-chip v-if="chat.created.slice(0,10) != allChats[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;" color="var(--tgBrown)">{{ chat.created.slice(0,10) }}</v-chip>
     <v-card :id="chat.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(chat.from==pb.authStore.model.id), card:true}"  :text="chat.text" :title="getUserFromId(chat.from).name" :prepend-avatar="`/api/files/users/${chat.from}/${getUserFromId(chat.from).avatar}`">
       <v-divider v-if="chat.files.length"></v-divider>
       <div v-if="chat.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
         <template  v-for="file in chat.files" :key="file">
           <img @click="sheet = !sheet;image=`/api/files/messages/${chat.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${chat.id}/${file}`">
         </template>
+      </div>
+      <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
+        <span>{{chat.created.slice(11,16)}}</span>
+        <v-icon v-if="chat.from==pb.authStore.model.id" :icon="chat.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
       </div>
     </v-card>
 </template>
@@ -85,7 +90,7 @@
     </div>
     <input multiple accept="image/*" ref="fileInput" @change="upload_" type="file" hidden>
 
-    <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;bottom: 5rem;right: 1.5rem;" color="primary" size="3.5rem" elevation="24"></v-btn>
+    <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;" color="primary" size="3.5rem" elevation="24" :style="{bottom: (handlers.length)? '8rem':'5.25rem'}"></v-btn>
 
 
 </template>
@@ -331,10 +336,7 @@ chats.value=initChat
 
 if(initChat.length<10){
   endEnabled=false;
-      pb.collection('messages').subscribe('*', function (e) {
-    if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
-        newChats.value.push(e.record)
-    }})}
+subscribeToNewChats()}
 
 // if(!initChat[0]){
 //   startEnabled=false
@@ -394,10 +396,7 @@ async function getNextChats(){
       chats.value=[...chats.value, ...new10Chats]
       if(new10Chats.length<10){
   endEnabled=false;
-      pb.collection('messages').subscribe('*', function (e) {
-    if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
-        newChats.value.push(e.record)
-    }})}
+subscribeToNewChats()}
     }
     catch{}
 }
@@ -422,9 +421,16 @@ async function goToBottom(){
   endEnabled=false
   chats.value=(await pb.collection('messages').getList(1,10,{filter:`(from = "${other.value.id}" || to = "${other.value.id}")`, sort: '-created'})).items.reverse()
   isGoToBottom=true
+  subscribeToNewChats()
   if(chats.value.length<10)startEnabled=false;}
   else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
 }
 var startScrollTop=0
 
+function subscribeToNewChats(){
+  pb.collection('messages').subscribe('*', function (e) {
+    if(e.action=='create' && (e.record.from == other.value.id || e.record.to == other.value.id)){
+        newChats.value.push(e.record)
+    }})
+}
 </script>
