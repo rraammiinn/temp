@@ -76,6 +76,7 @@ for await (const rel of rels.value){
     lastChats.value[index]['lastChat'] = await pb.collection('messages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
     }catch{}
     lastChats.value[index]['user'] = (rel.follower == pb.authStore.model.id) ? rel.expand.following : rel.expand.follower
+    lastChats.value[index]['unseen'] = (await pb.collection('messages').getList(1, 1, {filter:`from = "${index}" && seen = false`, sort:'-created'}))
 }
 
 // function getUserFromId(id){

@@ -37,3 +37,7 @@
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
 }
+.v-chip__content{
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}

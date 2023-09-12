@@ -29,7 +29,7 @@
             :prepend-avatar="`/api/files/users/${lastChat.user.id}/${lastChat.user.avatar}`"
             :title="lastChat.user.name"
             :subtitle="lastChat.lastChat.text"
-          ></v-list-item>
+          ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;" v-if="lastChat.unseen.totalPages">{{ lastChat.unseen.totalPages }}</v-chip></div></template></v-list-item>
           <v-divider v-if="lastChat.lastChat"></v-divider>
         </div>
       </v-list>
