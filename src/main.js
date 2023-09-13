@@ -6,7 +6,7 @@ import PocketBase from 'pocketbase';
 
 import tgpMain from './pages/tgpMain.vue'
 import tgpSettings from './pages/tgpSettings.vue'
-import tgpContacts from './pages/tgContacts.vue'
+import tgpContacts from './pages/tgpContacts.vue'
 import tgpChat from './pages/tgpChat.vue'
 import tgpLogIn from './pages/tgpLogIn.vue'
 
