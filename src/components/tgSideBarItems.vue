@@ -1,8 +1,8 @@
 <template>
         <img style="margin-top: -1rem;width: 100%;" :src="`/api/files/users/${pb.authStore.model.id}/${pb.authStore.model.avatar}`" alt="">
         <v-divider/>
-        <v-list-item @click="currentPage='contacts';drawer=false" prepend-icon="mdi-contacts" title="contacts" value="contacts"></v-list-item>
-        <v-list-item @click="currentPage='settings';drawer=false" prepend-icon="mdi-tune" title="settings" value="settings"></v-list-item>
+        <v-list-item @click="$router.push('/contacts');drawer=false" prepend-icon="mdi-contacts" title="contacts" value="contacts"></v-list-item>
+        <v-list-item @click="$router.push('/settings');drawer=false" prepend-icon="mdi-tune" title="settings" value="settings"></v-list-item>
         <v-divider/>
         <v-list-item title="" value="">
             <div style="display: flex;align-items:center;align-content: center;">

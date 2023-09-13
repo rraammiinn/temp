@@ -1,5 +1,14 @@
-
+import {createRouter, createWebHashHistory, RouterView} from 'vue-router'
 import PocketBase from 'pocketbase';
+
+// import tgMainPage from './components/tgMainPage.vue'
+// import tgSettingsPage from './components/tgSettingsPage.vue'
+
+import tgpMain from './pages/tgpMain.vue'
+import tgpSettings from './pages/tgpSettings.vue'
+import tgpContacts from './pages/tgContacts.vue'
+import tgpChat from './pages/tgpChat.vue'
+import tgpLogIn from './pages/tgpLogIn.vue'
 
 const pb = new PocketBase('/');
 
@@ -32,7 +41,24 @@ const vuetify = createVuetify({
   directives,
 })
 
+const routes = [
+  { path: '/login', component: tgpLogIn },
+  { path: '/chat', component: tgpChat},
+  { path: '/contacts', component: tgpContacts },
+  { path: '/settings', component: tgpSettings },
+  { path: '/', component: tgpMain },
+
+]
+
 const app = createApp(App)
+
+
+const router = createRouter({
+  // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
+  history: createWebHashHistory(),
+  routes, // short for `routes: routes`
+})
+app.use(router)
 app.use(vuetify)
 
 registerPlugins(app)

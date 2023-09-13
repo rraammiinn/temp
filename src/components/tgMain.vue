@@ -13,7 +13,7 @@
           style="position: fixed;height: 100%;"
         >
           <v-list>
-            <slot name="sideBarItems"></slot>
+            <slot name="sideBarItems"><tg-side-bar-items></tg-side-bar-items></slot>
         </v-list>
         </v-navigation-drawer>
   
@@ -27,6 +27,8 @@
   
   <script setup>
     import { inject } from 'vue';
+
+    import tgSideBarItems from './tgSideBarItems.vue';
 
     const drawer=inject('drawer')
   </script>

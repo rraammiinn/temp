@@ -1,5 +1,5 @@
 <template>
-    <v-btn @click="currentPage='main'" variant="text" icon="mdi-arrow-left"></v-btn>
+    <v-btn @click="$router.back()" variant="text" icon="mdi-arrow-left"></v-btn>
     <v-toolbar-title>settings</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>

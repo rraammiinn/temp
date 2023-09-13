@@ -1,7 +1,7 @@
 <template>
   <div v-if="userSearch">
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-        <div v-for="user in users" @click="currentPage='chat';other=user;initChatId='';showUser=true;previousPage='contacts';" :key="user.id">
+        <div v-for="user in users" @click="currentPage='chat';other=user;initChatId='';showUser=true;previousPage='contacts';$router.push('/chat')" :key="user.id">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
             :title="user.name"
@@ -26,7 +26,7 @@
         </div></div>
   <div v-else>
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">contacts</h3>
-          <div v-for="contact in contacts" @click="currentPage='chat';other=contact.expand.following;initChatId='';showUser=true;previousPage='contacts';" :key="contact.following">
+          <div v-for="contact in contacts" @click="currentPage='chat';other=contact.expand.following;initChatId='';showUser=true;previousPage='contacts';$router.push('/chat')" :key="contact.following">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${contact.following}/${contact.expand.following.avatar}`"
             :title="contact.expand.following.name"

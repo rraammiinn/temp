@@ -1,5 +1,5 @@
 <template>
-    <v-btn @click="currentPage='main'" variant="text" icon="mdi-arrow-left"></v-btn>
+    <v-btn @click="$router.back()" variant="text" icon="mdi-arrow-left"></v-btn>
     <v-toolbar-title v-show="(!showSearch && !userSearch)">contacts</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-text-field v-show="(showSearch||userSearch)" style="margin-right: 1rem;"
