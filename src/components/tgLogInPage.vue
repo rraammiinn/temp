@@ -56,12 +56,12 @@ async function passwordLogIn(){
             email.value,
             password.value)
     }
-    if(authData) currentPage.value='main';
+    if(authData) {currentPage.value='main';$router.back()}
 }
 async function googleLogIn(){
     googleLogInLoading.value=true
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
-    if(authData) currentPage.value='main';
+    if(authData) {currentPage.value='main';$router.back()}
 }
 
 async function checkUserExistence(){

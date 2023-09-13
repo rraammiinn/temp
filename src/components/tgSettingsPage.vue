@@ -76,6 +76,7 @@ async function logIn(){
     // authData.value = await pb.collection('users').authWithOAuth2({ provider: 'google' });
     // isLoggedIn.value = pb.authStore.isValid
     currentPage.value='login'
+    $router.push('/login')
 }
 function logOut(){
     pb.authStore.clear();

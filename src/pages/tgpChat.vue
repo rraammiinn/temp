@@ -6,9 +6,13 @@
     </template>
     
     <script setup>
+    import { onBeforeUnmount } from 'vue';
+
     import tgMain from '../components/tgMain.vue';
     import tgChatAppBar from '../components/tgChatAppBar.vue';
     import tgChatPage from '../components/tgChatPage.vue';
+
+    onBeforeUnmount(()=>{setTimeout(() => {
+        console.log('unmounted...')
+    }, 5000);})
     </script>
-    
-    
