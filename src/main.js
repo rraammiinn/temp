@@ -42,11 +42,12 @@ const vuetify = createVuetify({
 })
 
 const routes = [
+  { path: '/', component: tgpMain },
   { path: '/login', component: tgpLogIn },
   { path: '/chat', component: tgpChat},
   { path: '/contacts', component: tgpContacts },
   { path: '/settings', component: tgpSettings },
-  { path: '/', component: tgpMain },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
 
 ]
 
