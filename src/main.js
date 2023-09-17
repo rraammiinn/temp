@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory, RouterView} from 'vue-router'
+import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 import PocketBase from 'pocketbase';
 
 // import tgMainPage from './components/tgMainPage.vue'
@@ -42,12 +42,13 @@ const vuetify = createVuetify({
 })
 
 const routes = [
-  { path: '/', component: tgpMain },
-  { path: '/login', component: tgpLogIn },
-  { path: '/chat', component: tgpChat},
-  { path: '/contacts', component: tgpContacts },
-  { path: '/settings', component: tgpSettings },
-  { path: '/:pathMatch(.*)*', redirect: '/' },
+  // {name:'admin', path: '/_', redirect: '/_'},
+  {name:'main', path: '/', component: tgpMain },
+  {name:'login', path: '/login', component: tgpLogIn },
+  {name:'chat', path: '/chat/:other', component: tgpChat, props:true },
+  {name:'contacts', path: '/contacts', component: tgpContacts },
+  {name:'settings', path: '/settings', component: tgpSettings },
+  // {name:'catchAll', path: '/:pathMatch(.*)*', redirect: '/' },
 
 ]
 
@@ -55,8 +56,16 @@ const app = createApp(App)
 
 
 const router = createRouter({
+  scrollBehavior:(to, from, savedPosition) => {
+    if (savedPosition) {
+      console.log(savedPosition)
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
   // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes, // short for `routes: routes`
 })
 app.use(router)

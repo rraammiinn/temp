@@ -22,7 +22,7 @@
 import pb from '@/main';
 import {inject} from 'vue';
 const dark=inject('dark')
-const currentPage=inject('currentPage')
+// const currentPage=inject('currentPage')
 const drawer=inject('drawer')
 
 

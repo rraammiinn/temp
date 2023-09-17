@@ -1,6 +1,6 @@
 <template>
     <v-btn @click="if(!showUser)$router.back();showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-    <v-avatar @click="showUser=true;previousPage='chat';" :image="`/api/files/users/${other.id}/${other.avatar}`"></v-avatar>
+    <v-avatar @click="showUser=true;previousPage='chat';" :image="`/api/files/users/${props.other}/${allMessages[props.other].other.avatar}`"></v-avatar>
     <!-- <v-list-item class="listItem" active-color="var(--tgBg)" @click="showUser=true;" :prepend-avatar="`/api/files/users/${other.id}/${other.avatar}`" :title="other.name" :subtitle="other.username"></v-list-item> -->
     <v-spacer></v-spacer>
     <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>
@@ -18,9 +18,12 @@
 <script setup>
 import {inject} from 'vue';
 const currentPage=inject('currentPage')
-const other=inject('other')
+// const other=inject('other')
+const props=defineProps(['other'])
+
 const showUser=inject('showUser')
 const previousPage=inject('previousPage')
+const allMessages=inject('allMessages')
 
 
 

@@ -6,9 +6,16 @@
     </template>
     
     <script setup>
+    import { provide, ref } from 'vue';
+
     import tgMain from '../components/tgMain.vue';
     import tgContactsAppBar from '../components/tgContactsAppBar.vue';
     import tgContactsPage from '../components/tgContactsPage.vue';
+
+    const userSearch=ref('')
+    provide('userSearch', userSearch)
+
+
     </script>
     
     

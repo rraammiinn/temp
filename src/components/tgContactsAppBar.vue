@@ -18,7 +18,7 @@
 
 <script setup>
 import {ref, inject} from 'vue';
-const currentPage=inject('currentPage')
+// const currentPage=inject('currentPage')
 const showSearch=ref(false)
 const userSearch=inject('userSearch')
 

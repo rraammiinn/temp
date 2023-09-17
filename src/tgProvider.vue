@@ -6,7 +6,7 @@
 import { ref, provide } from 'vue';
 import pb from './main';
 
-const other=ref()
+// const other=ref()
 const isLoggedIn = ref(pb.authStore.isValid)
 const contacts=ref(await pb.collection('rels').getFullList({
     sort: '-created',
@@ -82,23 +82,35 @@ for await (const rel of rels.value){
 // function getUserFromId(id){
 //     return users.value.find(u=>u.id==id)
 // }
-const userSearch=ref('')
-const chatSearch=ref('')
-const initChatId=ref('')
+// const userSearch=ref('')
+// const chatSearch=ref('')
+// const initChatId=ref('')
 const previousPage=ref('')
 console.log('last chats : ',lastChats.value)
 
 // provides ----------------------------------------------------------------
 
-provide('other', other)
+// provide('other', other)
 provide ('isLoggedIn', isLoggedIn)
 provide('contacts', contacts)
 provide('rels', rels)
-provide('userSearch', userSearch)
-provide('chatSearch', chatSearch)
-provide('initChatId', initChatId)
+// provide('userSearch', userSearch)
+// provide('chatSearch', chatSearch)
+// provide('initChatId', initChatId)
 provide('previousPage', previousPage)
 
 
+const allMessages=ref({})
+for await (const rel of rels.value){
+    var index=(rel.follower == pb.authStore.model.id) ? rel.following : rel.follower
+    allMessages.value[index] = {lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:false,lastSeen:null}
+    try{
+    allMessages.value[index]['lastMessage'] = JSON.parse(localStorage.getItem(`lastMessage_${index}`)) || await pb.collection('messages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
+    }catch{}
+    allMessages.value[index]['other'] = (rel.follower == pb.authStore.model.id) ? rel.expand.following : rel.expand.follower
+    // messages.value[index]['unseen'] = (await pb.collection('messages').getList(1, 1, {filter:`from = "${index}" && seen = false`, sort:'-created'}))
+}
 
+provide('allMessages', allMessages)
+console.log(allMessages.value)
 </script>

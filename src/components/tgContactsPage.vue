@@ -1,7 +1,7 @@
 <template>
   <div v-if="userSearch">
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-        <div v-for="user in users" @click="currentPage='chat';other=user;initChatId='';showUser=true;previousPage='contacts';$router.push('/chat')" :key="user.id">
+        <div v-for="user in users" @click="$router.push({name:'chat', params:{other:user,initChatId:'',showUser:true}})" :key="user.id">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
             :title="user.name"
@@ -26,7 +26,7 @@
         </div></div>
   <div v-else>
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">contacts</h3>
-          <div v-for="contact in contacts" @click="currentPage='chat';other=contact.expand.following;initChatId='';showUser=true;previousPage='contacts';$router.push('/chat')" :key="contact.following">
+          <div v-for="contact in contacts" @click="$router.push({name:'chat', params:{other:contact.expand.following,initChatId:'',showUser:true}})" :key="contact.following">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${contact.following}/${contact.expand.following.avatar}`"
             :title="contact.expand.following.name"
@@ -64,14 +64,14 @@ import pb from '@/main';
 
 
 
-const currentPage=inject('currentPage')
-const other=inject('other')
+// const currentPage=inject('currentPage')
+// const other=inject('other')
 // const users=inject('users')
 const userSearch=inject('userSearch')
 const users=ref()
-const initChatId=inject('initChatId')
-const showUser=inject('showUser')
-const previousPage=inject('previousPage')
+// const initChatId=inject('initChatId')
+// const showUser=inject('showUser')
+// const previousPage=inject('previousPage')
 
 
 
@@ -89,9 +89,9 @@ async function getContacts(){
 const contacts=ref(await getContacts())
 pb.collection('contacts').subscribe('*', async (e)=>{contacts.value=await getContacts()})
 
-function getUserFromId(id){
-    return users.value.find(u=>u.id==id)
-}
+// function getUserFromId(id){
+//     return users.value.find(u=>u.id==id)
+// }
 function getContactFromId(id){
   return contacts.value.find(contact=>contact.following==id)
 }

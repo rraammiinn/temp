@@ -8,7 +8,7 @@
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
-<div v-for="searchChat in searchChats" @click="initChatId=searchChat.id;previousPage='main';currentPage='chat';other=searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'];$router.push('/chat')">
+<div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{other:JSON.stringify(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']),initChatId:searchChat.id,showUser:false}})">
     <v-list-item class="listItem"
     :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
     :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
@@ -19,20 +19,30 @@
 </v-list>
 
 
+<v-list v-else :items="Object.keys(allMessages)"  item-props  lines="three">
+
+<div v-for="messages in allMessages" @click="$router.push({name:'chat',params:{other:messages.other.id},query:{showUser:false}})">
+    <v-list-item v-if="messages.lastMessage" class="listItem"
+    :prepend-avatar="`/api/files/users/${messages.other.id}/${messages.other.avatar}`"
+    :title="messages.other.name"
+    :subtitle="messages.lastMessage.text"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="true">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+  <v-divider v-if="messages.lastMessage"></v-divider>
+</div>
+</v-list>
 
 
+      <!-- <v-list v-else :items="Object.keys(lastChats)"  item-props  lines="three">
 
-      <v-list v-else :items="Object.keys(lastChats)"  item-props  lines="three">
-
-        <div v-for="lastChat in lastChats" @click="previousPage='main';currentPage='chat';other=lastChat.user;initChatId='';$router.push('/chat')">
+        <div v-for="lastChat in lastChats" @click="$router.push({name:'chat',params:{other:lastChat.user,initChatId:''}})">
             <v-list-item v-if="lastChat.lastChat" class="listItem"
             :prepend-avatar="`/api/files/users/${lastChat.user.id}/${lastChat.user.avatar}`"
             :title="lastChat.user.name"
             :subtitle="lastChat.lastChat.text"
-          ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;" v-if="lastChat.unseen.totalPages">{{ lastChat.unseen.totalPages }}</v-chip></div></template></v-list-item>
+          ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="lastChat.unseen.totalPages">{{ lastChat.unseen.totalPages }}</v-chip></div></template></v-list-item>
           <v-divider v-if="lastChat.lastChat"></v-divider>
         </div>
-      </v-list>
+      </v-list> -->
 
       <div v-show="showActionButton" style="position: fixed;bottom: 1.5rem;right: 1.5rem;display: flex;flex-direction: column;align-items: flex-end;">
         <div v-show="showActionButtonItems">
@@ -77,14 +87,14 @@
   import tgCreateChannelForm from './tgCreateChannelForm.vue'
 
 
-  const currentPage=inject('currentPage')
-  const other=inject('other')
+  // const currentPage=inject('currentPage')
+  // const other=inject('other')
   const lastChats=inject('lastChats')
-  const users=inject('users')
+  // const users=inject('users')
   const chatSearch=inject('chatSearch')
   const searchChats=ref([])
-  const initChatId=inject('initChatId')
-  const previousPage=inject('previousPage')
+  // const initChatId=inject('initChatId')
+  // const previousPage=inject('previousPage')
 
   const newGroup=ref({})
   const newChannel=ref({})
@@ -100,38 +110,38 @@ const showChannelCreationForm=ref(false)
   //tst...................................................
   import pb from '@/main';
 
-  pb.collection('messages').subscribe('*', function (e) {
-    console.log(e.record);
-    console.log('.................')
-    console.log(e)
-});
+//   pb.collection('messages').subscribe('*', function (e) {
+//     console.log(e.record);
+//     console.log('.................')
+//     console.log(e)
+// });
 
-  const pass=ref()
-  async function signIn(){
-    const authData = await pb.collection('users').authWithPassword(
-    pass.value,
-    'xxxxxxxxx'
-);
-  }
+//   const pass=ref()
+//   async function signIn(){
+//     const authData = await pb.collection('users').authWithPassword(
+//     pass.value,
+//     'xxxxxxxxx'
+// );
+//   }
 
-  async function getU(){
-    const u = await pb.collection('users').getFullList({
-    sort: '-created',
-});
-console.log(u)
-  }
+//   async function getU(){
+//     const u = await pb.collection('users').getFullList({
+//     sort: '-created',
+// });
+// console.log(u)
+//   }
 
-  async function getM(){
-    const m = await pb.collection('messages').getFullList({
-    sort: '-created',
-});
-console.log(m)
-  }
+//   async function getM(){
+//     const m = await pb.collection('messages').getFullList({
+//     sort: '-created',
+// });
+// console.log(m)
+//   }
 
 
-  function getUserFromId(id){
-    return users.value.find(u=>u.id==id)
-}
+//   function getUserFromId(id){
+//     return users.value.find(u=>u.id==id)
+// }
 
 watchEffect(async ()=>{
   if(chatSearch.value){
@@ -173,4 +183,8 @@ async function createNewChannel(){
   showChannelCreationForm.value=false
 
 }
+
+
+const allMessages=inject('allMessages')
+
   </script>

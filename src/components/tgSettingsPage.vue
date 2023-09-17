@@ -88,36 +88,36 @@ function logOut(){
 
 const fileInput=ref()
 
-const file = ref()
+// const file = ref()
 // const formData = new FormData();
 const name =ref(pb.authStore.model?.name)
 const bio =ref(pb.authStore.model?.bio)
 
 
-async function upload()
-{
-    const pickerOpts = {
-  types: [
-    {
-      description: "avatar",
-      accept: {
-        "image/*": [],
-      },
-    },
-  ],
-  excludeAcceptAllOption: true,
-  multiple: false,
-};
+// async function upload()
+// {
+//     const pickerOpts = {
+//   types: [
+//     {
+//       description: "avatar",
+//       accept: {
+//         "image/*": [],
+//       },
+//     },
+//   ],
+//   excludeAcceptAllOption: true,
+//   multiple: false,
+// };
 
-    var formData = new FormData();
-    const handler = await window.showOpenFilePicker(pickerOpts)
-    const image = await handler[0].getFile()
-    console.log(image)
+//     var formData = new FormData();
+//     const handler = await window.showOpenFilePicker(pickerOpts)
+//     const image = await handler[0].getFile()
+//     console.log(image)
 
-    formData.append('avatar', image);
-    await pb.collection('users').update(pb.authStore.model.id, formData);
+//     formData.append('avatar', image);
+//     await pb.collection('users').update(pb.authStore.model.id, formData);
 
-}
+// }
 
 
 

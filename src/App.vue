@@ -5,8 +5,8 @@
 
 
       <suspense>
-        <tg-log-in-page v-if="currentPage=='login'"></tg-log-in-page>
-  <tg-provider v-else>
+        <!-- <tg-log-in-page v-if="currentPage=='login'"></tg-log-in-page> -->
+  <tg-provider>
       <!-- <tg-main> -->
         <router-view></router-view>
 
@@ -25,20 +25,20 @@
 <script setup>
 import pb from '@/main';
 import { ref, provide } from 'vue';
-import tgMain from './components/tgMain.vue';
-import tgSideBarItems from './components/tgSideBarItems.vue';
-import tgMainAppBar from './components/tgMainAppBar.vue';
-import tgChatAppBar from './components/tgChatAppBar.vue';
-import tgSettingsAppBar from './components/tgSettingsAppBar.vue';
-import tgMainPage from './components/tgMainPage.vue';
-import tgChatPage from './components/tgChatPage.vue';
-import tgSettingsPage from './components/tgSettingsPage.vue';
-import tgContactsPage from './components/tgContactsPage.vue';
-import tgContactsAppBar from './components/tgContactsAppBar.vue';
+// import tgMain from './components/tgMain.vue';
+// import tgSideBarItems from './components/tgSideBarItems.vue';
+// import tgMainAppBar from './components/tgMainAppBar.vue';
+// import tgChatAppBar from './components/tgChatAppBar.vue';
+// import tgSettingsAppBar from './components/tgSettingsAppBar.vue';
+// import tgMainPage from './components/tgMainPage.vue';
+// import tgChatPage from './components/tgChatPage.vue';
+// import tgSettingsPage from './components/tgSettingsPage.vue';
+// import tgContactsPage from './components/tgContactsPage.vue';
+// import tgContactsAppBar from './components/tgContactsAppBar.vue';
 import tgProvider from './tgProvider.vue';
-import tgUserPage from './components/tgUserPage.vue';
-import tgUserAppBar from './components/tgUserAppBar.vue';
-import tgLogInPage from './components/tgLogInPage.vue';
+// import tgUserPage from './components/tgUserPage.vue';
+// import tgUserAppBar from './components/tgUserAppBar.vue';
+// import tgLogInPage from './components/tgLogInPage.vue';
 
 // import tst from './components/tst.vue';
 
@@ -48,12 +48,12 @@ provide('dark', dark)
 provide('drawer', drawer)
 
 
-const currentPage=ref(pb.authStore.isValid ? 'main' : 'login')
-provide('currentPage', currentPage)
+// const currentPage=ref(pb.authStore.isValid ? 'main' : 'login')
+// provide('currentPage', currentPage)
 
 
-const showUser=ref(false)
-provide('showUser', showUser)
+// const showUser=ref(false)
+// provide('showUser', showUser)
 
 
 </script>
