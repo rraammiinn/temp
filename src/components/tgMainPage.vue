@@ -8,7 +8,7 @@
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
-<div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{other:JSON.stringify(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']),initChatId:searchChat.id,showUser:false}})">
+<div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{other:(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initChatId:searchChat.id,showUser:false}})">
     <v-list-item class="listItem"
     :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
     :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"

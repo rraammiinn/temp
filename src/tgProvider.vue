@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { ref, provide } from 'vue';
+import { ref, provide, onUnmounted } from 'vue';
 import pb from './main';
 
 // const other=ref()
@@ -113,4 +113,12 @@ for await (const rel of rels.value){
 
 provide('allMessages', allMessages)
 console.log(allMessages.value)
+
+
+
+
+
+
+
+setInterval(()=>{pb.collection('users').update(pb.authStore.model.id,{lastseen:new Date().toISOString().replace('T',' ')})},5000)
 </script>

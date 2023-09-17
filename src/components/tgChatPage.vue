@@ -60,9 +60,9 @@
       <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
 
       <div style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
-        <v-chip v-for="handler in handlers" :key="handler"
+        <v-chip v-for="file in files" :key="file"
 
-        @click:close="removeFile(handler)"
+        @click:close="removeFile(file)"
       class="ma-2"
       closable
       color="var(--tgBrown)"
@@ -70,7 +70,7 @@
       prepend-icon="mdi-image"
       :model-value="true"
     >
-      {{ handler.name }}
+      {{ file.name }}
     </v-chip>
       </div>
 
