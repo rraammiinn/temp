@@ -13,13 +13,10 @@
     import tgChatAppBar from '../components/tgChatAppBar.vue';
     import tgChatPage from '../components/tgChatPage.vue';
 
-    // const props=defineProps(['other', 'initChatId', 'showUser'])
     const route=useRoute()
     console.log(route)
     const showUser=ref(route.query.showUser=='true')
-    // const chatSearch=ref('')
     provide('showUser', showUser)
-    // provide('chatSearch', chatSearch)
 
 
     </script>

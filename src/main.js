@@ -1,5 +1,7 @@
 import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 import PocketBase from 'pocketbase';
+import { createPinia } from 'pinia'
+
 
 // import tgMainPage from './components/tgMainPage.vue'
 // import tgSettingsPage from './components/tgSettingsPage.vue'
@@ -68,6 +70,10 @@ const router = createRouter({
   history: createWebHistory(),
   routes, // short for `routes: routes`
 })
+
+const pinia = createPinia()
+
+app.use(pinia)
 app.use(router)
 app.use(vuetify)
 

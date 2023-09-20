@@ -6,8 +6,6 @@
 
 <script setup>
 import {inject} from 'vue';
-// const currentPage=inject('currentPage')
 const showUser=inject('showUser')
-// const previousPage=inject('previousPage')
 
 </script>

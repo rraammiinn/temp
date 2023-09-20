@@ -64,19 +64,13 @@ import pb from '@/main';
 
 
 
-// const currentPage=inject('currentPage')
-// const other=inject('other')
-// const users=inject('users')
+
 const userSearch=inject('userSearch')
 const users=ref()
-// const initChatId=inject('initChatId')
-// const showUser=inject('showUser')
-// const previousPage=inject('previousPage')
 
 
 
 
-// const contacts=inject('contacts')
 async function addContact(contact){
   await pb.collection('contacts').create({follower:pb.authStore.model.id, following:contact})
 }
@@ -89,9 +83,7 @@ async function getContacts(){
 const contacts=ref(await getContacts())
 pb.collection('contacts').subscribe('*', async (e)=>{contacts.value=await getContacts()})
 
-// function getUserFromId(id){
-//     return users.value.find(u=>u.id==id)
-// }
+
 function getContactFromId(id){
   return contacts.value.find(contact=>contact.following==id)
 }
@@ -99,7 +91,6 @@ function getContactFromId(id){
 
 const contactIds=computed(()=>contacts.value.map(contact=>contact.following))
 
-// const users=computed(async ()=>{return await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})})
 watchEffect(async ()=>{
   if(userSearch.value){
     users.value=await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})

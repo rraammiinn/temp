@@ -1,9 +1,5 @@
 <template>
 
-    <!-- <v-text-field v-model="pass"></v-text-field>
-    <v-btn @click="signIn">sign in</v-btn>
-    <v-btn @click="getU"> get u</v-btn>
-    <v-btn @click="getM">get m</v-btn> -->
 
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
@@ -32,17 +28,6 @@
 </v-list>
 
 
-      <!-- <v-list v-else :items="Object.keys(lastChats)"  item-props  lines="three">
-
-        <div v-for="lastChat in lastChats" @click="$router.push({name:'chat',params:{other:lastChat.user,initChatId:''}})">
-            <v-list-item v-if="lastChat.lastChat" class="listItem"
-            :prepend-avatar="`/api/files/users/${lastChat.user.id}/${lastChat.user.avatar}`"
-            :title="lastChat.user.name"
-            :subtitle="lastChat.lastChat.text"
-          ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ lastChat.lastChat.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="lastChat.unseen.totalPages">{{ lastChat.unseen.totalPages }}</v-chip></div></template></v-list-item>
-          <v-divider v-if="lastChat.lastChat"></v-divider>
-        </div>
-      </v-list> -->
 
       <div v-show="showActionButton" style="position: fixed;bottom: 1.5rem;right: 1.5rem;display: flex;flex-direction: column;align-items: flex-end;">
         <div v-show="showActionButtonItems">
@@ -63,6 +48,13 @@
   </template>
 
 <style scoped>
+.listItem{
+  border-left: solid;
+  border-color: transparent;
+}
+.online{
+  border-color: var(--tgGreen);
+}
 .listItem:hover{
     color: var(--tgPrimary);
     background-color:var(--tgPrimaryHover);
@@ -87,14 +79,9 @@
   import tgCreateChannelForm from './tgCreateChannelForm.vue'
 
 
-  // const currentPage=inject('currentPage')
-  // const other=inject('other')
   const lastChats=inject('lastChats')
-  // const users=inject('users')
   const chatSearch=inject('chatSearch')
   const searchChats=ref([])
-  // const initChatId=inject('initChatId')
-  // const previousPage=inject('previousPage')
 
   const newGroup=ref({})
   const newChannel=ref({})
@@ -107,41 +94,7 @@ const showChannelCreationForm=ref(false)
 
   var startScrollTop=0
   onMounted(()=>{document.querySelector('.v-layout>.v-main').addEventListener('scroll',(e)=>{showActionButton.value = startScrollTop > e.target.scrollTop;startScrollTop=e.target.scrollTop;showActionButtonItems.value=false;},{passive:true})})
-  //tst...................................................
   import pb from '@/main';
-
-//   pb.collection('messages').subscribe('*', function (e) {
-//     console.log(e.record);
-//     console.log('.................')
-//     console.log(e)
-// });
-
-//   const pass=ref()
-//   async function signIn(){
-//     const authData = await pb.collection('users').authWithPassword(
-//     pass.value,
-//     'xxxxxxxxx'
-// );
-//   }
-
-//   async function getU(){
-//     const u = await pb.collection('users').getFullList({
-//     sort: '-created',
-// });
-// console.log(u)
-//   }
-
-//   async function getM(){
-//     const m = await pb.collection('messages').getFullList({
-//     sort: '-created',
-// });
-// console.log(m)
-//   }
-
-
-//   function getUserFromId(id){
-//     return users.value.find(u=>u.id==id)
-// }
 
 watchEffect(async ()=>{
   if(chatSearch.value){

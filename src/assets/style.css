@@ -19,6 +19,7 @@ html{
   --tgPrimaryHover:rgba(24, 103, 192, .063);
   --tgBg:white;
   --tgBrown:#ffca95;
+  --tgGreen:#36ff9b;
 }
 
 .dark *{
@@ -45,4 +46,9 @@ html{
 .v-chip__content{
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+.v-badge__badge{
+  height: 1rem;
+  font-size: .5rem;
+  font-weight: bold;
 }

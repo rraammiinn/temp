@@ -1,12 +1,12 @@
 <template>
 
-  <v-app :class="{'dark':dark}" :theme="dark ? 'dark' : 'light'">
+  <v-app :class="{'dark':dark}" :theme="getTheme">
     <v-main>
 
 
       <suspense>
-        <!-- <tg-log-in-page v-if="currentPage=='login'"></tg-log-in-page> -->
-  <tg-provider>
+        <tg-log-in-page v-if="!pb.authStore?.isValid"></tg-log-in-page>
+  <tg-provider v-else>
       <!-- <tg-main> -->
         <router-view></router-view>
 
@@ -38,13 +38,14 @@ import { ref, provide } from 'vue';
 import tgProvider from './tgProvider.vue';
 // import tgUserPage from './components/tgUserPage.vue';
 // import tgUserAppBar from './components/tgUserAppBar.vue';
-// import tgLogInPage from './components/tgLogInPage.vue';
+import tgLogInPage from './components/tgLogInPage.vue';
+// import { tgpLogIn } from "./pages/tgpLogIn.vue";
 
 // import tst from './components/tst.vue';
 
-const dark=ref(localStorage.getItem('tgDark') == 'true')
+// const dark=ref(localStorage.getItem('tgDark') == 'true')
 const drawer= ref(false);
-provide('dark', dark)
+// provide('dark', dark)
 provide('drawer', drawer)
 
 
@@ -54,6 +55,11 @@ provide('drawer', drawer)
 
 // const showUser=ref(false)
 // provide('showUser', showUser)
+
+import {storeToRefs} from 'pinia'
+import {useSettingsStore} from '@/store/settingsStore'
+
+const {getTheme}=storeToRefs(useSettingsStore())
 
 
 </script>

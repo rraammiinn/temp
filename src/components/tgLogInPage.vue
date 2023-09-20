@@ -13,10 +13,9 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
 import pb from '@/main';
 
-const currentPage=inject('currentPage')
 
 const passwordLogInLoading=ref(false)
 const googleLogInLoading=ref(false)
@@ -56,12 +55,12 @@ async function passwordLogIn(){
             email.value,
             password.value)
     }
-    if(authData) {currentPage.value='main';$router.back()}
+    if(authData) {$router.back()}
 }
 async function googleLogIn(){
     googleLogInLoading.value=true
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
-    if(authData) {currentPage.value='main';$router.back()}
+    if(authData) {$router.back()}
 }
 
 async function checkUserExistence(){

@@ -7,5 +7,4 @@
 
 <script setup>
 import { inject, ref } from 'vue';
-// const currentPage=inject('currentPage')
 </script>
