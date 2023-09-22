@@ -1,22 +1,22 @@
 <template>
-  <tg-user-page :other="allMessages[props.other].other" v-show="showUser"></tg-user-page>
+  <tg-user-page :other="allChatMessages[props.other].other" v-show="showUser"></tg-user-page>
 
 <div class="main">
 
   <div ref="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
     <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
-    <template v-for="chat,i in allMessages[props.other].messages" :key="chat.id">
-      <v-chip v-if="chat.created.slice(0,10) != allMessages[props.other].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ chat.created.slice(0,10) }}</v-chip>
-    <v-card :id="chat.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(chat.from==pb.authStore.model.id), card:true}"  :text="chat.text" :title="((chat.from==pb.authStore.model.id) ? pb.authStore.model : props.other).name" :prepend-avatar="`/api/files/users/${chat.from}/${((chat.from==pb.authStore.model.id) ? pb.authStore.model : allMessages[props.other].other).avatar}`">
-      <v-divider v-if="chat.files.length"></v-divider>
-      <div v-if="chat.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
-        <template  v-for="file in chat.files" :key="file">
-          <img @click="sheet = !sheet;image=`/api/files/messages/${chat.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${chat.id}/${file}`">
+    <template v-for="message,i in allChatMessages[props.other].messages" :key="message.id">
+      <v-chip v-if="message.created.slice(0,10) != allChatMessages[props.other].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
+    <v-card :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.other).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.other].other).avatar}`">
+      <v-divider v-if="message.files.length"></v-divider>
+      <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
+        <template  v-for="file in message.files" :key="file">
+          <img @click="sheet = !sheet;image=`/api/files/messages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${message.id}/${file}`">
         </template>
       </div>
       <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
-        <span>{{chat.created.slice(11,16)}}</span>
-        <v-icon v-if="chat.from==pb.authStore.model.id" :icon="chat.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
+        <span>{{message.created.slice(11,16)}}</span>
+        <v-icon v-if="message.from==pb.authStore.model.id" :icon="message.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
       </div>
     </v-card>
 </template>
@@ -104,9 +104,14 @@
 <script setup>
 import { ref, inject, onMounted, computed, onUpdated } from 'vue';
 import pb from '@/main';
+import {storeToRefs} from 'pinia'
+
+import {useDataStore} from '@/store/dataStore'
+
+const{rels,allChatMessages}=storeToRefs(useDataStore())
 
 const props=defineProps(['other', 'initChatId'])
-const allMessages=inject('allMessages')
+// const allChatMessages=inject('allChatMessages')
 const scrollable=ref();
 
 const showGoToBottom=ref(false)
@@ -131,8 +136,7 @@ function removeFile(file){
   console.log(files.value)
 }
 
-const users=inject('users')
-const rels=inject('rels')
+// const rels=inject('rels')
 
 
 var isInRel=false
@@ -161,7 +165,7 @@ async function send(){
     }
 
     
-    const record = await pb.collection('messages').create(formData);
+    const record = await pb.collection('chatMessages').create(formData);
     msg.value=''
     files.value=[]
 
@@ -181,33 +185,31 @@ var endEnabled=true
 
 
 
-const chats=ref([])
-const newChats=ref([])
-var initChat=[]
+
 var searchedMessage;
 
 try{
-  allMessages.value[props.other].messages=JSON.parse(localStorage.getItem(`messages_${props.other}`))
+  allChatMessages.value[props.other].messages=JSON.parse(localStorage.getItem(`messages_${props.other}`))
   if(props.initChatId){
-    searchedMessage= allMessages.value[props.other].messages?.find((msg)=>{msg.id==props.initChatId})
+    searchedMessage= allChatMessages.value[props.other].messages?.find((msg)=>{msg.id==props.initChatId})
     if(!searchedMessage){
-      searchedMessage=await pb.collection('messages').getOne(props.initChatId);
-      allMessages.value[props.other].messages=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created <= "${searchedMessage.created}"`, sort: '-created'})).items.reverse();
+      searchedMessage=await pb.collection('chatMessages').getOne(props.initChatId);
+      allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created <= "${searchedMessage.created}"`, sort: '-created'})).items.reverse();
     }
   }
   else{
-    if(!allMessages.value[props.other].messages?.length){
-      allMessages.value[props.other].messages=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: 'created'})).items;
+    if(!allChatMessages.value[props.other].messages?.length){
+      allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: 'created'})).items;
     }
   }
 
 
-  if(allMessages.value[props.other].messages.length<10){
+  if(allChatMessages.value[props.other].messages.length<10){
     startEnabled=false;
     isTop=false;
     try{
-      const extraChats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created > "${allMessages.value[props.other].messages[allMessages.value[props.other].messages.length-1].created}"`, sort: 'created'})).items
-      allMessages.value[props.other].messages=[...allMessages.value[props.other].messages, ...extraChats]
+      const extraChats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created > "${allChatMessages.value[props.other].messages[allChatMessages.value[props.other].messages.length-1].created}"`, sort: 'created'})).items
+      allChatMessages.value[props.other].messages=[...allChatMessages.value[props.other].messages, ...extraChats]
     }
     catch{}
   }
@@ -217,15 +219,15 @@ catch(e){
   console.log('errrooooorrr..... : ',e)
   startEnabled=false;
   isTop=false;
-  allMessages.value[props.other].messages=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: 'created'})).items
+  allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: 'created'})).items
 }
 
-if(allMessages.value[props.other].messages.length<10){
+if(allChatMessages.value[props.other].messages.length<10){
   endEnabled=false;
 subscribeToNewChats()}
 
 console.log(props)
-console.log(allMessages.value)
+console.log(allChatMessages.value)
 
 
 onMounted(()=>{if(props.initChatId){document.getElementById(props.initChatId)?.scrollIntoView({block:'center'});}else{chatsContainer.value?.scrollIntoView({block:'center'});}})
@@ -247,9 +249,9 @@ function scrollHandler(e){
 async function getPreviousChats(e){
   try{
     isTop=true
-    const previous10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created < "${allMessages.value[props.other].messages[0].created}"`, sort: '-created'})).items.reverse()
+    const previous10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created < "${allChatMessages.value[props.other].messages[0].created}"`, sort: '-created'})).items.reverse()
     if(previous10Chats.length<10){startEnabled=false;isTop=false};
-      allMessages.value[props.other].messages=[...previous10Chats, ...allMessages.value[props.other].messages]
+      allChatMessages.value[props.other].messages=[...previous10Chats, ...allChatMessages.value[props.other].messages]
 
 
     }
@@ -259,8 +261,8 @@ async function getPreviousChats(e){
 async function getNextChats(){
     try{
       isTop=false
-      const new10Chats=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created > "${allMessages.value[props.other].messages[allMessages.value[props.other].messages.length-1].created}"`, sort: 'created'})).items
-      allMessages.value[props.other].messages=[...allMessages.value[props.other].messages, ...new10Chats]
+      const new10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created > "${allChatMessages.value[props.other].messages[allChatMessages.value[props.other].messages.length-1].created}"`, sort: 'created'})).items
+      allChatMessages.value[props.other].messages=[...allChatMessages.value[props.other].messages, ...new10Chats]
       if(new10Chats.length<10){
   endEnabled=false;
 subscribeToNewChats()}
@@ -284,18 +286,18 @@ async function goToBottom(){
   if(endEnabled){
   startEnabled=true
   endEnabled=false
-  allMessages.value[props.other].messages=(await pb.collection('messages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: '-created'})).items.reverse()
+  allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: '-created'})).items.reverse()
   isGoToBottom=true
   subscribeToNewChats()
-  if(allMessages.value[props.other].messages.length<10)startEnabled=false;}
+  if(allChatMessages.value[props.other].messages.length<10)startEnabled=false;}
   else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
 }
 var startScrollTop=0
 
 function subscribeToNewChats(){
-  pb.collection('messages').subscribe('*', function (e) {
+  pb.collection('chatMessages').subscribe('*', function (e) {
     if(e.action=='create' && (e.record.from == props.other || e.record.to == props.other)){
-      allMessages.value[props.other].messages.push(e.record)
+      allChatMessages.value[props.other].messages.push(e.record)
     }})
 }
 

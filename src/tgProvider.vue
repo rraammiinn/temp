@@ -19,7 +19,7 @@ const contacts=ref(await pb.collection('rels').getFullList({
 const lastChats=ref({})
 provide('lastChats', lastChats)
 
-const chats = ref(await pb.collection('messages').getFullList({
+const chats = ref(await pb.collection('chatMessages').getFullList({
     sort: 'created',
 }));
 
@@ -27,7 +27,7 @@ const chats = ref(await pb.collection('messages').getFullList({
 //     lastChats.value[(chat.from == pb.authStore?.model?.id) ? chat.to : chat.from]=chat
 // }
 
-pb.collection('messages').subscribe('*', function (e) {
+pb.collection('chatMessages').subscribe('*', function (e) {
     if(e.action=='create'){
         chats.value.push(e.record)
         lastChats.value[(e.record.from == pb.authStore?.model?.id) ? e.record.to : e.record.from].lastChat=e.record
@@ -73,10 +73,10 @@ for await (const rel of rels.value){
     var index=(rel.follower == pb.authStore?.model?.id) ? rel.following : rel.follower
     lastChats.value[index] = {lastChat:null,user:null}
     try{
-    lastChats.value[index]['lastChat'] = await pb.collection('messages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
+    lastChats.value[index]['lastChat'] = await pb.collection('chatMessages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
     }catch{}
     lastChats.value[index]['user'] = (rel.follower == pb.authStore?.model?.id) ? rel.expand.following : rel.expand.follower
-    lastChats.value[index]['unseen'] = (await pb.collection('messages').getList(1, 1, {filter:`from = "${index}" && seen = false`, sort:'-created'}))
+    lastChats.value[index]['unseen'] = (await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${index}" && seen = false`, sort:'-created'}))
 }
 
 // function getUserFromId(id){
@@ -105,10 +105,10 @@ for await (const rel of rels.value){
     var index=(rel.follower == pb.authStore?.model?.id) ? rel.following : rel.follower
     allMessages.value[index] = {lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:false,lastSeen:null}
     try{
-    allMessages.value[index]['lastMessage'] = JSON.parse(localStorage.getItem(`lastMessage_${index}`)) || await pb.collection('messages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
+    allMessages.value[index]['lastMessage'] = JSON.parse(localStorage.getItem(`lastMessage_${index}`)) || await pb.collection('chatMessages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
     }catch{}
     allMessages.value[index]['other'] = (rel.follower == pb.authStore?.model?.id) ? rel.expand.following : rel.expand.follower
-    // messages.value[index]['unseen'] = (await pb.collection('messages').getList(1, 1, {filter:`from = "${index}" && seen = false`, sort:'-created'}))
+    // messages.value[index]['unseen'] = (await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${index}" && seen = false`, sort:'-created'}))
 }
 
 provide('allMessages', allMessages)

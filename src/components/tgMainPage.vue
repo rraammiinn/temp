@@ -5,7 +5,7 @@
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
 <div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{other:(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initChatId:searchChat.id,showUser:false}})">
-    <v-list-item class="listItem"
+    <v-list-item class="listItem" :class="{online:allMessagesSorted[(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
     :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
     :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
     :subtitle="searchChat.text"
@@ -15,10 +15,10 @@
 </v-list>
 
 
-<v-list v-else :items="Object.keys(allMessages)"  item-props  lines="three">
+<v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
 
-<div v-for="messages in allMessages" @click="$router.push({name:'chat',params:{other:messages.other.id},query:{showUser:false}})">
-    <v-list-item v-if="messages.lastMessage" class="listItem"
+<div v-for="messages in allMessagesSorted" @click="$router.push({name:'chat',params:{other:messages.other.id},query:{showUser:false}})">
+    <v-list-item v-if="messages.lastMessage" class="listItem" :class="{online:messages.isOnline}"
     :prepend-avatar="`/api/files/users/${messages.other.id}/${messages.other.avatar}`"
     :title="messages.other.name"
     :subtitle="messages.lastMessage.text"
@@ -79,7 +79,6 @@
   import tgCreateChannelForm from './tgCreateChannelForm.vue'
 
 
-  const lastChats=inject('lastChats')
   const chatSearch=inject('chatSearch')
   const searchChats=ref([])
 
@@ -98,7 +97,7 @@ const showChannelCreationForm=ref(false)
 
 watchEffect(async ()=>{
   if(chatSearch.value){
-    searchChats.value=await pb.collection('messages').getFullList({filter:`text ~ "${chatSearch.value}"`,expand:'from,to'})
+    searchChats.value=await pb.collection('chatMessages').getFullList({filter:`text ~ "${chatSearch.value}"`,expand:'from,to'})
   }
 })
 
@@ -138,6 +137,11 @@ async function createNewChannel(){
 }
 
 
-const allMessages=inject('allMessages')
+// const allMessagesSorted=inject('allMessagesSorted')
+
+import {storeToRefs} from 'pinia'
+import {useDataStore} from '@/store/dataStore'
+const {allMessagesSorted}=storeToRefs(useDataStore())
+
 
   </script>

@@ -52,3 +52,6 @@ html{
   font-size: .5rem;
   font-weight: bold;
 }
+.v-list{
+  padding: 0 !important;
+}
