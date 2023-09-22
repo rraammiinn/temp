@@ -16,7 +16,7 @@
       </div>
       <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
         <span>{{message.created.slice(11,16)}}</span>
-        <v-icon v-if="message.from==pb.authStore.model.id" :icon="message.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
+        <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() < new Date(lastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon>
       </div>
     </v-card>
 </template>
@@ -111,7 +111,6 @@ import {useDataStore} from '@/store/dataStore'
 const{rels,allChatMessages}=storeToRefs(useDataStore())
 
 const props=defineProps(['other', 'initChatId'])
-// const allChatMessages=inject('allChatMessages')
 const scrollable=ref();
 
 const showGoToBottom=ref(false)
@@ -136,13 +135,13 @@ function removeFile(file){
   console.log(files.value)
 }
 
-// const rels=inject('rels')
-
+const lastSeen=ref('0')
+try{lastSeen.value=pb.collection('rels').getFirstListItem(`follower = "${props.other}" && following = "${pb.authStore.model.id}"`).lastSeen}catch{}
 
 var isInRel=false
-for(const rel of rels.value){
-  if(rel.follower == props.other || rel.following == props.other) {isInRel=true;}
-}
+// for(const rel of rels.value){
+//   if(rel.follower == props.other || rel.following == props.other) {isInRel=true;}
+// }
 
 const files=ref([]);
 
@@ -150,7 +149,10 @@ const files=ref([]);
 
 async function send(){
   if(!isInRel){
-    await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.other})
+    try{await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.other})}catch{}
+    try{await pb.collection('rels').create({follower:props.other, following:pb.authStore.model.id})}catch{}
+    isInRel=true
+    // await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.other})
   }
     var formData = new FormData();
     console.log(props.other)
@@ -176,7 +178,7 @@ const msg=ref('')
 
 
 import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
-import TgUserPage from './tgUserPage.vue';
+import tgUserPage from './tgUserPage.vue';
 
 const sheet=ref(false)
 const image=ref('')
