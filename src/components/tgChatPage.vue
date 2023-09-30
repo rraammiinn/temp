@@ -1,5 +1,5 @@
 <template>
-  <tg-user-page :otherId="allChatMessages[props.otherId].other" v-show="showUser"></tg-user-page>
+  <tg-user-details :otherId="allChatMessages[props.otherId].other" v-show="showUser"></tg-user-details>
 
 <div class="main">
 
