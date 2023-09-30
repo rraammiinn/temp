@@ -210,10 +210,10 @@ function scrollHandler(e){
 async function getPreviousMessages(e){
   try{
     isTop=true
-    // const previous10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created < "${allChatMessages.value[props.otherId].messages[0].created}"`, sort: '-created'})).items.reverse()
-    const previous10Chats= await getChatMessages(props.otherId,{endDate:allChatMessages.value[props.otherId].messages[0].created})
-    if(previous10Chats.length<10){startEnabled=false;isTop=false};
-      allChatMessages.value[props.otherId].messages=[...previous10Chats, ...allChatMessages.value[props.otherId].messages]
+    // const previous10Messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created < "${allChatMessages.value[props.otherId].messages[0].created}"`, sort: '-created'})).items.reverse()
+    const previous10Messages= await getChatMessages(props.otherId,{endDate:allChatMessages.value[props.otherId].messages[0].created})
+    if(previous10Messages.length<10){startEnabled=false;isTop=false};
+      allChatMessages.value[props.otherId].messages=[...previous10Messages, ...allChatMessages.value[props.otherId].messages]
 
 
     }
@@ -223,10 +223,10 @@ async function getPreviousMessages(e){
 async function getNextMessages(){
     try{
       isTop=false
-      // const new10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created > "${allChatMessages.value[props.otherId].messages.at(-1).created}"`, sort: 'created'})).items
-      const new10Chats= await getChatMessages(props.otherId,{startDate:allChatMessages.value[props.otherId].messages.at(-1).created})
-      allChatMessages.value[props.otherId].messages=[...allChatMessages.value[props.otherId].messages, ...new10Chats]
-      if(new10Chats.length<10){
+      // const new10Messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created > "${allChatMessages.value[props.otherId].messages.at(-1).created}"`, sort: 'created'})).items
+      const new10Messages= await getChatMessages(props.otherId,{startDate:allChatMessages.value[props.otherId].messages.at(-1).created})
+      allChatMessages.value[props.otherId].messages=[...allChatMessages.value[props.otherId].messages, ...new10Messages]
+      if(new10Messages.length<10){
   endEnabled=false;
 subscribeToNewMessages()}
     }
