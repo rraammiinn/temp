@@ -7,7 +7,7 @@
       <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
       <template v-for="message,i in allGroupMessages[props.groupId].messages" :key="message.id">
         <v-chip v-if="message.created.slice(0,10) != allGroupMessages[props.groupId].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
-      <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="message.expand.from.name" :prepend-avatar="`/api/files/groups/${message.from}/${message.expand.from.avatar}`">
+      <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="(allGroupMessages[props.groupId].groupMems[message.from]).name" :prepend-avatar="`/api/files/groups/${message.from}/${(allGroupMessages[props.groupId].groupMems[message.from]).avatar}`">
         <v-divider v-if="message.files.length"></v-divider>
         <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
           <template  v-for="file in message.files" :key="file">
