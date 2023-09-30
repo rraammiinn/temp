@@ -1,8 +1,6 @@
 <template>
-    <tg-main>
-    <template #main><suspense><tg-log-in-page></tg-log-in-page></suspense></template>
-    </tg-main>
-    </template>
+    <suspense><tg-log-in-page></tg-log-in-page></suspense>
+</template>
     
     <script setup>
     import tgMain from '../components/tgMain.vue';

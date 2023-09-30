@@ -16,6 +16,12 @@
 import { ref } from 'vue';
 import pb from '@/main';
 
+import {useAuthStore} from '@/store/authStore';
+import { useRouter } from 'vue-router';
+
+const router=useRouter()
+
+const {updateLogInState,updateAuthData}=useAuthStore()
 
 const passwordLogInLoading=ref(false)
 const googleLogInLoading=ref(false)
@@ -55,12 +61,12 @@ async function passwordLogIn(){
             email.value,
             password.value)
     }
-    if(authData) {$router.back()}
+    if(authData) {updateLogInState();updateAuthData();router.back()}
 }
 async function googleLogIn(){
     googleLogInLoading.value=true
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
-    if(authData) {$router.back()}
+    if(authData) {updateLogInState();updateAuthData();router.back()}
 }
 
 async function checkUserExistence(){

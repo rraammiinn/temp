@@ -4,7 +4,7 @@
 
     <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
 
-<div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{other:(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initChatId:searchChat.id,showUser:false}})">
+<div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{otherId:(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchChat.id,showUser:false}})">
     <v-list-item class="listItem" :class="{online:allMessagesSorted[(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
     :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
     :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
@@ -17,7 +17,7 @@
 
 <v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
 
-<div v-for="messages in allMessagesSorted" @click="$router.push({name:'chat',params:{other:messages.other.id},query:{showUser:false}})">
+<div v-for="messages in allMessagesSorted" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})">
     <v-list-item v-if="messages.lastMessage" class="listItem" :class="{online:messages.isOnline}"
     :prepend-avatar="`/api/files/users/${messages.other.id}/${messages.other.avatar}`"
     :title="messages.other.name"
@@ -32,7 +32,7 @@
       <div v-show="showActionButton" style="position: fixed;bottom: 1.5rem;right: 1.5rem;display: flex;flex-direction: column;align-items: flex-end;">
         <div v-show="showActionButtonItems">
           <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add channel</v-chip><v-btn @click="showChannelCreationForm=true" color="primary" icon="mdi-podcast" rounded size="2.5rem" elevation="24"></v-btn></div>
-          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add group</v-chip><v-btn @click="showGroupCreationForm=true" color="primary" icon="mdi-contacts" rounded size="2.5rem" elevation="24"></v-btn></div>
+          <div style="display: flex;justify-content: flex-end;gap: 1rem;align-items: center;padding: .5rem;padding-top: 0;"><v-chip color="primary">add group</v-chip><v-btn @click="showGroupCreationForm=true" color="primary" icon="mdi-thumbs-up-down" rounded size="2.5rem" elevation="24"></v-btn></div>
         </div>
         <v-btn @click="showActionButtonItems=!showActionButtonItems" :icon="showActionButtonItems ? 'mdi-close' : 'mdi-plus'" style="border-radius: 50%;margin-top: 1rem;" :color="showActionButtonItems ? 'error' : 'primary'" size="3.5rem" elevation="24"></v-btn>
       </div>
@@ -50,10 +50,11 @@
 <style scoped>
 .listItem{
   border-left: solid;
+  border-left-width: thick;
   border-color: transparent;
 }
 .online{
-  border-color: var(--tgGreen);
+  border-color: var(--tgPrimary);
 }
 .listItem:hover{
     color: var(--tgPrimary);

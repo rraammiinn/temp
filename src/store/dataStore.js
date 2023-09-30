@@ -4,8 +4,12 @@ import {useAuthStore} from '@/store/authStore'
 
     export const useDataStore = defineStore('data',{
         state:()=>({
+            groups:[],
+            channels:[],
+
             contacts:[],
             rels:[],
+            backRels:[],
             groupMembers:[],
             channelMembers:[],
             allChatMessages:{},
@@ -13,23 +17,29 @@ import {useAuthStore} from '@/store/authStore'
             allChannelMessages:{}
         }),
         actions:{
-            async updateContacts(){this.contacts=await pb.collection('contacts').getFullList({
-                sort: '-created',
-                filter: `follower = "${useAuthStore().authData.id}"`
-            })},
+            async updateGroups(){this.groups=await pb.collection('groupMembers').getFullList({expand:'group'});},
+            async updateChannels(){this.channels=await pb.collection('channelMembers').getFullList({expand:'channel'});},
+
+
+            async updateUnseenCount(id){this.allChatMessages[id].unseenCount=(await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${id}" && created > "${this.allChatMessages[id].lastSeen}"`, sort:'-created'})).totalItems;console.log(this.allMessagesSorted[id])},
+            async updateContacts(){this.contacts=await pb.collection('contacts').getFullList({expand:'following'});},
             async updateRels(){this.rels=await pb.collection('rels').getFullList({
                 expand:'follower,following'
-            });console.log('relsss -> ',this.rels)},
+            });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id);console.log('relsss -> ',this.rels);console.log('backrelsss -> ',this.backRels)},
             async updateAllChatMessages(){for await (const rel of this.rels){
                 const index=(rel.follower == useAuthStore().authData.id) ? rel.following : rel.follower
-                this.allChatMessages[index] = {lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:false,lastSeen:null,lastVisited:null,isOnline:false}
+                this.allChatMessages[index] = {lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:false,lastSeen:null,lastVisited:null,isOnline:false,relId:null,backRelId:null,otherLastSeen:null}
                 try{
-                this.allChatMessages[index]['lastMessage'] = JSON.parse(localStorage.getItem(`lastMessage_${index}`)) || await pb.collection('chatMessages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
+                this.allChatMessages[index]['lastMessage'] = await pb.collection('chatMessages').getFirstListItem(`from = "${index}" || to = "${index}"`, {sort:'-created'})
                 }catch{}
                 this.allChatMessages[index]['other'] = (rel.follower == useAuthStore().authData.id) ? rel.expand.following : rel.expand.follower
                 this.allChatMessages[index]['lastSeen'] = rel.lastseen || 0
-                this.allChatMessages[index]['unseenCount'] = (await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${index}" && created > ${this.allChatMessages[index]['lastSeen']}`, sort:'-created'})).totalItems
+                this.allChatMessages[index]['unseenCount'] = (await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${index}" && created > "${this.allChatMessages[index]['lastSeen']}"`, sort:'-created'})).totalItems
                 this.allChatMessages[index]['lastVisited'] = rel.expand.following.lastvisited
+                this.allChatMessages[index]['relId'] = rel.id
+                this.allChatMessages[index]['backRelId'] = this.backRels.find(i=>i.follower == rel.following)?.id
+                this.allChatMessages[index]['otherLastSeen'] = this.backRels.find(i=>i.follower == rel.following)?.lastseen || 0
+
             };console.log('all msgs -> ',this.allChatMessages)},
             async updateGroupMembers(){this.groupMembers=await pb.collection('groupMembers').getFullList({
                 expand:'group'

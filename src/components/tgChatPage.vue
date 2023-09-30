@@ -1,22 +1,22 @@
 <template>
-  <tg-user-page :other="allChatMessages[props.other].other" v-show="showUser"></tg-user-page>
+  <tg-user-page :otherId="allChatMessages[props.otherId].other" v-show="showUser"></tg-user-page>
 
 <div class="main">
 
   <div ref="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
     <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
-    <template v-for="message,i in allChatMessages[props.other].messages" :key="message.id">
-      <v-chip v-if="message.created.slice(0,10) != allChatMessages[props.other].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
-    <v-card :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.other).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.other].other).avatar}`">
+    <template v-for="message,i in allChatMessages[props.otherId].messages" :key="message.id">
+      <v-chip v-if="message.created.slice(0,10) != allChatMessages[props.otherId].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
+    <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.otherId).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).avatar}`">
       <v-divider v-if="message.files.length"></v-divider>
       <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
         <template  v-for="file in message.files" :key="file">
-          <img @click="sheet = !sheet;image=`/api/files/messages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${message.id}/${file}`">
+          <img @click="sheet = !sheet;image=`/api/files/messages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${message.id}/${file}`" onerror="this.style.display='none'">
         </template>
       </div>
       <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
         <span>{{message.created.slice(11,16)}}</span>
-        <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() < new Date(lastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon>
+        <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() <= new Date(allChatMessages[props.otherId].otherLastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon>
       </div>
     </v-card>
 </template>
@@ -102,15 +102,18 @@
 
 
 <script setup>
-import { ref, inject, onMounted, computed, onUpdated } from 'vue';
+import { ref, inject, onMounted, computed, onUpdated, onUnmounted } from 'vue';
 import pb from '@/main';
 import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'
+import {getChatMessages} from '@/funcs/chatFuncs'
 
+const{updateUnseenCount}=useDataStore()
 const{rels,allChatMessages}=storeToRefs(useDataStore())
 
-const props=defineProps(['other', 'initChatId'])
+const props=defineProps(['otherId', 'initMessageId'])
+
 const scrollable=ref();
 
 const showGoToBottom=ref(false)
@@ -135,13 +138,8 @@ function removeFile(file){
   console.log(files.value)
 }
 
-const lastSeen=ref('0')
-try{lastSeen.value=pb.collection('rels').getFirstListItem(`follower = "${props.other}" && following = "${pb.authStore.model.id}"`).lastSeen}catch{}
-
 var isInRel=false
-// for(const rel of rels.value){
-//   if(rel.follower == props.other || rel.following == props.other) {isInRel=true;}
-// }
+
 
 const files=ref([]);
 
@@ -149,15 +147,15 @@ const files=ref([]);
 
 async function send(){
   if(!isInRel){
-    try{await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.other})}catch{}
-    try{await pb.collection('rels').create({follower:props.other, following:pb.authStore.model.id})}catch{}
+    try{await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId})}catch{}
+    try{await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id})}catch{}
     isInRel=true
-    // await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.other})
+    // await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId})
   }
     var formData = new FormData();
-    console.log(props.other)
+    console.log(props.otherId)
     formData.append('from', pb.authStore.model.id)
-    formData.append('to', props.other)
+    formData.append('to', props.otherId)
     formData.append('text', msg.value)
     formData.append('seen', false)
 
@@ -178,7 +176,7 @@ const msg=ref('')
 
 
 import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
-import tgUserPage from './tgUserPage.vue';
+import tgUserDetails from './tgUserDetails.vue';
 
 const sheet=ref(false)
 const image=ref('')
@@ -188,86 +186,49 @@ var endEnabled=true
 
 
 
-var searchedMessage;
+// var searchedMessage;
 
-try{
-  allChatMessages.value[props.other].messages=JSON.parse(localStorage.getItem(`messages_${props.other}`))
-  if(props.initChatId){
-    searchedMessage= allChatMessages.value[props.other].messages?.find((msg)=>{msg.id==props.initChatId})
-    if(!searchedMessage){
-      searchedMessage=await pb.collection('chatMessages').getOne(props.initChatId);
-      allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created <= "${searchedMessage.created}"`, sort: '-created'})).items.reverse();
-    }
-  }
-  else{
-    if(!allChatMessages.value[props.other].messages?.length){
-      allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: 'created'})).items;
-    }
-  }
+initializeMessages();
 
 
-  if(allChatMessages.value[props.other].messages.length<10){
-    startEnabled=false;
-    isTop=false;
-    try{
-      const extraChats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created > "${allChatMessages.value[props.other].messages[allChatMessages.value[props.other].messages.length-1].created}"`, sort: 'created'})).items
-      allChatMessages.value[props.other].messages=[...allChatMessages.value[props.other].messages, ...extraChats]
-    }
-    catch{}
-  }
-
-}
-catch(e){
-  console.log('errrooooorrr..... : ',e)
-  startEnabled=false;
-  isTop=false;
-  allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: 'created'})).items
-}
-
-if(allChatMessages.value[props.other].messages.length<10){
-  endEnabled=false;
-subscribeToNewChats()}
-
-console.log(props)
-console.log(allChatMessages.value)
-
-
-onMounted(()=>{if(props.initChatId){document.getElementById(props.initChatId)?.scrollIntoView({block:'center'});}else{chatsContainer.value?.scrollIntoView({block:'center'});}})
+onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{chatsContainer.value?.scrollIntoView({block:'center'});}})
 
 onMounted(()=>{scrollable.value.addEventListener('scroll', scrollHandler)})
 
 function scrollHandler(e){
   if(e.target.scrollTop==0 && startEnabled){
     previousScrollHeight=e.target.scrollHeight
-    getPreviousChats(e);console.log('start');}
+    getPreviousMessages(e);console.log('start');}
   else if(e.target.scrollTop+e.target.clientHeight==e.target.scrollHeight && endEnabled){
-    getNextChats();console.log('end');}
+    getNextMessages();console.log('end');}
   else{
     showGoToBottom.value = (endEnabled || e.target.scrollHeight - e.target.scrollTop > 5000) && (startScrollTop < e.target.scrollTop);
     startScrollTop=e.target.scrollTop;
   }
 }
 
-async function getPreviousChats(e){
+async function getPreviousMessages(e){
   try{
     isTop=true
-    const previous10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created < "${allChatMessages.value[props.other].messages[0].created}"`, sort: '-created'})).items.reverse()
+    // const previous10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created < "${allChatMessages.value[props.otherId].messages[0].created}"`, sort: '-created'})).items.reverse()
+    const previous10Chats= await getChatMessages(props.otherId,{endDate:allChatMessages.value[props.otherId].messages[0].created})
     if(previous10Chats.length<10){startEnabled=false;isTop=false};
-      allChatMessages.value[props.other].messages=[...previous10Chats, ...allChatMessages.value[props.other].messages]
+      allChatMessages.value[props.otherId].messages=[...previous10Chats, ...allChatMessages.value[props.otherId].messages]
 
 
     }
     catch{}
 }
 
-async function getNextChats(){
+async function getNextMessages(){
     try{
       isTop=false
-      const new10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}") && created > "${allChatMessages.value[props.other].messages[allChatMessages.value[props.other].messages.length-1].created}"`, sort: 'created'})).items
-      allChatMessages.value[props.other].messages=[...allChatMessages.value[props.other].messages, ...new10Chats]
+      // const new10Chats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created > "${allChatMessages.value[props.otherId].messages.at(-1).created}"`, sort: 'created'})).items
+      const new10Chats= await getChatMessages(props.otherId,{startDate:allChatMessages.value[props.otherId].messages.at(-1).created})
+      allChatMessages.value[props.otherId].messages=[...allChatMessages.value[props.otherId].messages, ...new10Chats]
       if(new10Chats.length<10){
   endEnabled=false;
-subscribeToNewChats()}
+subscribeToNewMessages()}
     }
     catch{}
 }
@@ -288,20 +249,89 @@ async function goToBottom(){
   if(endEnabled){
   startEnabled=true
   endEnabled=false
-  allChatMessages.value[props.other].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.other}" || to = "${props.other}")`, sort: '-created'})).items.reverse()
+  allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}")`, sort: '-created'})).items.reverse()
   isGoToBottom=true
-  subscribeToNewChats()
-  if(allChatMessages.value[props.other].messages.length<10)startEnabled=false;}
+  subscribeToNewMessages()
+  if(allChatMessages.value[props.otherId].messages.length<10)startEnabled=false;}
   else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
 }
 var startScrollTop=0
 
-function subscribeToNewChats(){
-  pb.collection('chatMessages').subscribe('*', function (e) {
-    if(e.action=='create' && (e.record.from == props.other || e.record.to == props.other)){
-      allChatMessages.value[props.other].messages.push(e.record)
-    }})
+function subscribeToNewMessages(){
+  // pb.collection('chatMessages').subscribe('*', function (e) {
+  //   if(e.action=='create' && (e.record.from == props.otherId || e.record.to == props.otherId)){
+  //     allChatMessages.value[props.otherId].messages.push(e.record)
+  //   }})
+  allChatMessages.value[props.otherId].cacheNewMessages=true
 }
 
 
+
+
+
+  const observer=new IntersectionObserver((e)=>{
+    const date = e.filter(i=>i.isIntersecting).at(-1).target.attributes.created.value;
+    if(!(new Date(date).getTime() <= new Date(allChatMessages.value[props.otherId].lastSeen).getTime())){
+      allChatMessages.value[props.otherId].lastSeen=date;
+      pb.collection('rels').update(allChatMessages.value[props.otherId].relId,{lastseen:date})
+    }},{threshold:1,root:scrollable.value});
+
+
+
+
+function attachNewIntersectionTargets(){
+  allChatMessages.value[props.otherId].messages.slice(-10).forEach(msg => {
+    observer.observe(document.getElementById(msg.id))
+  });
+}
+
+onUpdated(attachNewIntersectionTargets)
+
+
+onUnmounted(()=>updateUnseenCount(props.otherId))
+
+async function initializeMessages(){
+  try{
+  if(props.initMessageId){
+
+    // searchedMessage=await pb.collection('chatMessages').getOne(props.initMessageId);
+    // allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created <= "${searchedMessage.created}"`, sort: '-created'})).items.reverse();
+
+    allChatMessages.value[props.otherId].messages= await getChatMessages(props.otherId,{initMessageId:props.initMessageId})
+  }
+  else{
+
+    // allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created <= "${allChatMessages.value[props.otherId].lastSeen}"`, sort: '-created'})).items.reverse();
+    allChatMessages.value[props.otherId].messages= await getChatMessages(props.otherId,{endDate:allChatMessages.value[props.otherId].lastSeen})
+
+  }
+
+
+  if(allChatMessages.value[props.otherId].messages.length<10){
+    startEnabled=false;
+    isTop=false;
+    try{
+      // const extraChats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created > "${allChatMessages.value[props.otherId].messages.at(-1).created}"`, sort: 'created'})).items
+      const extraChats= await getChatMessages(props.otherId,{startDate:allChatMessages.value[props.otherId].messages.at(-1).created})
+      allChatMessages.value[props.otherId].messages=[...allChatMessages.value[props.otherId].messages, ...extraChats]
+    }
+    catch{}
+  }
+
+}
+catch(e){
+  console.log('errrooooorrr..... : ',e)
+  startEnabled=false;
+  isTop=false;
+  // allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}")`, sort: 'created'})).items
+  allChatMessages.value[props.otherId].messages= await getChatMessages(props.otherId)
+}
+
+if(allChatMessages.value[props.otherId].messages.length<10){
+  endEnabled=false;
+subscribeToNewMessages()}
+
+console.log(props)
+console.log(allChatMessages.value)
+}
 </script>

@@ -2,7 +2,7 @@
 
 
     <div v-if="isLoggedIn" class="main">
-        <img style="width: 100%;" :src="`/api/files/users/${pb.authStore.model.id}/${pb.authStore.model.avatar}`" alt="">
+        <img style="width: 100%;" :src="`/api/files/users/${authData.id}/${authData.avatar}`" alt="">
         <div style="width: 100%;margin-bottom: 1rem;">
             <v-btn @click="fileInput?.click()" icon="mdi-upload" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
         </div>
@@ -59,8 +59,12 @@
 <script setup>
 import pb from '@/main';
 import { inject, ref } from 'vue';
+import {storeToRefs} from 'pinia'
 
-const isLoggedIn = inject('isLoggedIn')
+import {useAuthStore} from '@/store/authStore'
+
+const {updateLogInState} = useAuthStore()
+const {isLoggedIn,authData}=storeToRefs(useAuthStore())
 
 
 async function logIn(){
@@ -68,7 +72,7 @@ async function logIn(){
 }
 function logOut(){
     pb.authStore.clear();
-    isLoggedIn.value = pb.authStore.isValid
+    updateLogInState()
 }
 
 
@@ -76,8 +80,8 @@ function logOut(){
 
 const fileInput=ref()
 
-const name =ref(pb.authStore.model?.name)
-const bio =ref(pb.authStore.model?.bio)
+const name =ref(authData.value?.name)
+const bio =ref(authData.value?.bio)
 
 
 
@@ -85,14 +89,14 @@ const bio =ref(pb.authStore.model?.bio)
 async function upload_(){
     var formData = new FormData();
     formData.append('avatar', fileInput.value.files[0]);
-    await pb.collection('users').update(pb.authStore.model.id, formData);
+    await pb.collection('users').update(authData.value.id, formData);
 
 }
 
 
 
 async function change(){
-    await pb.collection('users').update(pb.authStore.model.id, {'name':name.value, 'bio':bio.value});
+    await pb.collection('users').update(authData.value.id, {'name':name.value, 'bio':bio.value});
 }
 
 function cancel(){

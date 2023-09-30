@@ -1,6 +1,6 @@
 <template>
     <v-btn @click="if(!showUser)$router.back();showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-    <v-badge :content="allChatMessages[other].isOnline ? 'online' : 'offline'" :color="allChatMessages[other].isOnline ? 'var(--tgGreen)' : 'gray'"><v-avatar @click="showUser=true;" :image="`/api/files/users/${props.other}/${allChatMessages[props.other].other.avatar}`"></v-avatar></v-badge>
+    <v-badge :content="allChatMessages[props.otherId].isOnline ? 'online' : 'offline'" :color="allChatMessages[props.otherId].isOnline ? 'primary' : null"><v-avatar @click="showUser=true;" :image="`/api/files/users/${props.otherId}/${allChatMessages[props.otherId].other.avatar}`"></v-avatar></v-badge>
     <v-spacer></v-spacer>
     <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>
 </template>
@@ -23,13 +23,13 @@ import {useDataStore} from '@/store/dataStore'
 
 const {allChatMessages}=storeToRefs(useDataStore())
 
-const props=defineProps(['other'])
+const props=defineProps(['otherId'])
 
 const showUser=inject('showUser')
 // const allChatMessages=inject('allChatMessages')
 
 // var lastseen=0;
 // const isOnline=ref(false)
-// pb.collection('users').subscribe(props.other, (e)=>{isOnline.value = true ;lastseen=e.record.lastseen;})
+// pb.collection('users').subscribe(props.otherId, (e)=>{isOnline.value = true ;lastseen=e.record.lastseen;})
 // setInterval(()=>{isOnline.value = new Date().getTime() - new Date(lastseen).getTime() < 6000},1000)
 </script>

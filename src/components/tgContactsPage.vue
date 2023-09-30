@@ -1,7 +1,7 @@
 <template>
   <div v-if="userSearch">
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-        <div v-for="user in users" @click="$router.push({name:'chat', params:{other:user,initChatId:'',showUser:true}})" :key="user.id">
+        <div v-for="user in users" @click="allChatMessages[user.id]={other:user,messages:[]};$router.push({name:'chat', params:{otherId:user.id},query:{initMessageId:'',showUser:true}})" :key="user.id">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
             :title="user.name"
@@ -26,7 +26,7 @@
         </div></div>
   <div v-else>
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">contacts</h3>
-          <div v-for="contact in contacts" @click="$router.push({name:'chat', params:{other:contact.expand.following,initChatId:'',showUser:true}})" :key="contact.following">
+          <div v-for="contact in contacts" @click="$router.push({name:'chat', params:{otherId:contact.following},query:{initMessageId:'',showUser:true}})" :key="contact.following">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${contact.following}/${contact.expand.following.avatar}`"
             :title="contact.expand.following.name"
@@ -61,9 +61,13 @@
 <script setup>
 import { ref, inject, computed, watchEffect } from 'vue';
 import pb from '@/main';
+import { storeToRefs } from "pinia";
 
+import { useDataStore } from "@/store/dataStore";
+const{updateContacts,allChatMessages}=useDataStore()
+const{contacts}=storeToRefs(useDataStore())
 
-
+updateContacts()
 
 const userSearch=inject('userSearch')
 const users=ref()
@@ -77,11 +81,11 @@ async function addContact(contact){
 async function deleteContact(contact){
   await pb.collection('contacts').delete(contact);
 }
-async function getContacts(){
-  return await pb.collection('contacts').getFullList({expand:'following'});
-}
-const contacts=ref(await getContacts())
-pb.collection('contacts').subscribe('*', async (e)=>{contacts.value=await getContacts()})
+// async function getContacts(){
+//   return await pb.collection('contacts').getFullList({expand:'following'});
+// }
+// const contacts=ref(await getContacts())
+pb.collection('contacts').subscribe('*', updateContacts)
 
 
 function getContactFromId(id){

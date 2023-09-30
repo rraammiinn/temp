@@ -84,7 +84,7 @@ for await (const rel of rels.value){
 // }
 // const userSearch=ref('')
 // const chatSearch=ref('')
-// const initChatId=ref('')
+// const initMessageId=ref('')
 const previousPage=ref('')
 console.log('last chats : ',lastChats.value)
 
@@ -96,7 +96,7 @@ provide('contacts', contacts)
 provide('rels', rels)
 // provide('userSearch', userSearch)
 // provide('chatSearch', chatSearch)
-// provide('initChatId', initChatId)
+// provide('initMessageId', initMessageId)
 provide('previousPage', previousPage)
 
 
