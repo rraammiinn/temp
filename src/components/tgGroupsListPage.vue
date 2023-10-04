@@ -1,7 +1,7 @@
 <template>
     <div v-if="groupSearch">
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-          <div v-for="group in searchedGroups" @click="allGroupMessages[group.id]={group:group,messages:[]};$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
+          <div v-for="group in searchedGroups" @click="$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
               <v-list-item class="listItem"
               :prepend-avatar="`/api/files/groups/${group.id}/${group.avatar}`"
               :title="group.name"
@@ -26,10 +26,10 @@
           </div></div>
     <div v-else>
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">groups</h3>
-            <div v-for="group in groups" @click="$router.push({name:'group', params:{groupId:group.following},query:{initMessageId:'',showGroup:true}})" :key="group.following">
+            <div v-for="group in groups" @click="$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/groups/${group.group}/${group.expand.group.avatar}`"
-              :title="group.expand.group.name"
+              :prepend-avatar="`/api/files/groups/${group.id}/${group.avatar}`"
+              :title="group.name"
               subtitle=""
             >
             <template v-slot:append>
@@ -64,10 +64,10 @@
   import { storeToRefs } from "pinia";
   
   import { useDataStore } from "@/store/dataStore";
-  const{updateGroups,allGroupMessages}=useDataStore()
-  const{groups}=storeToRefs(useDataStore())
+  const{updateGroupRels,allGroupMessages}=useDataStore()
+  const{groupRels,groups}=storeToRefs(useDataStore())
   
-  updateGroups()
+  updateGroupRels()
   
   const groupSearch=inject('groupSearch')
   const searchedGroups=ref([])
@@ -84,15 +84,15 @@
   //   return await pb.collection('groups').getFullList({expand:'following'});
   // }
   // const groups=ref(await getGroups())
-  pb.collection('groupMembers').subscribe('*', updateGroups)
+  pb.collection('groupMembers').subscribe('*', updateGroupRels)
   
   
   function getGroupFromId(id){
-    return groups.value.find(group=>group.group==id)
+    return groupRels.value.find(group=>group.group==id)
   }
   
   
-  const groupIds=computed(()=>groups.value.map(group=>group.group))
+  const groupIds=computed(()=>groupRels.value.map(group=>group.group))
   
   watchEffect(async ()=>{
     if(groupSearch.value){
@@ -100,6 +100,6 @@
     }
   })
   
-  console.log(groups.value)
+  console.log(groupRels.value)
   console.log(groupIds.value)
   </script>

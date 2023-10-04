@@ -26,10 +26,10 @@
         </div></div>
   <div v-else>
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">channels</h3>
-          <div v-for="channel in channels" @click="$router.push({name:'channel', params:{channelId:channel.following},query:{initMessageId:'',showChannel:true}})" :key="channel.following">
+          <div v-for="channelRel in channelRels" @click="$router.push({name:'channel', params:{channelId:channelRel.channel},query:{initMessageId:'',showChannel:true}})" :key="channelRel.channel">
             <v-list-item class="listItem"
-            :prepend-avatar="`/api/files/channels/${channel.channel}/${channel.expand.channel.avatar}`"
-            :title="channel.expand.channel.name"
+            :prepend-avatar="`/api/files/channels/${channelRel.channel}/${channelRel.expand.channel.avatar}`"
+            :title="channelRel.expand.channel.name"
             subtitle=""
           >
           <template v-slot:append>
@@ -37,7 +37,7 @@
             color="error"
             icon="mdi-delete"
             variant="text"
-            @click.stop="deleteChannel(channel.id)"
+            @click.stop="deleteChannel(channelRel.id)"
           ></v-btn>
         </template>
         </v-list-item>
@@ -64,10 +64,10 @@ import pb from '@/main';
 import { storeToRefs } from "pinia";
 
 import { useDataStore } from "@/store/dataStore";
-const{updateChannels,allChannelMessages}=useDataStore()
-const{channels}=storeToRefs(useDataStore())
+const{updateChannelRels,allChannelMessages}=useDataStore()
+const{channelRels}=storeToRefs(useDataStore())
 
-updateChannels()
+updateChannelRels()
 
 const channelSearch=inject('channelSearch')
 const searchedChannels=ref([])
@@ -84,15 +84,15 @@ async function deleteChannel(channel){
 //   return await pb.collection('channels').getFullList({expand:'following'});
 // }
 // const channels=ref(await getChannels())
-pb.collection('channelMembers').subscribe('*', updateChannels)
+pb.collection('channelMembers').subscribe('*', updateChannelRels)
 
 
 function getChannelFromId(id){
-  return channels.value.find(channel=>channel.channel==id)
+  return channelRels.value.find(channel=>channel.channel==id)
 }
 
 
-const channelIds=computed(()=>channels.value.map(channel=>channel.channel))
+const channelIds=computed(()=>channelRels.value.map(channel=>channel.channel))
 
 watchEffect(async ()=>{
   if(channelSearch.value){
@@ -100,6 +100,6 @@ watchEffect(async ()=>{
   }
 })
 
-console.log(channels.value)
+console.log(channelRels.value)
 console.log(channelIds.value)
 </script>

@@ -7,11 +7,11 @@
       <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
       <template v-for="message,i in allGroupMessages[props.groupId].messages" :key="message.id">
         <v-chip v-if="message.created.slice(0,10) != allGroupMessages[props.groupId].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
-      <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="(allGroupMessages[props.groupId].groupMems[message.from]).name" :prepend-avatar="`/api/files/groups/${message.from}/${(allGroupMessages[props.groupId].groupMems[message.from]).avatar}`">
+      <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="(allGroupMessages[props.groupId]?.groupMems[message.from])?.name" :prepend-avatar="`/api/files/users/${message.from}/${(allGroupMessages[props.groupId]?.groupMems[message.from])?.avatar}`">
         <v-divider v-if="message.files.length"></v-divider>
         <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
           <template  v-for="file in message.files" :key="file">
-            <img @click="sheet = !sheet;image=`/api/files/messages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${message.id}/${file}`" onerror="this.style.display='none'">
+            <img @click="sheet = !sheet;image=`/api/files/groupMessages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/groupMessages/${message.id}/${file}`" onerror="this.style.display='none'">
           </template>
         </div>
         <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
@@ -52,7 +52,7 @@
       </v-chip>
         </div>
   
-        <v-textarea
+        <v-textarea v-if="isMem"
         :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}"
             label="message"
             auto-grow
@@ -69,6 +69,8 @@
           prepend-inner-icon="mdi-image"
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
+
+          <v-btn v-else color="primary" @click="join" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
   
       </div>
       <input multiple accept="image/*" ref="fileInput" @change="upload_" type="file" hidden>
@@ -107,9 +109,9 @@
   import {storeToRefs} from 'pinia'
   
   import {useDataStore} from '@/store/dataStore'
-  import {getGroupMessages} from '@/funcs/groupFuncs'
+  import {getGroupMessages,getGroupMessageById,getPreviousGroupMessages,getNextGroupMessages,getLastGroupMessages} from '@/funcs/groupFuncs'
   
-  const{updateUnseenCount}=useDataStore()
+  const{updateGroupUnseenCount,updateGroupMems}=useDataStore()
   const{rels,allGroupMessages}=storeToRefs(useDataStore())
   
   const props=defineProps(['groupId', 'initMessageId'])
@@ -117,6 +119,8 @@
   const scrollable=ref();
   
   const showGoToBottom=ref(false)
+
+  await updateGroupMems(props.groupId)
   
   
   function upload_(){
@@ -138,7 +142,7 @@
     console.log(files.value)
   }
   
-  var isMem=false
+  const isMem=ref(allGroupMessages.value[props.groupId].relId ?? false)
   
   
   const files=ref([]);
@@ -146,16 +150,11 @@
   
   
   async function send(){
-    if(!isMem){
-      try{await pb.collection('groupMembers').create({mem:pb.authStore.model.id, group:props.groupId})}catch{}
-    //   try{await pb.collection('rels').create({follower:props.groupId, following:pb.authStore.model.id})}catch{}
-      isMem=true
-      // await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.groupId})
-    }
+
       var formData = new FormData();
       console.log(props.groupId)
       formData.append('from', pb.authStore.model.id)
-      formData.append('to', props.groupId)
+      formData.append('group', props.groupId)
       formData.append('text', msg.value)
   
       for (const file of files.value){
@@ -175,7 +174,7 @@
   
   
   import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
-  import tgGroupDetails from './tgGroupDetails.vue';
+  // import tgGroupDetails from './tgGroupDetails.vue';
   
   const sheet=ref(false)
   const image=ref('')
@@ -210,7 +209,7 @@
     try{
       isTop=true
       // const previous10Messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created < "${allGroupMessages.value[props.groupId].messages[0].created}"`, sort: '-created'})).items.reverse()
-      const previous10Messages= await getGroupMessages(props.groupId,{endDate:allGroupMessages.value[props.groupId].messages[0].created})
+      const previous10Messages= await getPreviousGroupMessages(props.groupId,allGroupMessages.value[props.groupId].messages[0].created)
       if(previous10Messages.length<10){startEnabled=false;isTop=false};
         allGroupMessages.value[props.groupId].messages=[...previous10Messages, ...allGroupMessages.value[props.groupId].messages]
   
@@ -223,7 +222,7 @@
       try{
         isTop=false
         // const new10Messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created > "${allGroupMessages.value[props.groupId].messages.at(-1).created}"`, sort: 'created'})).items
-        const new10Messages= await getGroupMessages(props.groupId,{startDate:allGroupMessages.value[props.groupId].messages.at(-1).created})
+        const new10Messages= await getNextGroupMessages(props.groupId,allGroupMessages.value[props.groupId].messages.at(-1).created)
         allGroupMessages.value[props.groupId].messages=[...allGroupMessages.value[props.groupId].messages, ...new10Messages]
         if(new10Messages.length<10){
     endEnabled=false;
@@ -248,8 +247,13 @@
     if(endEnabled){
     startEnabled=true
     endEnabled=false
-    allGroupMessages.value[props.groupId].messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}")`, sort: '-created'})).items.reverse()
+    allGroupMessages.value[props.groupId].messages= await getLastGroupMessages(props.groupId)
     isGoToBottom=true
+    const date = allGroupMessages.value[props.groupId].messages.at(-1).created
+    if(new Date(allGroupMessages.value[props.groupId].lastSeen) < new Date(date)){
+    allGroupMessages.value[props.groupId].lastSeen=date;
+    pb.collection('groupMembers').update(allGroupMessages.value[props.groupId].relId,{lastseen:date})
+    }
     subscribeToNewMessages()
     if(allGroupMessages.value[props.groupId].messages.length<10)startEnabled=false;}
     else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
@@ -272,7 +276,7 @@
       const date = e.filter(i=>i.isIntersecting).at(-1).target.attributes.created.value;
       if(!(new Date(date).getTime() <= new Date(allGroupMessages.value[props.groupId].lastSeen).getTime())){
         allGroupMessages.value[props.groupId].lastSeen=date;
-        pb.collection('rels').update(allGroupMessages.value[props.groupId].relId,{lastseen:date})
+        pb.collection('groupMembers').update(allGroupMessages.value[props.groupId].relId,{lastseen:date})
       }},{threshold:1,root:scrollable.value});
   
   
@@ -287,7 +291,7 @@
   onUpdated(attachNewIntersectionTargets)
   
   
-  onUnmounted(()=>updateUnseenCount(props.groupId))
+  onUnmounted(()=>{updateGroupUnseenCount(props.groupId);allGroupMessages.value[props.groupId].lastMessage['expand']={from:allGroupMessages.value[props.groupId].groupMems[allGroupMessages.value[props.groupId].lastMessage.from]}})
   
   async function initializeMessages(){
     try{
@@ -296,12 +300,12 @@
       // searchedMessage=await pb.collection('groupMessages').getOne(props.initMessageId);
       // allGroupMessages.value[props.groupId].messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created <= "${searchedMessage.created}"`, sort: '-created'})).items.reverse();
   
-      allGroupMessages.value[props.groupId].messages= await getGroupMessages(props.groupId,{initMessageId:props.initMessageId})
+      allGroupMessages.value[props.groupId].messages.push(await getGroupMessageById(props.initMessageId))
     }
     else{
   
       // allGroupMessages.value[props.groupId].messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created <= "${allGroupMessages.value[props.groupId].lastSeen}"`, sort: '-created'})).items.reverse();
-      allGroupMessages.value[props.groupId].messages= await getGroupMessages(props.groupId,{endDate:allGroupMessages.value[props.groupId].lastSeen})
+      allGroupMessages.value[props.groupId].messages= await getGroupMessages(props.groupId,0,allGroupMessages.value[props.groupId].lastSeen)
   
     }
   
@@ -311,8 +315,8 @@
       isTop=false;
       try{
         // const extraGroups=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created > "${allGroupMessages.value[props.groupId].messages.at(-1).created}"`, sort: 'created'})).items
-        const extraGroups= await getGroupMessages(props.groupId,{startDate:allGroupMessages.value[props.groupId].messages.at(-1).created})
-        allGroupMessages.value[props.groupId].messages=[...allGroupMessages.value[props.groupId].messages, ...extraGroups]
+        const extraMessages= await getNextGroupMessages(props.groupId,allGroupMessages.value[props.groupId].messages.at(-1).created)
+        allGroupMessages.value[props.groupId].messages=[...allGroupMessages.value[props.groupId].messages, ...extraMessages]
       }
       catch{}
     }
@@ -333,4 +337,12 @@
   console.log(props)
   console.log(allGroupMessages.value)
   }
+
+
+async function join(){
+  try{const record = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":props.groupId});
+  isMem.value=true;
+  allGroupMessages[props.groupId].relId=record.id
+}
+  catch{}}
   </script>

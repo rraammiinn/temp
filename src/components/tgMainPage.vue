@@ -17,14 +17,21 @@
 
 <v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
 
-<div v-for="messages in allMessagesSorted" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})">
-    <v-list-item v-if="messages.lastMessage" class="listItem" :class="{online:messages.isOnline}"
+<template v-for="messages in allMessagesSorted">
+    <v-list-item v-if="messages.lastMessage && messages.messagesType=='chat'" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
     :prepend-avatar="`/api/files/users/${messages.other.id}/${messages.other.avatar}`"
     :title="messages.other.name"
     :subtitle="messages.lastMessage.text"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="true">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(11,16) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+  
+  <v-list-item v-if="messages.lastMessage && messages.messagesType=='group'" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
+    :prepend-avatar="`/api/files/groups/${messages.group.id}/${messages.group.avatar}`"
+    :title="messages.group.name"
+    :subtitle="`${messages.lastMessage?.expand?.from?.name} : ${messages.lastMessage.text}`"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(0,10) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ messages.lastMessage.created.slice(11,16) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+  
   <v-divider v-if="messages.lastMessage"></v-divider>
-</div>
+</template>
 </v-list>
 
 
@@ -116,6 +123,8 @@ async function createNewGroup(){
   if(newGroup.value.avatar?.[0])formData.append('avatar',newGroup.value.avatar[0])
 
   const record = await pb.collection('groups').create(formData);
+  
+  await pb.collection('groupMembers').create({mem:pb.authStore.model.id,group:record.id})
   newGroup.value={}
   showGroupCreationForm.value=false
 

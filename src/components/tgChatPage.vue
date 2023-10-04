@@ -11,7 +11,7 @@
       <v-divider v-if="message.files.length"></v-divider>
       <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
         <template  v-for="file in message.files" :key="file">
-          <img @click="sheet = !sheet;image=`/api/files/messages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/messages/${message.id}/${file}`" onerror="this.style.display='none'">
+          <img @click="sheet = !sheet;image=`/api/files/chatMessages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'">
         </template>
       </div>
       <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">

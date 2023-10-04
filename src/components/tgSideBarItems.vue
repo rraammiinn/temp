@@ -3,8 +3,8 @@
         <v-divider/>
         <v-list-item @click="$router.push('/contacts');drawer=false" prepend-icon="mdi-contacts" title="contacts" value="contacts"></v-list-item>
         <v-list-item @click="$router.push('/settings');drawer=false" prepend-icon="mdi-tune" title="settings" value="settings"></v-list-item>
-        <v-list-item @click="$router.push('/groups');drawer=false" prepend-icon="mdi-thumbs-up-down" title="groups" value="groups"></v-list-item>
-        <v-list-item @click="$router.push('/channels');drawer=false" prepend-icon="mdi-podcast" title="channels" value="channels"></v-list-item>
+        <v-list-item @click="$router.push('/groupsList');drawer=false" prepend-icon="mdi-thumbs-up-down" title="groups" value="groups"></v-list-item>
+        <v-list-item @click="$router.push('/channelsList');drawer=false" prepend-icon="mdi-podcast" title="channels" value="channels"></v-list-item>
 
         <v-divider/>
         <v-list-item title="" value="">

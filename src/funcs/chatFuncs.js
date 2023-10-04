@@ -1,6 +1,6 @@
 import pb from "@/main";
 
-async function getChatMessages(otherId, options={initMessageId, startDate, endDate, number}){
+async function getChatMessages(otherId, options={initMessageId:null, startDate:0, endDate:null, number:10}){
     options.startDate ??= 0;
     options.number ??=10;
     if(options.initMessageId){
