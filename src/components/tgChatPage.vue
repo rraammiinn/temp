@@ -107,7 +107,7 @@ import pb from '@/main';
 import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'
-import {getChatMessages} from '@/funcs/chatFuncs'
+import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages} from '@/funcs/chatFuncs'
 
 const{updateUnseenCount}=useDataStore()
 const{rels,allChatMessages}=storeToRefs(useDataStore())
@@ -211,7 +211,7 @@ async function getPreviousMessages(e){
   try{
     isTop=true
     // const previous10Messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created < "${allChatMessages.value[props.otherId].messages[0].created}"`, sort: '-created'})).items.reverse()
-    const previous10Messages= await getChatMessages(props.otherId,{endDate:allChatMessages.value[props.otherId].messages[0].created})
+    const previous10Messages= await getPreviousChatMessages(props.otherId,allChatMessages.value[props.otherId].messages[0].created)
     if(previous10Messages.length<10){startEnabled=false;isTop=false};
       allChatMessages.value[props.otherId].messages=[...previous10Messages, ...allChatMessages.value[props.otherId].messages]
 
@@ -224,7 +224,7 @@ async function getNextMessages(){
     try{
       isTop=false
       // const new10Messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created > "${allChatMessages.value[props.otherId].messages.at(-1).created}"`, sort: 'created'})).items
-      const new10Messages= await getChatMessages(props.otherId,{startDate:allChatMessages.value[props.otherId].messages.at(-1).created})
+      const new10Messages= await getNextChatMessages(props.otherId,allChatMessages.value[props.otherId].messages.at(-1).created)
       allChatMessages.value[props.otherId].messages=[...allChatMessages.value[props.otherId].messages, ...new10Messages]
       if(new10Messages.length<10){
   endEnabled=false;
@@ -249,8 +249,13 @@ async function goToBottom(){
   if(endEnabled){
   startEnabled=true
   endEnabled=false
-  allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}")`, sort: '-created'})).items.reverse()
+  allChatMessages.value[props.otherId].messages= await getLastChatMessages(props.otherId)
   isGoToBottom=true
+  const date = allChatMessages.value[props.otherId].messages.at(-1).created
+    if(new Date(allChatMessages.value[props.otherId].lastSeen) < new Date(date)){
+    allChatMessages.value[props.otherId].lastSeen=date;
+    pb.collection('rels').update(allChatMessages.value[props.otherId].relId,{lastseen:date})
+    }
   subscribeToNewMessages()
   if(allChatMessages.value[props.otherId].messages.length<10)startEnabled=false;}
   else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
@@ -297,12 +302,12 @@ async function initializeMessages(){
     // searchedMessage=await pb.collection('chatMessages').getOne(props.initMessageId);
     // allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created <= "${searchedMessage.created}"`, sort: '-created'})).items.reverse();
 
-    allChatMessages.value[props.otherId].messages= await getChatMessages(props.otherId,{initMessageId:props.initMessageId})
+    allChatMessages.value[props.otherId].messages.push(await getChatMessageById(props.initMessageId))
   }
   else{
 
     // allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created <= "${allChatMessages.value[props.otherId].lastSeen}"`, sort: '-created'})).items.reverse();
-    allChatMessages.value[props.otherId].messages= await getChatMessages(props.otherId,{endDate:allChatMessages.value[props.otherId].lastSeen})
+    allChatMessages.value[props.otherId].messages= await getLastChatMessages(props.otherId,allChatMessages.value[props.otherId].lastSeen)
 
   }
 
@@ -312,7 +317,7 @@ async function initializeMessages(){
     isTop=false;
     try{
       // const extraChats=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}") && created > "${allChatMessages.value[props.otherId].messages.at(-1).created}"`, sort: 'created'})).items
-      const extraChats= await getChatMessages(props.otherId,{startDate:allChatMessages.value[props.otherId].messages.at(-1).created})
+      const extraChats= await getNextChatMessages(props.otherId,allChatMessages.value[props.otherId].messages.at(-1).created ?? 0)
       allChatMessages.value[props.otherId].messages=[...allChatMessages.value[props.otherId].messages, ...extraChats]
     }
     catch{}
@@ -324,7 +329,7 @@ catch(e){
   startEnabled=false;
   isTop=false;
   // allChatMessages.value[props.otherId].messages=(await pb.collection('chatMessages').getList(1,10,{filter:`(from = "${props.otherId}" || to = "${props.otherId}")`, sort: 'created'})).items
-  allChatMessages.value[props.otherId].messages= await getChatMessages(props.otherId)
+  allChatMessages.value[props.otherId].messages= await getNextChatMessages(props.otherId)
 }
 
 if(allChatMessages.value[props.otherId].messages.length<10){

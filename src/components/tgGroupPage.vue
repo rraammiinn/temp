@@ -305,7 +305,7 @@
     else{
   
       // allGroupMessages.value[props.groupId].messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created <= "${allGroupMessages.value[props.groupId].lastSeen}"`, sort: '-created'})).items.reverse();
-      allGroupMessages.value[props.groupId].messages= await getGroupMessages(props.groupId,0,allGroupMessages.value[props.groupId].lastSeen)
+      allGroupMessages.value[props.groupId].messages= await getLastGroupMessages(props.groupId,allGroupMessages.value[props.groupId].lastSeen)
   
     }
   
@@ -315,7 +315,7 @@
       isTop=false;
       try{
         // const extraGroups=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}") && created > "${allGroupMessages.value[props.groupId].messages.at(-1).created}"`, sort: 'created'})).items
-        const extraMessages= await getNextGroupMessages(props.groupId,allGroupMessages.value[props.groupId].messages.at(-1).created)
+        const extraMessages= await getNextGroupMessages(props.groupId,allGroupMessages.value[props.groupId].messages.at(-1).created ?? 0)
         allGroupMessages.value[props.groupId].messages=[...allGroupMessages.value[props.groupId].messages, ...extraMessages]
       }
       catch{}
@@ -327,7 +327,7 @@
     startEnabled=false;
     isTop=false;
     // allGroupMessages.value[props.groupId].messages=(await pb.collection('groupMessages').getList(1,10,{filter:`(from = "${props.groupId}" || to = "${props.groupId}")`, sort: 'created'})).items
-    allGroupMessages.value[props.groupId].messages= await getGroupMessages(props.groupId)
+    allGroupMessages.value[props.groupId].messages= await getNextGroupMessages(props.groupId)
   }
   
   if(allGroupMessages.value[props.groupId].messages.length<10){

@@ -21,12 +21,13 @@ async function getPreviousGroupMessages(groupId,endDate,number=10){
     return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created < "${endDate}"`, sort: '-created'})).items.reverse()
 }
 
-async function getNextGroupMessages(groupId,startDate,number=10){
+async function getNextGroupMessages(groupId,startDate=0,number=10){
     return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created > "${startDate}"`, sort: 'created'})).items
 }
 
-async function getLastGroupMessages(groupId,number=10){
-    return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}"`, sort: '-created'})).items.reverse()
+async function getLastGroupMessages(groupId,endDate,number=10){
+    if(endDate){return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()}
+    else{return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}"`, sort: '-created'})).items.reverse()}
 }
 
 

@@ -1,6 +1,6 @@
 <template>
 
-  <v-app :class="{'dark':dark}" :theme="getTheme">
+  <v-app :class="getTheme" :theme="getTheme">
     <v-main>
 
 
