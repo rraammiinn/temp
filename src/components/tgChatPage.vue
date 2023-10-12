@@ -6,16 +6,21 @@
   <div ref="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
     <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
     <template v-for="message,i in allChatMessages[props.otherId].messages" :key="message.id">
-      <v-chip v-if="message.created.slice(0,10) != allChatMessages[props.otherId].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
+      <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allChatMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
     <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.otherId).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).avatar}`">
       <v-divider v-if="message.files.length"></v-divider>
-      <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
-        <template  v-for="file in message.files" :key="file">
+      <div v-if="message.files.filter(name=>getType(name).startsWith('image')).length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
+        <template  v-for="file in message.files.filter(name=>getType(name).startsWith('image'))" :key="file">
           <img @click="sheet = !sheet;image=`/api/files/chatMessages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'">
         </template>
       </div>
+      <div style="display: flex;align-items: center;flex-direction: column;">
+        <template  v-for="file in message.files.filter(name=>getType(name).startsWith('audio'))" :key="file">
+          <audio preload="metadata" style="height: 1.5rem;margin: .25rem;max-width: 90%;" controls :src="`/api/files/chatMessages/${message.id}/${file}`"></audio>
+        </template>
+      </div>
       <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
-        <span>{{message.created.slice(11,16)}}</span>
+        <span>{{new Date(message.created).toLocaleTimeString([],{ hour12: false })}}</span>
         <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() <= new Date(allChatMessages[props.otherId].otherLastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon>
       </div>
     </v-card>
@@ -38,6 +43,14 @@
       <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
 
       <div style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
+
+        <v-btn v-if="files.length"
+            color="error"
+            icon="mdi-delete"
+            variant="text"
+            @click.stop="removeAllFiles"
+          ></v-btn>
+
         <v-chip v-for="file in files" :key="file"
 
         @click:close="removeFile(file)"
@@ -52,6 +65,54 @@
     </v-chip>
       </div>
 
+      <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
+        <div style="padding-bottom:1rem;display:flex">
+          <v-btn v-if="!isRecording"
+            color="primary"
+            icon="mdi-microphone"
+            variant="text"
+            @click.stop="startRecording"
+          ></v-btn>
+          <div v-else>
+            <v-btn
+            color="error"
+            icon="mdi-stop"
+            variant="text"
+            @click.stop="stopRecording"
+          ></v-btn>
+          <v-btn v-if="isPaused"
+            color="success"
+            icon="mdi-play"
+            variant="text"
+            @click.stop="resumeRecording"
+          ></v-btn>
+          <v-btn v-else
+            color="warning"
+            icon="mdi-pause"
+            variant="text"
+            @click.stop="pauseRecording"
+          ></v-btn>
+          </div>
+        </div>
+
+        <v-textarea
+          label="message"
+          auto-grow
+          variant="solo-filled"
+          rows="1"
+          row-height="15"
+          :loading="loading"
+        density="compact"
+        append-inner-icon="mdi-send"
+        single-line
+        hide-details
+        @click:append-inner.stop="send"
+        v-model="msg"
+        prepend-inner-icon="mdi-image"
+        @click:prepend-inner.stop="fileInput?.click()"
+        ></v-textarea>
+      </div>
+<!-- 
       <v-textarea
       :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}"
           label="message"
@@ -68,10 +129,10 @@
         v-model="msg"
         prepend-inner-icon="mdi-image"
         @click:prepend-inner.stop="fileInput?.click()"
-        ></v-textarea>
+        ></v-textarea> -->
 
     </div>
-    <input multiple accept="image/*" ref="fileInput" @change="upload_" type="file" hidden>
+    <input multiple accept="image/*" ref="fileInput" @change="addFiles" type="file" hidden>
 
     <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;" color="primary" size="3.5rem" elevation="24" :style="{bottom: (files.length)? '8rem':'5.25rem'}"></v-btn>
 
@@ -109,6 +170,8 @@ import {storeToRefs} from 'pinia'
 import {useDataStore} from '@/store/dataStore'
 import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages} from '@/funcs/chatFuncs'
 
+import { getType } from "mime-lite";
+
 const{updateUnseenCount}=useDataStore()
 const{rels,allChatMessages}=storeToRefs(useDataStore())
 
@@ -119,8 +182,8 @@ const scrollable=ref();
 const showGoToBottom=ref(false)
 
 
-function upload_(){
-  files.value=[]
+function addFiles(){
+  // files.value=[]
   for (var i=0;i<fileInput.value.files.length;i++){
     files.value.push(fileInput.value.files[i])
   }
@@ -136,6 +199,10 @@ function removeFile(file){
   console.log(files.value)
   files.value = files.value.filter(h => h != file)
   console.log(files.value)
+}
+
+function removeAllFiles() {
+  files.value=[]
 }
 
 var isInRel=false
@@ -339,4 +406,77 @@ subscribeToNewMessages()}
 console.log(props)
 console.log(allChatMessages.value)
 }
+
+
+const isRecording=ref(false);
+const isPaused=ref(false);
+var chunks=[];
+var mediaRecorder;
+
+
+
+function startRecording() {
+  if (navigator.mediaDevices?.getUserMedia) {
+  console.log("getUserMedia supported.");
+  navigator.mediaDevices
+    .getUserMedia(
+      // constraints - only audio needed for this app
+      {
+        audio: true,
+      },
+    )
+
+    // Success callback
+    .then((stream) => {
+      isRecording.value=true;
+      isPaused.value=false;
+
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.onstop = (e) => {
+        isRecording.value=false;
+        const blob = new Blob(chunks, { type: "audio/mp3; codecs=mp3" });
+        const file = new File([blob],'voice.mp3',{ type: 'audio/mp3' })
+        files.value.push(file)
+  }
+
+  mediaRecorder.onpause = (e) => {
+    isPaused.value=true;
+  }
+
+  mediaRecorder.onresume = (e) => {
+    isPaused.value=false;
+  }
+
+
+      mediaRecorder.ondataavailable = (e) => {
+      chunks.push(e.data);
+};
+  chunks=[];
+  mediaRecorder.start();
+
+    })
+
+    // Error callback
+    .catch((err) => {
+      console.error(`The following getUserMedia error occurred: ${err}`);
+    });
+} else {
+  console.log("getUserMedia not supported on your browser!");
+}
+}
+
+function stopRecording() {
+  mediaRecorder.stop();
+}
+
+function pauseRecording() {
+  mediaRecorder.pause();
+}
+
+function resumeRecording() {
+  mediaRecorder.resume();
+}
+
+
 </script>

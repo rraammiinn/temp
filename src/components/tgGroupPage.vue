@@ -6,7 +6,7 @@
     <div ref="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
       <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
       <template v-for="message,i in allGroupMessages[props.groupId].messages" :key="message.id">
-        <v-chip v-if="message.created.slice(0,10) != allGroupMessages[props.groupId].messages[i-1]?.created.slice(0,10)" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ message.created.slice(0,10) }}</v-chip>
+        <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allGroupMessages[props.groupId].messages[i-1]?.created).toLocaleDateString()" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
       <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="(allGroupMessages[props.groupId]?.groupMems[message.from])?.name" :prepend-avatar="`/api/files/users/${message.from}/${(allGroupMessages[props.groupId]?.groupMems[message.from])?.avatar}`">
         <v-divider v-if="message.files.length"></v-divider>
         <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
@@ -15,7 +15,7 @@
           </template>
         </div>
         <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
-          <span>{{message.created.slice(11,16)}}</span>
+          <span>{{new Date(message.created).toLocaleTimeString([],{ hour12: false })}}</span>
           <!-- <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() <= new Date(allGroupMessages[props.groupId].otherLastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon> -->
         </div>
       </v-card>
@@ -38,6 +38,14 @@
         <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
   
         <div style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
+
+          <v-btn v-if="files.length"
+            color="error"
+            icon="mdi-delete"
+            variant="text"
+            @click.stop="removeAllFiles"
+          ></v-btn>
+          
           <v-chip v-for="file in files" :key="file"
   
           @click:close="removeFile(file)"
@@ -73,7 +81,7 @@
           <v-btn v-else color="primary" @click="join" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
   
       </div>
-      <input multiple accept="image/*" ref="fileInput" @change="upload_" type="file" hidden>
+      <input multiple accept="image/*" ref="fileInput" @change="addFiles" type="file" hidden>
   
       <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;" color="primary" size="3.5rem" elevation="24" :style="{bottom: (files.length)? '8rem':'5.25rem'}"></v-btn>
   
@@ -123,8 +131,8 @@
   await updateGroupMems(props.groupId)
   
   
-  function upload_(){
-    files.value=[]
+  function addFiles(){
+    // files.value=[]
     for (var i=0;i<fileInput.value.files.length;i++){
       files.value.push(fileInput.value.files[i])
     }
@@ -141,6 +149,10 @@
     files.value = files.value.filter(h => h != file)
     console.log(files.value)
   }
+
+  function removeAllFiles() {
+  files.value=[]
+}
   
   const isMem=ref(allGroupMessages.value[props.groupId].relId ?? false)
   
