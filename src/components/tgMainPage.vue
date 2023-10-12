@@ -56,18 +56,17 @@
 
 <style scoped>
 .listItem{
-  border-left: solid;
-  border-left-width: thick;
-  border-color: transparent;
+  padding-left: 1rem;
 }
 .listItem:hover{
     color: var(--tgPrimary);
     background-color:var(--tgPrimaryHover);
-    border-left-width: 0;
 }
 .online{
+  border-left: solid;
+  padding-left: .75rem;
   border-color: var(--tgPrimary);
-  border-left-width: thick;
+  border-left-width: .25rem;
 }
 .v-list-item-subtitle{
   display: block !important;

@@ -7,23 +7,38 @@
     <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
     <template v-for="message,i in allChatMessages[props.otherId].messages" :key="message.id">
       <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allChatMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
-    <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="width: fit-content;" :class="{fromYou:(message.from==pb.authStore.model.id), card:true}"  :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.otherId).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).avatar}`">
-      <v-divider v-if="message.files.length"></v-divider>
-      <div v-if="message.files.filter(name=>getType(name).startsWith('image')).length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: center;">
-        <template  v-for="file in message.files.filter(name=>getType(name).startsWith('image'))" :key="file">
+<div :class="{fromYou:(message.from==pb.authStore.model.id), card:true}" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);">
+  <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;" :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).avatar}`">
+
+
+    </v-card>
+
+      <div v-if="message.files.filter(name=>getType(name)?.startsWith('image')).length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;">
+        <template  v-for="file in message.files.filter(name=>getType(name)?.startsWith('image'))" :key="file">
           <img @click="sheet = !sheet;image=`/api/files/chatMessages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'">
         </template>
       </div>
-      <div style="display: flex;align-items: center;flex-direction: column;">
-        <template  v-for="file in message.files.filter(name=>getType(name).startsWith('audio'))" :key="file">
-          <audio preload="metadata" style="height: 1.5rem;margin: .25rem;max-width: 90%;" controls :src="`/api/files/chatMessages/${message.id}/${file}`"></audio>
+      <div v-if="message.files.filter(name=>getType(name)?.startsWith('video')).length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;margin-bottom: 1rem;">
+        <template  v-for="file in message.files.filter(name=>getType(name)?.startsWith('video'))" :key="file">
+          <video controls preload="metadata" style="margin: .5rem;height: 8rem;border-radius: .3rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'"></video>
         </template>
       </div>
+      <div style="display: flex;align-items: center;flex-direction: column;">
+        <template  v-for="file in message.files.filter(name=>getType(name)?.startsWith('audio'))" :key="file">
+          <audio preload="metadata" style="height: 1.5rem;margin: .25rem;max-width: calc(100% - 1rem);" controls :src="`/api/files/chatMessages/${message.id}/${file}`"></audio>
+        </template>
+      </div>
+      <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;margin-top: 1rem;">
+        <template  v-for="file in message.files.filter(name=>{return(!getType(name) || !(getType(name).startsWith('image') || getType(name).startsWith('video') ||getType(name).startsWith('audio')))})" :key="file">
+          <a style="text-decoration: none;" download :href="`/api/files/chatMessages/${message.id}/${file}`"><v-btn color="primary" icon="mdi-file" rounded style="margin: .5rem;"></v-btn></a>
+        </template>
+      </div>
+
       <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
         <span>{{new Date(message.created).toLocaleTimeString([],{ hour12: false })}}</span>
         <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() <= new Date(allChatMessages[props.otherId].otherLastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon>
       </div>
-    </v-card>
+</div>
 </template>
 </div>
   </div>
@@ -132,7 +147,7 @@
         ></v-textarea> -->
 
     </div>
-    <input multiple accept="image/*" ref="fileInput" @change="addFiles" type="file" hidden>
+    <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
 
     <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;" color="primary" size="3.5rem" elevation="24" :style="{bottom: (files.length)? '8rem':'5.25rem'}"></v-btn>
 
