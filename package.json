@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.0.96",
+    "mime": "^3.0.0",
     "mime-lite": "^1.0.3",
     "pinia": "^2.1.6",
     "pocketbase": "^0.15.3",

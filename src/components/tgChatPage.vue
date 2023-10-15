@@ -13,24 +13,30 @@
 
     </v-card>
 
-      <div v-if="message.files.filter(name=>getType(name)?.startsWith('image')).length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;">
-        <template  v-for="file in message.files.filter(name=>getType(name)?.startsWith('image'))" :key="file">
+      <div v-if="message.files.filter(name=>getFileType(name)=='image').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;">
+        <template  v-for="file in message.files.filter(name=>getFileType(name)=='image')" :key="file">
           <img @click="sheet = !sheet;image=`/api/files/chatMessages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'">
         </template>
       </div>
-      <div v-if="message.files.filter(name=>getType(name)?.startsWith('video')).length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;margin-bottom: 1rem;">
-        <template  v-for="file in message.files.filter(name=>getType(name)?.startsWith('video'))" :key="file">
+      <div v-if="message.files.filter(name=>getFileType(name)=='video').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;margin-bottom: 1rem;">
+        <template  v-for="file in message.files.filter(name=>getFileType(name)=='video')" :key="file">
           <video controls preload="metadata" style="margin: .5rem;height: 8rem;border-radius: .3rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'"></video>
         </template>
       </div>
       <div style="display: flex;align-items: center;flex-direction: column;">
-        <template  v-for="file in message.files.filter(name=>getType(name)?.startsWith('audio'))" :key="file">
+        <template  v-for="file in message.files.filter(name=>getFileType(name)=='audio')" :key="file">
           <audio preload="metadata" style="height: 1.5rem;margin: .25rem;max-width: calc(100% - 1rem);" controls :src="`/api/files/chatMessages/${message.id}/${file}`"></audio>
         </template>
       </div>
-      <div v-if="message.files.length" style="display: flex;overflow: auto;white-space: nowrap;margin-top: 1rem;">
-        <template  v-for="file in message.files.filter(name=>{return(!getType(name) || !(getType(name).startsWith('image') || getType(name).startsWith('video') ||getType(name).startsWith('audio')))})" :key="file">
-          <a style="text-decoration: none;" download :href="`/api/files/chatMessages/${message.id}/${file}`"><v-btn color="primary" icon="mdi-file" rounded style="margin: .5rem;"></v-btn></a>
+      <div style="display: flex;overflow: scroll;white-space: nowrap;margin-top: .5rem;">
+        <template  v-for="file in message.files.filter(name=>getFileType(name)=='misc')" :key="file">
+          <!-- <a class="fileBtn" style="text-decoration: none;margin-right: 1rem;" :download="file.slice(0,file.lastIndexOf('.')-11)+file.slice(file.lastIndexOf('.'))" :href="`/api/files/chatMessages/${message.id}/${file}`"> -->
+                <!-- <v-btn size="2.5rem" color="primary" prepend-icon="mdi-file" rounded style="margin: .5rem;"></v-btn> -->
+                <!-- <v-chip showName="false" style="margin-right: 1rem;" color="primary"><template #prepend><a class="fileBtn" style="text-decoration: none;" :download="file.slice(0,file.lastIndexOf('.')-11)+file.slice(file.lastIndexOf('.'))" :href="`/api/files/chatMessages/${message.id}/${file}`"><v-icon icon="mdi-file"></v-icon></a></template><template #append><v-icon @click.stop="()=>{showName = !showName}" :icon="showName ? 'mdi-arrow-left' : 'mdi-arrow-right'"></v-icon></template>{{ showName ? file.slice(0,file.lastIndexOf('.')-11)+file.slice(file.lastIndexOf('.')) : null }}</v-chip> -->
+          <!-- </a> -->
+          <div style="width: fit-content;">
+            <tg-file-chip :link="`/api/files/chatMessages/${message.id}/${file}`" :fileName="file"></tg-file-chip>
+          </div>
         </template>
       </div>
 
@@ -73,7 +79,7 @@
       closable
       color="var(--tgBrown)"
       close-icon="mdi-delete"
-      prepend-icon="mdi-image"
+      :prepend-icon="file.name=='voice.mp3' ? 'mdi-microphone' : getIcon(getFileType(file.name))"
       :model-value="true"
     >
       {{ file.name }}
@@ -169,6 +175,9 @@
 .fromYou{
     align-self: flex-end;
 }
+.fileBtn:hover{
+  width: fit-content;
+}
 </style>
 
 
@@ -185,7 +194,9 @@ import {storeToRefs} from 'pinia'
 import {useDataStore} from '@/store/dataStore'
 import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages} from '@/funcs/chatFuncs'
 
-import { getType } from "mime-lite";
+import { getType } from "mime";
+
+import tgFileChip from '@/components/tgFileChip.vue'
 
 const{updateUnseenCount}=useDataStore()
 const{rels,allChatMessages}=storeToRefs(useDataStore())
@@ -493,5 +504,15 @@ function resumeRecording() {
   mediaRecorder.resume();
 }
 
+function getFileType(name){
+  const fileType=getType(name) ?? 'misc'
+  if (fileType.startsWith('image')) {return 'image'}
+  else if (fileType.startsWith('video')) {return 'video'}
+  else if (fileType.startsWith('audio')) {return 'audio'}
+  else {return 'misc'}
+}
 
+function getIcon(fileType){
+  if(fileType=='misc') return 'mdi-file';else if(fileType=='audio') return 'mdi-music';else return `mdi-${fileType}`;
+}
 </script>
