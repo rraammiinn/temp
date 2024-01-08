@@ -1,6 +1,6 @@
 <template>
 
-<div style="width: 100vw;height: 100vh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4rem;">
+<div style="width: 100vw;height: 100dvh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4rem;">
     <div class="main">
         <img style="width: 100%;" :src="`/api/files/users/${props.otherId.id}/${props.otherId.avatar}`" alt="">
         <div style="width: 100%;margin-bottom: 1rem;">

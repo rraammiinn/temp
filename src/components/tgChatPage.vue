@@ -3,48 +3,16 @@
 
 <div class="main">
 
-  <div ref="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
+  <div ref="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;">
     <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
     <template v-for="message,i in allChatMessages[props.otherId].messages" :key="message.id">
       <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allChatMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
-<div :class="{fromYou:(message.from==pb.authStore.model.id), card:true}" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);">
-  <v-card :created="message.created" :id="message.id" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;" :text="message.text" :title="((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).name" :prepend-avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).avatar}`">
 
 
-    </v-card>
 
-      <div v-if="message.files.filter(name=>getFileType(name)=='image').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;">
-        <template  v-for="file in message.files.filter(name=>getFileType(name)=='image')" :key="file">
-          <img @click="sheet = !sheet;image=`/api/files/chatMessages/${message.id}/${file}`" style="border-radius: .3rem;margin: .5rem;height: 8rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'">
-        </template>
-      </div>
-      <div v-if="message.files.filter(name=>getFileType(name)=='video').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;margin-bottom: 1rem;">
-        <template  v-for="file in message.files.filter(name=>getFileType(name)=='video')" :key="file">
-          <video controls preload="metadata" style="margin: .5rem;height: 8rem;border-radius: .3rem;" :src="`/api/files/chatMessages/${message.id}/${file}`" onerror="this.style.display='none'"></video>
-        </template>
-      </div>
-      <div style="display: flex;align-items: center;flex-direction: column;">
-        <template  v-for="file in message.files.filter(name=>getFileType(name)=='audio')" :key="file">
-          <audio preload="metadata" style="height: 1.5rem;margin: .25rem;max-width: calc(100% - 1rem);" controls :src="`/api/files/chatMessages/${message.id}/${file}`"></audio>
-        </template>
-      </div>
-      <div style="display: flex;overflow: scroll;white-space: nowrap;margin-top: .5rem;">
-        <template  v-for="file in message.files.filter(name=>getFileType(name)=='misc')" :key="file">
-          <!-- <a class="fileBtn" style="text-decoration: none;margin-right: 1rem;" :download="file.slice(0,file.lastIndexOf('.')-11)+file.slice(file.lastIndexOf('.'))" :href="`/api/files/chatMessages/${message.id}/${file}`"> -->
-                <!-- <v-btn size="2.5rem" color="primary" prepend-icon="mdi-file" rounded style="margin: .5rem;"></v-btn> -->
-                <!-- <v-chip showName="false" style="margin-right: 1rem;" color="primary"><template #prepend><a class="fileBtn" style="text-decoration: none;" :download="file.slice(0,file.lastIndexOf('.')-11)+file.slice(file.lastIndexOf('.'))" :href="`/api/files/chatMessages/${message.id}/${file}`"><v-icon icon="mdi-file"></v-icon></a></template><template #append><v-icon @click.stop="()=>{showName = !showName}" :icon="showName ? 'mdi-arrow-left' : 'mdi-arrow-right'"></v-icon></template>{{ showName ? file.slice(0,file.lastIndexOf('.')-11)+file.slice(file.lastIndexOf('.')) : null }}</v-chip> -->
-          <!-- </a> -->
-          <div style="width: fit-content;">
-            <tg-file-chip :link="`/api/files/chatMessages/${message.id}/${file}`" :fileName="file"></tg-file-chip>
-          </div>
-        </template>
-      </div>
+      <tg-card @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :time="message.created" :id="message.id" :name="((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).name" :text="message.text" :avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allChatMessages[props.otherId].other).avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allChatMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
 
-      <div style="padding: 1rem;display: flex;justify-content: space-between;opacity: .5;font-size: .5rem;font-weight: bold;">
-        <span>{{new Date(message.created).toLocaleTimeString([],{ hour12: false })}}</span>
-        <v-icon v-if="message.from==pb.authStore.model.id" :icon="new Date(message.created).getTime() <= new Date(allChatMessages[props.otherId].otherLastSeen).getTime() ? 'mdi-check-all' : 'mdi-check'"></v-icon>
-      </div>
-</div>
+
 </template>
 </div>
   </div>
@@ -52,7 +20,7 @@
 
 
     <v-bottom-sheet v-model="sheet">
-      <v-img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;" max-width="100vw" max-height="85vh" :src="image"></v-img>
+      <img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;;max-height: 80dvh;object-fit: contain;" :src="image">
       <div style="width: 100%;">
       <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false">close</v-btn>
       <a download style="text-decoration: none;" :href="image"><v-btn style="border-radius: 0;" width="50%" color="primary" prepend-icon="mdi-download" @click="sheet=false">download</v-btn></a>
@@ -171,6 +139,7 @@
     max-width: 80%;
     margin-top: 1rem;
     margin-bottom: 3rem;
+    width: min-content;
 }
 .fromYou{
     align-self: flex-end;
@@ -194,9 +163,11 @@ import {storeToRefs} from 'pinia'
 import {useDataStore} from '@/store/dataStore'
 import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages} from '@/funcs/chatFuncs'
 
-import { getType } from "mime";
 
-import tgFileChip from '@/components/tgFileChip.vue'
+// import tgFileChip from '@/components/tgFileChip.vue'
+import tgCard from './tgCard.vue';
+import {getFileType, getIcon} from '@/funcs/commonFuncs'
+
 
 const{updateUnseenCount}=useDataStore()
 const{rels,allChatMessages}=storeToRefs(useDataStore())
@@ -268,7 +239,7 @@ const msg=ref('')
 
 
 
-import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
+// import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
 import tgUserDetails from './tgUserDetails.vue';
 
 const sheet=ref(false)
@@ -504,15 +475,5 @@ function resumeRecording() {
   mediaRecorder.resume();
 }
 
-function getFileType(name){
-  const fileType=getType(name) ?? 'misc'
-  if (fileType.startsWith('image')) {return 'image'}
-  else if (fileType.startsWith('video')) {return 'video'}
-  else if (fileType.startsWith('audio')) {return 'audio'}
-  else {return 'misc'}
-}
 
-function getIcon(fileType){
-  if(fileType=='misc') return 'mdi-file';else if(fileType=='audio') return 'mdi-music';else return `mdi-${fileType}`;
-}
 </script>

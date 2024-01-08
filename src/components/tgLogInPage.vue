@@ -1,5 +1,5 @@
 <template>
-    <div style="height: 100vh;width: 100vw;display: flex;justify-content: center;align-items: center;">
+    <div style="height: 100dvh;width: 100vw;display: flex;justify-content: center;align-items: center;">
         <v-col>
             <v-text-field @change="checkUserExistence" v-model="email" style="margin-bottom: 1rem;" :rules="[rules.required]" prepend-inner-icon="mdi-email" variant="outlined" label="email"></v-text-field>
             <v-text-field v-model="password" style="margin-bottom: 1rem;" :rules="[rules.required, rules.min]" @click:append-inner="showPass = !showPass" :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'" prepend-inner-icon="mdi-key" :type="showPass ? 'text' : 'password'" variant="outlined" label="password"></v-text-field>

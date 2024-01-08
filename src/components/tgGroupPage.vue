@@ -3,7 +3,7 @@
   
   <div class="main">
   
-    <div ref="scrollable" style="width: 90vw; height: 100vh;position: fixed;bottom: 0;overflow-y: scroll;">
+    <div ref="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;">
       <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
       <template v-for="message,i in allGroupMessages[props.groupId].messages" :key="message.id">
         <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allGroupMessages[props.groupId].messages[i-1]?.created).toLocaleDateString()" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
@@ -26,7 +26,7 @@
   
   
       <v-bottom-sheet v-model="sheet">
-        <v-img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;" max-width="100vw" max-height="85vh" :src="image"></v-img>
+        <v-img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;" max-width="100vw" max-height="85dvh" :src="image"></v-img>
         <div style="width: 100%;">
         <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false">close</v-btn>
         <a download style="text-decoration: none;" :href="image"><v-btn style="border-radius: 0;" width="50%" color="primary" prepend-icon="mdi-download" @click="sheet=false">download</v-btn></a>
@@ -185,7 +185,7 @@
   
   
   
-  import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
+  // import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
   // import tgGroupDetails from './tgGroupDetails.vue';
   
   const sheet=ref(false)

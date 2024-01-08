@@ -8,7 +8,7 @@
 
         <v-divider/>
         <v-list-item title="" value="">
-            <div style="display: flex;align-items:center;align-content: center;">
+            <div style="display: flex;align-items:center;align-content: center;margin-bottom: 3rem;">
                 <v-switch v-model="isDark" label="dark mode" color="primary" inset></v-switch>
             </div>
         </v-list-item>
