@@ -1,30 +1,30 @@
 <template>
-<div class="image-upload">
-    <label for="file-input">
-      <button @click="inp.click()" style="width: 5rem;height: 5rem;background-color: blue;">sss</button>
-        <!-- <img src="../../icon.png"/> -->
-    </label>
-
-    <input @change="(e)=>{console.log(e)}" ref="inp" id="file-input" type="file"/>
-</div>
-</template>
-
-<style scoped>
-.image-upload > input
-{
-    display: none;
-}
-
-.image-upload img
-{
-    width: 10rem;
-    height: 10rem;
-    cursor: pointer;
-}
-</style>
-
-<script setup>
-import { ref } from 'vue';
-
-const inp=ref()
-</script>
+    <v-infinite-scroll
+      height="100vh"
+      side="both"
+      @load="load"
+    >
+      <template v-for="(item, index) in items" :key="item">
+        <div :class="['px-2', index % 2 === 0 ? 'bg-grey-lighten-2' : '']">
+          Item number {{ item }}
+        </div>
+      </template>
+    </v-infinite-scroll>
+  </template>
+  
+  <script setup>
+  import { ref } from 'vue';
+        const items = ref(Array.from({ length: 50 }, (k, v) => v + 1))
+        const load = ({ side, done }) => {
+          setTimeout(() => {
+            if (side === 'start') {
+              const arr = Array.from({ length: 10 }, (k, v) => items.value[0] - (10 - v))
+              items.value = [...arr, ...items.value]
+            } else if (side === 'end') {
+              const arr = Array.from({ length: 10 }, (k, v) => items.value.at(-1) + 1 + v)
+              items.value = [...items.value, ...arr]
+            }
+  
+            done('ok')
+          }, 1000)}
+  </script>
