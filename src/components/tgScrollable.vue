@@ -1,77 +1,155 @@
 <template>
 
 
-<!-- 
-<div ref="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;">
-    <div style="padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;">
-    <template v-for="message,i in props.allMessages[props.otherId].messages" :key="message.id">
-      <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(props.allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
-
-
-
-      <tg-card @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :time="message.created" :id="message.id" :name="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.allMessages[props.otherId].other).name" :text="message.text" :avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : props.allMessages[props.otherId].other).avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(props.allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
-
-
-</template>
+<div ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 3rem;padding-bottom: 3rem;display: flex;flex-direction: column;">
+    <template v-for="message,i in allMessages[props.otherId].messages" :key="message.id">
+          <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
+    
+    
+    
+          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :name="((message.from==pb.authStore.model.id) ? pb.authStore.model : allMessages[props.otherId].other).name" :text="message.text" :avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allMessages[props.otherId].other).avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+    
+    
+        </template>
 </div>
-  </div>
+
+<v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;bottom: 6.9rem;z-index: 99999;" color="primary" size="3.5rem" elevation="24"></v-btn>
+
+
+
+      </template>
+      
+      <script setup>
+      import tgCard from './tgCard.vue';
+      import pb from '@/main';
+      import { computed, onUpdated, onMounted, ref } from 'vue';
+      import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages,subscribeToNewMessages} from '@/funcs/chatFuncs'
+
+    
+    
+      const props = defineProps(['otherId','initMessageId','messageGenerator'])
+      const emit = defineEmits(['reachedStart', 'reachedEnd'])
+      const allMessages=defineModel('allMessages')
+
+
+
+      const scrollable = ref()
+      var updateCause='both'
+      var startScrollTop=0;
+      // var firstUpdate=true;
+      var startEnabled=true;
+      var endEnabled=true;
+      var topCard;
+      var bottomCard;
+      const showGoToBottom=ref(false)
+
+
+      console.log('props ::: ',props)
+
+
+      // onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{scrollable.value?.scrollIntoView({block:'center'});}})
+
+
+    
+    
+
+        const dateObserver = new IntersectionObserver(
+          (e)=>{
+            const target=e.filter(i=>i.isIntersecting).at(-1)?.target
+            if(!target)return;
+            const date = target.dataset.time
+            dateObserver.unobserve(target);
+            if(new Date(allMessages.value[props.otherId].lastSeen) < new Date(date)){
+            allMessages.value[props.otherId].lastSeen=date;
+            pb.collection('rels').update(allMessages.value[props.otherId].relId,{lastseen:date})
+      }
+          },
+          {root:scrollable.value}
+        )
+
+        const startObserver = new IntersectionObserver(
+          (e)=>{console.log('intersected --------->>> start',e);if(e[0].isIntersecting){updateCause = updateCause == 'end' ? 'both' : 'start';props.messageGenerator.getPreviousMessages().then((res)=>{startEnabled=res;topCard=e[0].target;});startObserver.unobserve(e[0].target);}},
+          {root:scrollable.value}
+        )
 
 
 
 
 
- -->
+        const endObserver = new IntersectionObserver(
+          (e)=>{console.log('intersected --------->>> end',e);if(e[0].isIntersecting){updateCause = updateCause == 'start' ? 'both' : 'end';props.messageGenerator.getNextMessages().then((res)=>{endEnabled=res;bottomCard=e[0].target;});endObserver.unobserve(e[0].target);}},
+          {root:scrollable.value}
+        )
+
+        function attachStartObserver(){
+          if(updateCause != 'goToBottom' && startEnabled && topCard)topCard.scrollIntoView({block:'nearest'});
+          setTimeout(() => {
+            startObserver.observe(document.querySelectorAll('.tg-card')[0])
+          }, 1000);
+        }
+
+        function attachEndObserver(){
+          if(bottomCard)bottomCard.scrollIntoView({block:'nearest'});
+          setTimeout(() => {
+            if(endEnabled){endObserver.observe(Array.from(document.querySelectorAll('.tg-card')).at(-1))}
+          }, 1000);
+        }
+
+        
+        function attachDateObserver(){
+          Array.from(document.querySelectorAll('.tg-card')).slice(-10).forEach(i=>dateObserver.observe(i))
+        }
 
 
-    <v-infinite-scroll
-      height="100%"
-      side="both"
-      @load="load"
-    >
-    <template v-for="message,i in props.allMessages[props.otherId].messages" :key="message.id">
-      <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(props.allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="min-height: 1.5rem;width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
 
 
+//   async function getPreviousMessages(){console.log('-----------getPreviousMessages----------->>>>>>>>>>>')
+//   try{
+//     const previous10Messages= await getPreviousChatMessages(props.otherId,allMessages.value[props.otherId].messages[0].created)
+//     if(!previous10Messages.length){console.log('no more <<<');return};
+//       allMessages.value[props.otherId].messages=[...previous10Messages, ...allMessages.value[props.otherId].messages]
 
-      <tg-card @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :time="message.created" :id="message.id" :name="((message.from==pb.authStore.model.id) ? pb.authStore.model : props.allMessages[props.otherId].other).name" :text="message.text" :avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : props.allMessages[props.otherId].other).avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(props.allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
 
-
-    </template>
-
-    <template v-slot:loading>
-        <div></div>
-    </template>
-    </v-infinite-scroll>
-  </template>
+//     }
+//     catch{console.log('start errrrror @@@')}
+//     // updateCause=null;
+// }
   
-  <script setup>
-  import tgCard from './tgCard.vue';
-  import pb from '@/main';
-  import { computed } from 'vue';
+//   async function getNextMessages(){console.log('------------getNextMessages---------->>>>>>>>>>>')
+//   try{
+//       const new10Messages= await getNextChatMessages(props.otherId,allMessages.value[props.otherId].messages.at(-1).created)
+//       if(!new10Messages.length){console.log('no more >>>');return};
+//       allMessages.value[props.otherId].messages=[...allMessages.value[props.otherId].messages, ...new10Messages]
+//       if(!new10Messages.length){
+// subscribeToNewMessages()}
+//     }
+//     catch{console.log('end errrrror @@@')}
+//     // updateCause=null;
+// }
+              
 
 
-  const props = defineProps(['allMessages', 'otherId', 'getPreviousMessages', 'getNextMessages', 'startEnabled', 'endEnabled'])
-  const emit = defineEmits(['reachedStart', 'reachedEnd'])
-  const direction = computed(()=>{if(props.startEnabled && props.endEnabled) return 'both'; else if (props.endEnabled) return 'end'; else if(props.endEnabled) return 'start'; else return null;})
+        onUpdated(()=>{if(updateCause=='start')attachStartObserver();else if(updateCause=='end')attachEndObserver();else if(updateCause=='both'){attachStartObserver();attachEndObserver();}else if(updateCause=='goToBottom'){scrollable.value.scrollTop=scrollable.value.scrollHeight;attachStartObserver()};updateCause=null;attachDateObserver();})
+    
 
 
 
-  import { ref } from 'vue';
-        async function load ({ side, done }) {
-            console.log('dir : '+direction.value)
-            if (side == 'start' && (direction.value == 'both' || direction.value == 'start')) {
-                console.log('-----> start')
-            //   emit('reachedStart')
-            await props.getPreviousMessages({done})
-            } else if (side == 'end' && (direction.value == 'both' || direction.value == 'end')) {
-                console.log('-----> end')
-                // emit('reachedEnd')
-                await props.getNextMessages({done})
-            }
-  
-            // done('ok')
-            
-            else {if(direction.value)done('ok');};
 
-          }
-  </script>
+    async function goToBottom(){
+      if(endEnabled){
+        updateCause='goToBottom'
+        await props.messageGenerator.goToBottom()
+      }
+      scrollable.value.scrollTop=scrollable.value.scrollHeight;
+  }
+
+
+
+
+
+  onMounted(()=>{document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true})})
+
+
+
+  console.log('@@@@@almsg',allMessages.value)
+      </script>

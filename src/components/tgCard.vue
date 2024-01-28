@@ -1,6 +1,6 @@
 <template>
 <div :style="{alignSelf : !(props.fromYou || props.fromOther) ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);margin: 1rem;max-width: 80%;margin-top: 1rem;margin-bottom: 3rem;width: min-content;">
-  <v-card :created="props.time" :id="props.id" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;min-width: max-content;" :text="props.text" :title="props.name" :prepend-avatar="props.avatar">
+  <v-card :created="props.time" :id="props.id" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;" :text="props.text" :title="props.name" :prepend-avatar="props.avatar">
 
 
     </v-card>

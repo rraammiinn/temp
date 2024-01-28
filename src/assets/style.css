@@ -55,3 +55,6 @@ html{
 .v-list{
   padding: 0 !important;
 }
+.v-card-item__content{
+  overflow: visible;
+}

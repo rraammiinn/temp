@@ -1,7 +1,7 @@
 <template>
   <div v-if="userSearch">
     <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-        <div v-for="user in users" @click="allChatMessages[user.id]={other:user,messages:[]};$router.push({name:'chat', params:{otherId:user.id},query:{initMessageId:'',showUser:true}})" :key="user.id">
+        <div v-for="user in users" @click="allChatsData[user.id]={other:user,messages:[]};$router.push({name:'chat', params:{otherId:user.id},query:{initMessageId:'',showUser:true}})" :key="user.id">
             <v-list-item class="listItem"
             :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
             :title="user.name"
@@ -64,7 +64,7 @@ import pb from '@/main';
 import { storeToRefs } from "pinia";
 
 import { useDataStore } from "@/store/dataStore";
-const{updateContacts,allChatMessages}=useDataStore()
+const{updateContacts,allChatsData}=useDataStore()
 const{contacts}=storeToRefs(useDataStore())
 
 updateContacts()
