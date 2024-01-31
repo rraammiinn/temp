@@ -1,12 +1,12 @@
 <template>
-    <tg-user-details :otherId="allChatsData.allMessages[props.otherId].other" v-show="showUser"></tg-user-details>
+    <tg-user-details style="z-index: 888;" :otherId="allChatsData.allMessages[props.otherId].other" v-show="showUser"></tg-user-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChatsData.allMessages" :init-message-id="props.initMessageId" :other-id="props.otherId" :get-previous-messages="getPreviousMessages" :get-next-messages="getNextMessages" :start-enabled="startEnabled" :end-enabled="endEnabled" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChatsData.allMessages" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -177,7 +177,6 @@
     files.value=[]
   }
   
-  var isInRel=false
   
   
   const files=ref([]);
@@ -185,10 +184,10 @@
   
   
   async function send(){
-    if(!isInRel){
+    if(!isInRel.value){
       try{await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true})}catch{}
       try{await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true})}catch{}
-      isInRel=true
+      isInRel.value=true
     }
       var formData = new FormData();
       console.log(props.otherId)
@@ -225,6 +224,8 @@
   
   const messageGenerator = new ChatMessageGenerator(props.otherId,props.initMessageId)
   await messageGenerator.initializeMessages()
+  const isInRel=computed(()=>!!allChatsData.value.allMessages[props.otherId].relId && !!allChatsData.value.allMessages[props.otherId].backRelId)
+
   // initializeChatMessages(props.otherId,props.initMessageId)
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{chatsContainer.value?.scrollIntoView({block:'center'});}})

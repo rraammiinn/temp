@@ -7,41 +7,29 @@ import {useAuthStore} from '@/store/authStore'
 class ChatData{
     constructor(rel,backRel){
         this.rel=rel
-        this.lastMessage = null
-        this.other = null
-        this.lastSeen = null
-        this.unseenCount = 0
-        this.lastVisited = null
-        this.relId = null
-        this.backRelId = null
-        this.otherLastSeen = null
-        this.messages=[]
-        this.cacheNewMessages=false
-        this.isOnline=false
-        this.messagesType='chat'
         this.backRel=backRel
-    }
-
-    async init(){
+        this.lastMessage = null
         this.other = (this.rel.follower == useAuthStore().authData.id) ? this.rel.expand.following : this.rel.expand.follower
-        console.log('init start ----->')
-        console.log('other@@@@@',this.other)
-
-        // try{
-            this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created'})
-        // }catch{console.log('errrooooor@@@')}
         this.lastSeen = this.rel.lastseen || 0
-        console.log('init 1')
-        try{
-            this.unseenCount = (await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${this.other.id}" && created > "${this.lastSeen}"`, sort:'-created',$autoCancel:false})).totalItems
-        }catch(e){console.log(this.other.id,'-e-r-r-o-r->',e)}
-        console.log('init 2')
+        this.unseenCount = 0
         this.lastVisited = this.rel.expand.following.lastvisited
         this.relId = this.rel.id
         this.backRelId = this.backRel?.id
         this.otherLastSeen = this.backRel?.lastseen || 0
-        console.log('init end ----->')
-        console.log('@ ::: ',this.lastMessage)
+        this.messages=[]
+        this.cacheNewMessages=false
+        this.isOnline=false
+        this.messagesType='chat'
+    }
+
+    async init(){
+        this.other = (this.rel.follower == useAuthStore().authData.id) ? this.rel.expand.following : this.rel.expand.follower
+
+        this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created'})
+
+        await this.updateUnseenCount()
+
+
 
     }
 
@@ -81,95 +69,110 @@ class AllChatsData{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// class GroupData{
-//     constructor(group){
-//         this.groupMems={}
-//         this.lastMessage=null
-//         this.group=group
-//         this.messages=[]
-//         this.unseenCount=0
-//         this.cacheNewMessages=false
-//         this.lastSeen=group.lastSeen || 0
-//         this.relId=group.relId
-//         this.messagesType='group'
-//     }
+class GroupData{
+    constructor(groupRel){
+        this.groupMems={}
+        this.lastMessage=null
+        this.group=groupRel.expand.group
+        this.messages=[]
+        this.unseenCount=0
+        this.cacheNewMessages=false
+        this.lastSeen=groupRel.lastSeen || 0
+        this.groupRelId=groupRel.id
+        this.messagesType='group'
+    }
 
-//     async init(){
+    async init(){
+        this.lastMessage = await pb.collection('groupMessages').getFirstListItem(`group = "${this.group.id}"`, {sort:'-created',expand:'from'})
+        try{
+            await this.updateUnseenCount()
+        }catch{}
+        await this.updateMembers()
+        console.log('###',this.groupMems)
 
+    }
+    
+    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem'})).then(res=>{console.log('+++',res);res.forEach(groupRel=>this.groupMems[groupRel.mem]=groupRel.expand.mem);console.log('###',this.groupMems)})}
 
-//     }
-// }
+    async updateUnseenCount(){this.unseenCount=(await pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && group = "${this.group.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;console.log(this.allMessagesSorted[this.group.id])}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// class AllGroupsData{
-//     constructor(rels=[]){
-//         this.rels=rels
-//         this.groups={}
-//         this.members=[]
-//         this.allMessages={}
-//     }
-
-//     async updateGroups(){(await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})).map(rec=>{this.groups[rec.group]=rec.expand.group;this.groups[rec.group]['lastSeen']=rec.lastseen;this.groups[rec.group]['relId']=rec.id});}
-//     async updateMembers(groupId){(await pb.collection('groupMembers').getFullList({filter:`group = "${groupId}"`,expand:'mem'})).map(rec=>{this.allGroupMessages[groupId].groupMems[rec.mem]=rec.expand.mem});this.allGroupMessages[groupId].groupMems[useAuthStore().authData.id]=useAuthStore().authData}
-//     async updateRels(){this.groupRels=await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'});}
-//     async updateUnseenCount(id){this.allGroupMessages[id].unseenCount=(await pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && group = "${id}" && created > "${this.allGroupMessages[id].lastSeen}"`, sort:'-created'})).totalItems;console.log(this.allMessagesSorted[id])}
-//     async updateAllMessages(){for (const group of Object.values(this.groups)){this.allGroupMessages[group.id]=new GroupData(group);await this.allGroupMessages[group.id].init();
-//     await Promise.allSettled(Object.values(this.groups).map(group=>{new Promise((resolve, reject)=>{
-//         Promise.all([
-//         pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && created > "${group.lastSeen}"`, sort:'-created'}).then(rec=>this.allGroupMessages[group.id]['unseenCount']=rec.totalItems),
-//         pb.collection('groupMessages').getFirstListItem(`group = "${group.id}"`, {sort:'-created',expand:'from'}).then(msg=>{this.allMessages[group.id]['lastMessage']=msg})
-//         ]).then(resolve()).catch(reject()).then(resolve())
-//     })}))
-
-
-//     }
-
-
-//     }
-// }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// class ChannelData{
-//     constructor(rel){
-//         this.channelMems={}
-//         this.lastMessage=null
-//         this.channel=rel.expand.channel
-//         this.messages=[]
-//         this.unseenCount=0
-//         this.cacheNewMessages=false
-//         this.lastSeen=rel.lastseen || 0
-//         this.relId=rel.id
-//         this.messagesType='channel'
-//     }
-
-//     async init(){
-//         this.unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`created > "${this.lastSeen}"`, sort:'-created'})).totalItems
-//         this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created'})
-
-//     }
-// }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// class AllChannelsData{
-//     constructor(rels=[]){
-//         this.channels={}
-//         this.rels=rels
-//         this.allMessages={}
-//     }
+class AllGroupsData{
+    constructor(groupRels=[]){
+        this.groupRels=groupRels
+        // this.groups={}
+        this.allMessages={}
+    }
 
-//     async updatMembers(channelId){this.allChannelMessages[channelId].channelMems=(await pb.collection('channelMembers').getFullList({filter:`channel = "${channelId}"`,expand:'mem'})).map(rec=>{this.allChannelMessages[channelId].channelMems[rec.mem]=rec.expand.mem});}
-//     async updatRels(){this.rels=await pb.collection('channelMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'channel'});}
-//     async updatUnseenCount(id){this.allChannelMessages[id].unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`channel = "${id}" && created > "${this.allChannelMessages[id].lastSeen}"`, sort:'-created'})).totalItems;console.log(this.allMessagesSorted[id])}
-//     async updateAlMessages(){for await (const rel of this.rels){this.allChannelMessages[rel.channel]=new ChannelData(rel)}
+    // async updateGroups(){(await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})).map(rec=>{this.groups[rec.group]=rec.expand.group;this.groups[rec.group]['lastSeen']=rec.lastseen;this.groups[rec.group]['groupRelId']=rec.id});}
+    // async updateGroupRels(){this.groupRels = await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})}
+    async updateMembers(groupId){await this.allMessages[groupId].updateMembers()}
+    async updateRels(){this.groupRels=await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'});}
+    async updateUnseenCount(groupId){await this.allMessages[groupId].updateUnseenCount()}
+    async updateAllMessages(){
+  await Promise.allSettled(this.groupRels.map((groupRel)=>{
+        var index=groupRel.group
+        this.allMessages[index] = new GroupData(groupRel)
+        return this.allMessages[index].init()
+}))
 
-//     this.allMessages[rels.channel]['unseenCount']=(await pb.collection('channelMessages').getList(1, 1, {filter:`created > "${this.allChannelMessages[rel.channel]['lastSeen']}"`, sort:'-created'})).totalItems
-//     this.allMessages[rels.channel]['lastMessage'] = await pb.collection('channelMessages').getFirstListItem(`channel = "${rel.channel}"`, {sort:'-created'})
-// }}
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class ChannelData{
+    constructor(channelRel){
+        this.channelMems={}
+        this.lastMessage=null
+        this.channel=channelRel.expand.channel
+        this.messages=[]
+        this.unseenCount=0
+        this.cacheNewMessages=false
+        this.lastSeen=channelRel.lastseen || 0
+        this.channelRelId=channelRel.id
+        this.messagesType='channel'
+    }
+
+    async init(){
+        this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created'})
+        await this.updateUnseenCount()
+
+    }
+
+    async updateMembers(){this.channelMems=(await pb.collection('channelMembers').getFullList({filter:`channel = "${this.channel.id}"`,expand:'mem'})).map(rec=>{this.channelMems[rec.mem]=rec.expand.mem});}
+
+    async updateUnseenCount(){this.unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`channel = "${this.channel.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+class AllChannelsData{
+    constructor(channelRels=[]){
+        // this.channels={}
+        this.channelRels=channelRels
+        this.allMessages={}
+    }
+
+    async updateMembers(channelId){await this.allMessages[channelId].updateMembers()}
+    async updateRels(){this.channelRels=await pb.collection('channelMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'channel'});}
+    async updateUnseenCount(channelId){await this.allMessages[channelId].updateUnseenCount()}
+    async updateAllMessages(){
+        await Promise.allSettled(this.channelRels.map((channelRel)=>{
+              var index=channelRel.channel
+              this.allMessages[index] = new ChannelData(channelRel)
+              return this.allMessages[index].init()
+      }))
+      
+          }
+    
+}
 
 
 
@@ -186,6 +189,8 @@ class AllChatsData{
 export {
     AllChatsData,
     ChatData,
-    // AllGroupsData,
-    // AllChannelsData
+    AllGroupsData,
+    GroupData,
+    AllChannelsData,
+    ChannelData
 }

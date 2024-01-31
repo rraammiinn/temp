@@ -7,11 +7,13 @@ import {useDataStore} from '@/store/dataStore'
 import {useAuthStore} from '@/store/authStore'
 import pb from "@/main";
 import { useRouter } from 'vue-router';
-import { ChatData } from "@/store/dataModels";
+import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
 
 const{isLoggedIn,authData}=storeToRefs(useAuthStore())
-const{updateChatRels,updateGroupRels,updateGroups,updateAllMessages,updateGroupMems}=useDataStore()
+const{updateChatRels,updateGroupRels,updateChannelRels,updateGroups,updateAllMessages,updateGroupMems}=useDataStore()
 const{allChatsData,
+    allGroupsData,
+    allChannelsData
     // allGroupMessages,
     // allChannelMessages,
     // groupRels,
@@ -23,6 +25,8 @@ watchEffect(async()=>{
     if(!isLoggedIn.value)return;
     console.log('s...')
     await updateChatRels()
+    await updateGroupRels()
+    await updateChannelRels()
     // await updateGroups()
     await updateAllMessages()
     // console.log('e...')
@@ -43,7 +47,7 @@ watchEffect(async()=>{
             if(e.action=='create'){
                 const rel=pb.collection('rels').getFirstListItem(`follower = "${e.record.follower}" && following = "${e.record.following}"`, {expand:'follower,following'})
                 const backRel=pb.collection('rels').getFirstListItem(`follower = "${e.record.following}" && following = "${e.record.follower}"`, {expand:'follower,following'})
-                allChatsData.value.allMessages[e.record.following]=new ChatData(rel,backRel)
+                if(rel.active)allChatsData.value.allMessages[e.record.following]=new ChatData(rel,backRel);else return;
             }
         allChatsData.value.allMessages[e.record.follower].otherLastSeen=e.record.lastseen
         }
@@ -75,40 +79,36 @@ watchEffect(async()=>{
 
 
 
-//     pb.collection('groupMembers').subscribe('*',async(e)=>{
-//         if(groupRels.value.find(rel=>{rel.group==e.record.group}) && e.action=='create'){
-//                 allGroupMessages.value[e.record.group].groupMems.push(await pb.collection('users').getFirstListItem(`id = "${e.record.mem}"`))
-//         }
-//         else if(e.record.mem==authData.value.id && e.action=='create'){
-//             if(!allGroupMessages.value[e.record.group]){
-//             allGroupMessages.value[e.record.group]={groupMems:{},lastMessage:null,group:null,messages:[],unseenCount:0,cacheNewMessages:false,lastSeen:e.record.lastseen || 0,relId:e.record.id,messagesType:'group'}
-//             allGroupMessages.value[e.record.group].group= await pb.collection('groups').getOne(e.record.group)
-//             }
-//             allGroupMessages.value[e.record.group].relId=e.record.id
-//             allGroupMessages.value[e.record.group].lastMessage= await pb.collection('groupMessages').getFirstListItem(`group = "${e.record.group}"`, {sort:'-created',expand:'from'})
-//         }
-//         })
+    pb.collection('groupMembers').subscribe('*',async(e)=>{
+        if(allGroupsData.value.groupRels.find(groupRel=>{groupRel.group==e.record.group}) && e.action=='create'){
+                allGroupsData.value.allMessages[e.record.group].groupMems.push(await pb.collection('users').getFirstListItem(`id = "${e.record.mem}"`))
+        }
+        else if(e.record.mem==authData.value.id && e.action=='create'){
+            allGroupsData.value.allMessages[e.record.group]=new GroupData(await pb.collection('groupMembers').getFirstListItem({"mem":pb.authStore.model.id, "group":e.record.group},{expand:'mem,group'}))
+            await allGroupsData.value.allMessages[e.record.group].init()
+        }
+        })
 })
 
 
 
-// pb.collection('groupMessages').subscribe('*',async(e)=>{
-//         const index=e.record.group;
-//         if(e.action=='create'){
-//             if(!allGroupMessages.value[index].groupMems[e.record.from]){await updateGroupMems(e.record.group)}
-//             if(allGroupMessages.value[index].cacheNewMessages)allGroupMessages.value[index].messages.push(e.record);
-//             allGroupMessages.value[index].unseenCount++;allGroupMessages.value[index].lastMessage=e.record;allGroupMessages.value[index].lastMessage['expand']={from:allGroupMessages.value[index].groupMems[e.record.from]}}
-//             else if(e.action=='update' && e.record.created>=allGroupMessages.value[index].messages[0].created && e.record.created<=allGroupMessages.value[index].messages.at(-1).created)allGroupMessages.value[index].messages[allGroupMessages.value[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-//             else if(e.record.action='delete')allGroupMessages.value[index].messages=allGroupMessages.value[index].messages.filter(msg=>{msg.id != e.record.id})})
+pb.collection('groupMessages').subscribe('*',async(e)=>{
+        const index=e.record.group;
+        if(e.action=='create'){
+            if(!allGroupsData.value.allMessages[index].groupMems[e.record.from]){await updateGroupMems(e.record.group)}
+            if(allGroupsData.value.allMessages[index].cacheNewMessages)allGroupsData.value.allMessages[index].messages.push(e.record);
+            allGroupsData.value.allMessages[index].unseenCount++;allGroupsData.value.allMessages[index].lastMessage=e.record;allGroupsData.value.allMessages[index].lastMessage['expand']={from:allGroupsData.value.allMessages[index].groupMems[e.record.from]}}
+            else if(e.action=='update' && e.record.created>=allGroupsData.value.allMessages[index].messages[0].created && e.record.created<=allGroupsData.value.allMessages[index].messages.at(-1).created)allGroupsData.value.allMessages[index].messages[allGroupsData.value.allMessages[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+            else if(e.record.action='delete')allGroupsData.value.allMessages[index].messages=allGroupsData.value.allMessages[index].messages.filter(msg=>{msg.id != e.record.id})})
 
 
-//             pb.collection('channelMessages').subscribe('*',(e)=>{
-//         const index=e.record.channel;
-//         if(e.action=='create'){
-//             if(allChannelMessages.value[index].cacheNewMessages)allChannelMessages.value[index].messages.push(e.record);
-//             allChannelMessages.value[index].unseenCount++;allChannelMessages.value[index].lastMessage=e.record;}
-//             else if(e.action=='update' && e.record.created>=allChannelMessages.value[index].messages[0].created && e.record.created<=allChannelMessages.value[index].messages.at(-1).created)allChannelMessages.value[index].messages[allChannelMessages.value[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-//             else if(e.record.action='delete')allChannelMessages.value[index].messages=allChannelMessages.value[index].messages.filter(msg=>{msg.id != e.record.id})})
+            pb.collection('channelMessages').subscribe('*',(e)=>{
+        const index=e.record.channel;
+        if(e.action=='create'){
+            if(AllChannelsData.value.allMessages[index].cacheNewMessages)AllChannelsData.value.allMessages[index].messages.push(e.record);
+            AllChannelsData.value.allMessages[index].unseenCount++;AllChannelsData.value.allMessages[index].lastMessage=e.record;}
+            else if(e.action=='update' && e.record.created>=AllChannelsData.value.allMessages[index].messages[0].created && e.record.created<=AllChannelsData.value.allMessages[index].messages.at(-1).created)AllChannelsData.value.allMessages[index].messages[AllChannelsData.value.allMessages[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+            else if(e.record.action='delete')AllChannelsData.value.allMessages[index].messages=AllChannelsData.value.allMessages[index].messages.filter(msg=>{msg.id != e.record.id})})
 
 
 

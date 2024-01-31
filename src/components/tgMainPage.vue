@@ -27,8 +27,15 @@
   <v-list-item v-if="messages.lastMessage && messages.messagesType=='group'" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
     :prepend-avatar="`/api/files/groups/${messages.group.id}/${messages.group.avatar}`"
     :title="messages.group.name"
-    :subtitle="`${messages.lastMessage?.expand?.from?.name} : ${messages.lastMessage.text}`"
+    :subtitle="`${allGroupsData.allMessages[messages.lastMessage.group].groupMems[messages.lastMessage.from]?.name} : ${messages.lastMessage.text}`"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+
+  <v-list-item v-if="messages.lastMessage && messages.messagesType=='channel'" class="listItem" @click="$router.push({name:'channel',params:{channelId:messages.channel.id},query:{showChannel:false}})"
+    :prepend-avatar="`/api/files/channels/${messages.channel.id}/${messages.channel.avatar}`"
+    :title="messages.channel.name"
+    :subtitle="`${messages.lastMessage.text}`"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+
   
   <v-divider v-if="messages.lastMessage"></v-divider>
 </template>
@@ -86,6 +93,12 @@
   import { ref, inject, watchEffect, onMounted } from 'vue';
   import tgCreateGroupForm from './tgCreateGroupForm.vue';
   import tgCreateChannelForm from './tgCreateChannelForm.vue'
+  import {storeToRefs} from 'pinia'
+  import {useDataStore} from '@/store/dataStore'
+
+
+
+  const{allGroupsData,allMessagesSorted}=storeToRefs(useDataStore())
 
 
   const chatSearch=inject('chatSearch')
@@ -149,10 +162,6 @@ async function createNewChannel(){
 
 
 // const allMessagesSorted=inject('allMessagesSorted')
-
-import {storeToRefs} from 'pinia'
-import {useDataStore} from '@/store/dataStore'
-const {allMessagesSorted}=storeToRefs(useDataStore())
 
 
   </script>

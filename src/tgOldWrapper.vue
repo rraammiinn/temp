@@ -7,6 +7,7 @@ import {useDataStore} from '@/store/dataStore'
 import {useAuthStore} from '@/store/authStore'
 import pb from "@/main";
 import { useRouter } from 'vue-router';
+import { ChatData } from "@/store/dataModels";
 
 const{isLoggedIn,authData}=storeToRefs(useAuthStore())
 const{updateChatRels,updateGroupRels,updateGroups,updateAllMessages,updateGroupMems}=useDataStore()
@@ -38,34 +39,36 @@ watchEffect(async()=>{
     setInterval(()=>{pb.collection('users').update(authData.value.id,{lastvisited:new Date().toISOString().replace('T',' ')})},3000)
 
     pb.collection('rels').subscribe('*',async(e)=>{
+        if((e.record.follower==authData.value.id || e.record.following==authData.value.id)){
+            if(e.action=='create'){
+                const rel=pb.collection('rels').getFirstListItem(`follower = "${e.record.follower}" && following = "${e.record.following}"`, {expand:'follower,following'})
+                const backRel=pb.collection('rels').getFirstListItem(`follower = "${e.record.following}" && following = "${e.record.follower}"`, {expand:'follower,following'})
+                if(rel.active)allChatsData.value.allMessages[e.record.following]=new ChatData(rel,backRel);else return;
+            }
+        allChatsData.value.allMessages[e.record.follower].otherLastSeen=e.record.lastseen
+        }
         console.log(e)
         
-        if(e.record.follower==authData.value.id && e.action=='create'){
-                allChatsData.value.allMessages[e.record.following]={lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:true,lastSeen:null,lastVisited:null,isOnline:false,relId:e.record.id,backRelId:null,otherLastSeen:null};
-                allChatsData.value.allMessages[e.record.following].other= await pb.collection('users').getFirstListItem(`id = "${e.record.following}"`)
-        }
-            else if(e.record.following==authData.value.id){
-                if(e.action=='create'){
-                    allChatsData.value.allMessages[e.record.follower]={lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:true,lastSeen:null,lastVisited:null,isOnline:false,relId:null,backRelId:e.record.id,otherLastSeen:null};
-                    allChatsData.value.allMessages[e.record.follower].other= await pb.collection('users').getFirstListItem(`id = "${e.record.follower}"`)
-                }allChatsData.value.allMessages[e.record.follower].otherLastSeen=e.record.lastseen
-            }
+        // if(e.record.follower==authData.value.id && e.action=='create'){
+        //         // allChatsData.value.allMessages[e.record.following]={lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:true,lastSeen:null,lastVisited:null,isOnline:false,relId:e.record.id,backRelId:null,otherLastSeen:null};
+        //         // allChatsData.value.allMessages[e.record.following].other= await pb.collection('users').getFirstListItem(`id = "${e.record.following}"`)
+        // }
+        //     else if(e.record.following==authData.value.id){                
+        //         if(e.action=='create'){
+        //             // allChatsData.value.allMessages[e.record.follower]={lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:true,lastSeen:null,lastVisited:null,isOnline:false,relId:null,backRelId:e.record.id,otherLastSeen:null};
+        //             // allChatsData.value.allMessages[e.record.follower].other= await pb.collection('users').getFirstListItem(`id = "${e.record.follower}"`)
+        //         }
+        //         // allChatsData.value.allMessages[e.record.follower].otherLastSeen=e.record.lastseen
+        //     }
         })
 
     pb.collection('chatMessages').subscribe('*',(e)=>{
-        console.log(':::new msg:::',e)
-        
         const index=(e.record.from==authData.value.id ? e.record.to : e.record.from);
-
-        console.log(':::old msgs:::',allChatsData.value.allMessages[index])
-
         if(e.action=='create'){
             if(allChatsData.value.allMessages[index].cacheNewMessages)allChatsData.value.allMessages[index].messages.push(e.record);
             allChatsData.value.allMessages[index].unseenCount++;allChatsData.value.allMessages[index].lastMessage=e.record;}
             else if(e.action=='update' && e.record.created>=allChatsData.value.allMessages[index].messages[0].created && e.record.created<=allChatsData.value.allMessages[index].messages.at(-1).created)allChatsData.value.allMessages[index].messages[allChatsData.value.allMessages[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-            else if(e.record.action='delete')allChatsData.value.allMessages[index].messages=allChatsData.value.allMessages[index].messages.filter(msg=>{msg.id != e.record.id})
-            console.log(':::new msgs:::',allChatsData.value.allMessages[index])
-        })
+            else if(e.record.action='delete')allChatsData.value.allMessages[index].messages=allChatsData.value.allMessages[index].messages.filter(msg=>{msg.id != e.record.id})})
 
 
 

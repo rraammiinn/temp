@@ -1,6 +1,6 @@
 <template>
     <v-btn @click="if(!showGroup)$router.back();showGroup=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-<v-avatar @click="showGroup=true;" :image="`/api/files/groups/${props.groupId}/${allGroupMessages[props.groupId].group.avatar}`"></v-avatar>
+    <!-- <v-badge :content="allGroupsData.allMessages[props.groupId].isOnline ? 'online' : 'offline'" :color="allGroupsData.allMessages[props.groupId].isOnline ? 'primary' : null"><v-avatar @click="showGroup=true;" :image="`/api/files/groups/${props.groupId}/${allGroupsData.allMessages[props.groupId].group.avatar}`"></v-avatar></v-badge> -->
     <v-spacer></v-spacer>
     <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>
 </template>
@@ -21,12 +21,12 @@ import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'
 
-const {allGroupMessages}=storeToRefs(useDataStore())
+const {allGroupsData}=storeToRefs(useDataStore())
 
 const props=defineProps(['groupId'])
 
 const showGroup=inject('showGroup')
-// const allGroupMessages=inject('allGroupMessages')
+// const allGroupsData=inject('allGroupsData')
 
 // var lastseen=0;
 // const isOnline=ref(false)

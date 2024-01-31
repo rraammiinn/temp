@@ -1,24 +1,7 @@
 import pb from "@/main";
 
-// import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'
-
-
-// const {useDataStore().allChatsData.allMessages} = useDataStore()
-
-
-
-
-
-
-
-async function getChatMessages(otherId,startDate=0,endDate){
-
-  if(options.endDate){return (await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created >= "${startDate}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()}
-  else{return (await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created >= "${startDate}"`, sort: 'created'})).items}
-}
-
 
 
 async function getChatMessageById(id){
@@ -58,6 +41,7 @@ async function initializeChatMessages(otherId,initMessageId){
   
    
       messages.push(await getChatMessageById(initMessageId))
+      messages=[...(await getPreviousChatMessages(otherId,messages[0].created)),messages[0]]
     }
     else{
 
@@ -76,8 +60,8 @@ async function initializeChatMessages(otherId,initMessageId){
     catch{}
   }
   
-  // if(!messages.length){
-  // subscribeToNewMessages()}
+  if(!messages.length<10){
+  subscribeToNewMessages(otherId)}
 
   console.log(')))))',messages)
 
@@ -119,7 +103,7 @@ class ChatMessageGenerator{
     var new10Messages=[]
     try{
       new10Messages= await getNextChatMessages(this.otherId,useDataStore().allChatsData.allMessages[this.otherId].messages.at(-1).created)
-      if(!new10Messages.length){console.log('no more >>>');return};
+      if(!new10Messages.length){console.log('no more >>>');subscribeToNewMessages(this.otherId);return false;};
       useDataStore().allChatsData.allMessages[this.otherId].messages=[...useDataStore().allChatsData.allMessages[this.otherId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}

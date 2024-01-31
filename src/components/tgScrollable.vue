@@ -7,13 +7,13 @@
     
     
     
-          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :name="((message.from==pb.authStore.model.id) ? pb.authStore.model : allMessages[props.otherId].other).name" :text="message.text" :avatar="`/api/files/users/${message.from}/${((message.from==pb.authStore.model.id) ? pb.authStore.model : allMessages[props.otherId].other).avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
     
     
         </template>
 </div>
 
-<v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;bottom: 6.9rem;z-index: 99999;" color="primary" size="3.5rem" elevation="24"></v-btn>
+<v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;bottom: 6.9rem;z-index: '555';" color="primary" size="3.5rem" elevation="24"></v-btn>
 
 
 
@@ -23,11 +23,10 @@
       import tgCard from './tgCard.vue';
       import pb from '@/main';
       import { computed, onUpdated, onMounted, ref } from 'vue';
-      import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages,subscribeToNewMessages} from '@/funcs/chatFuncs'
 
     
     
-      const props = defineProps(['otherId','initMessageId','messageGenerator'])
+      const props = defineProps(['otherId','initMessageId','messageGenerator','messagesType'])
       const emit = defineEmits(['reachedStart', 'reachedEnd'])
       const allMessages=defineModel('allMessages')
 
@@ -61,7 +60,13 @@
             dateObserver.unobserve(target);
             if(new Date(allMessages.value[props.otherId].lastSeen) < new Date(date)){
             allMessages.value[props.otherId].lastSeen=date;
-            pb.collection('rels').update(allMessages.value[props.otherId].relId,{lastseen:date})
+            if(props.messagesType=='chat'){
+              pb.collection('rels').update(allMessages.value[props.otherId].relId,{lastseen:date})
+            }else if(props.messagesType=='group'){
+              pb.collection('groupMembers').update(allMessages.value[props.otherId].groupRelId,{lastseen:date})
+            }else if(props.messagesType=='channel'){
+              pb.collection('channelMembers').update(allMessages.value[props.otherId].channelRelId,{lastseen:date})
+            }
       }
           },
           {root:scrollable.value}

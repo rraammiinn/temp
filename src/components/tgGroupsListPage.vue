@@ -1,7 +1,7 @@
 <template>
     <div v-if="groupSearch">
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-          <div v-for="group in searchedGroups" @click="$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
+          <div v-for="group in searchedGroups" @click="allGroupsData[group.id]={group:group,messages:[]};$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
               <v-list-item class="listItem"
               :prepend-avatar="`/api/files/groups/${group.id}/${group.avatar}`"
               :title="group.name"
@@ -26,10 +26,10 @@
           </div></div>
     <div v-else>
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">groups</h3>
-            <div v-for="group in groups" @click="$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
+            <div v-for="groupRel in allGroupsData.groupRels" @click="$router.push({name:'group', params:{groupId:groupRel.group},query:{initMessageId:'',showGroup:true}})" :key="groupRel.group">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/groups/${group.id}/${group.avatar}`"
-              :title="group.name"
+              :prepend-avatar="`/api/files/groups/${groupRel.group}/${groupRel.expand.group.avatar}`"
+              :title="groupRel.expand.group.name"
               subtitle=""
             >
             <template v-slot:append>
@@ -37,7 +37,7 @@
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteGroup(group.id)"
+              @click.stop="deleteGroup(groupRel.id)"
             ></v-btn>
           </template>
           </v-list-item>
@@ -64,8 +64,8 @@
   import { storeToRefs } from "pinia";
   
   import { useDataStore } from "@/store/dataStore";
-  const{updateGroupRels,allGroupMessages}=useDataStore()
-  const{groupRels,groups}=storeToRefs(useDataStore())
+  const{updateGroupRels}=useDataStore()
+  const{allGroupsData}=storeToRefs(useDataStore())
   
   updateGroupRels()
   
@@ -88,11 +88,11 @@
   
   
   function getGroupFromId(id){
-    return groupRels.value.find(group=>group.group==id)
+    return allGroupsData.value.groupRels.find(group=>group.group==id)
   }
   
   
-  const groupIds=computed(()=>groupRels.value.map(group=>group.group))
+  const groupIds=computed(()=>allGroupsData.value.groupRels.map(group=>group.group))
   
   watchEffect(async ()=>{
     if(groupSearch.value){
@@ -100,6 +100,6 @@
     }
   })
   
-  console.log(groupRels.value)
+  console.log(allGroupsData.value.groupRels)
   console.log(groupIds.value)
   </script>
