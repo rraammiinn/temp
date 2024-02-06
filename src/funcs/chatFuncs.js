@@ -60,7 +60,7 @@ async function initializeChatMessages(otherId,initMessageId){
     catch{}
   }
   
-  if(!messages.length<10){
+  if(messages.length<10){
   subscribeToNewMessages(otherId)}
 
   console.log(')))))',messages)

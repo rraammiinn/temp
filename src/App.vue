@@ -7,7 +7,9 @@
       <suspense>
 
       <tg-wrapper>
-        <router-view></router-view>
+        <suspense>
+          <router-view></router-view>
+        </suspense>
       </tg-wrapper>
 
 

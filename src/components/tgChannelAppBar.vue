@@ -1,6 +1,6 @@
 <template>
     <v-btn @click="if(!showChannel)$router.back();showChannel=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-    <!-- <v-badge :content="allChannelsData.allMessages[props.channelId].isOnline ? 'online' : 'offline'" :color="allChannelsData.allMessages[props.channelId].isOnline ? 'primary' : null"><v-avatar @click="showChannel=true;" :image="`/api/files/channels/${props.channelId}/${allChannelsData.allMessages[props.channelId].channel.avatar}`"></v-avatar></v-badge> -->
+    <v-avatar @click="showChannel=true;" :image="`/api/files/channels/${props.channelId}/${allChannelsData.allMessages[props.channelId].channel.avatar}`"></v-avatar>
     <v-spacer></v-spacer>
     <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>
 </template>

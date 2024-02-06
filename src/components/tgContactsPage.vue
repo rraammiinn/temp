@@ -1,18 +1,18 @@
 <template>
     <div v-if="userSearch">
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
-          <div v-for="user in users" @click="allChatsData[user.id]={other:user,messages:[]};$router.push({name:'chat', params:{otherId:user.id},query:{initMessageId:'',showUser:true}})" :key="user.id">
+          <div v-for="user in users" @click="$router.push({name:'chat', params:{otherId:user.id},query:{initMessageId:'',showUser:true}})" :key="user.id">
               <v-list-item class="listItem"
               :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
               :title="user.name"
               :subtitle="user.username"
             >
             <template v-slot:append>
-            <v-btn v-if="contactIds.includes(user.id)"
+            <v-btn v-if="Object.keys(contacts).includes(user.id)"
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteContact(getContactFromId(user.id).id)"
+              @click.stop="deleteContact(contacts[user.id].contactId)"
             ></v-btn>
             <v-btn v-else
               color="primary"
@@ -26,18 +26,18 @@
           </div></div>
     <div v-else>
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">contacts</h3>
-            <div v-for="contact in allChatsData.contacts" @click="$router.push({name:'chat', params:{otherId:contact.following},query:{initMessageId:'',showUser:true}})" :key="contact.following">
+            <div v-for="contact in contacts" @click="$router.push({name:'chat', params:{otherId:contact.id},query:{initMessageId:'',showUser:true}})" :key="contact.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/users/${contact.following}/${contact.expand.following.avatar}`"
-              :title="contact.expand.following.name"
-              :subtitle="contact.expand.following.username"
+              :prepend-avatar="`/api/files/users/${contact.id}/${contact.avatar}`"
+              :title="contact.name"
+              :subtitle="contact.username"
             >
             <template v-slot:append>
             <v-btn
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteContact(contact.id)"
+              @click.stop="deleteContact(contact.contactId)"
             ></v-btn>
           </template>
           </v-list-item>
@@ -64,10 +64,11 @@
   import { storeToRefs } from "pinia";
   
   import { useDataStore } from "@/store/dataStore";
-  const{updateContacts}=useDataStore()
-  const{allChatsData}=storeToRefs(useDataStore())
+  import {addContact,deleteContact} from '@/funcs/contactFunc';
+  // const{updateContacts}=useDataStore()
+  const{contacts}=storeToRefs(useDataStore())
   
-  updateContacts()
+  // updateContacts()
   
   const userSearch=inject('userSearch')
   const users=ref()
@@ -75,25 +76,25 @@
   
   
   
-  async function addContact(contact){
-    await pb.collection('contacts').create({follower:pb.authStore.model.id, following:contact})
-  }
-  async function deleteContact(contact){
-    await pb.collection('contacts').delete(contact);
-  }
+  // async function addContact(contact){
+  //   await pb.collection('contacts').create({follower:pb.authStore.model.id, following:contact})
+  // }
+  // async function deleteContact(contact){
+  //   await pb.collection('contacts').delete(contact);
+  // }
   // async function getContacts(){
   //   return await pb.collection('contacts').getFullList({expand:'following'});
   // }
   // const contacts=ref(await getContacts())
-  pb.collection('contacts').subscribe('*', updateContacts)
+  // pb.collection('contacts').subscribe('*', updateContacts)
   
   
-  function getContactFromId(id){
-    return allChatsData.value.contacts.find(contact=>contact.following==id)
-  }
+  // function getContactFromId(id){
+  //   return contacts.value.find(contact=>contact.following==id)
+  // }
   
   
-  const contactIds=computed(()=>allChatsData.value.contacts.map(contact=>contact.following))
+  // const contactIds=computed(()=>contacts.value.map(contact=>contact.following))
   
   watchEffect(async ()=>{
     if(userSearch.value){
@@ -101,6 +102,6 @@
     }
   })
   
-  console.log(allChatsData.value.contacts)
-  console.log(contactIds.value)
+  console.log(contacts.value)
+  // console.log(contactIds.value)
   </script>

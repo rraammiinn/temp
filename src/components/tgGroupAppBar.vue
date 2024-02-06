@@ -1,6 +1,6 @@
 <template>
-    <v-btn @click="if(!showGroup)$router.back();showGroup=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-    <!-- <v-badge :content="allGroupsData.allMessages[props.groupId].isOnline ? 'online' : 'offline'" :color="allGroupsData.allMessages[props.groupId].isOnline ? 'primary' : null"><v-avatar @click="showGroup=true;" :image="`/api/files/groups/${props.groupId}/${allGroupsData.allMessages[props.groupId].group.avatar}`"></v-avatar></v-badge> -->
+    <v-btn @click="if(!showGroup && !showUser)$router.back();if(!showUser)showGroup=false;showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
+<v-avatar @click="showGroup=true;" :image="`/api/files/groups/${props.groupId}/${allGroupsData.allMessages[props.groupId].group.avatar}`"></v-avatar>
     <v-spacer></v-spacer>
     <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>
 </template>
@@ -26,6 +26,8 @@ const {allGroupsData}=storeToRefs(useDataStore())
 const props=defineProps(['groupId'])
 
 const showGroup=inject('showGroup')
+const showUser =inject('showUser')
+
 // const allGroupsData=inject('allGroupsData')
 
 // var lastseen=0;

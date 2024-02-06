@@ -1,13 +1,13 @@
 <template>
 
 
-<div ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 3rem;padding-bottom: 3rem;display: flex;flex-direction: column;">
+<div ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 3rem;padding-bottom: 3rem;display: flex;flex-direction: column;container: scrollable / inline-size;">
     <template v-for="message,i in allMessages[props.otherId].messages" :key="message.id">
-          <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
+          <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
     
     
     
-          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
     
     
         </template>
@@ -48,17 +48,8 @@
 
       // onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{scrollable.value?.scrollIntoView({block:'center'});}})
 
-
-    
-    
-
-        const dateObserver = new IntersectionObserver(
-          (e)=>{
-            const target=e.filter(i=>i.isIntersecting).at(-1)?.target
-            if(!target)return;
-            const date = target.dataset.time
-            dateObserver.unobserve(target);
-            if(new Date(allMessages.value[props.otherId].lastSeen) < new Date(date)){
+      async function updateLastSeen(date){
+        if(new Date(allMessages.value[props.otherId].lastSeen) < new Date(date)){
             allMessages.value[props.otherId].lastSeen=date;
             if(props.messagesType=='chat'){
               pb.collection('rels').update(allMessages.value[props.otherId].relId,{lastseen:date})
@@ -68,6 +59,17 @@
               pb.collection('channelMembers').update(allMessages.value[props.otherId].channelRelId,{lastseen:date})
             }
       }
+      }
+    
+    
+
+        const dateObserver = new IntersectionObserver(
+          async(e)=>{
+            const target=e.filter(i=>i.isIntersecting).at(-1)?.target
+            if(!target)return;
+            const date = target.dataset.time
+            dateObserver.unobserve(target);
+            await updateLastSeen(date);
           },
           {root:scrollable.value}
         )
@@ -152,7 +154,7 @@
 
 
 
-  onMounted(()=>{document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true})})
+  onMounted(()=>{document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(document.querySelector('.tg-card:last-of-type').dataset.time)}})
 
 
 

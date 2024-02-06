@@ -1,5 +1,5 @@
 <template>
-    <tg-user-details style="z-index: 888;" :otherId="allChatsData.allMessages[props.otherId].other" v-show="showUser"></tg-user-details>
+    <tg-user-details style="z-index: 888;" :user="allChatsData.allMessages[props.otherId].other" v-if="showUser"></tg-user-details>
   
   <div class="main">
   

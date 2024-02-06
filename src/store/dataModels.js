@@ -41,8 +41,8 @@ class ChatData{
 
 
 class AllChatsData{
-    constructor(rels=[]){
-        this.rels=rels
+    constructor(){
+        this.rels=[]
         this.allMessages={}
         this.backRels=[]
         this.contacts=[]
@@ -70,31 +70,35 @@ class AllChatsData{
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class GroupData{
-    constructor(groupRel){
+    constructor(groupRel,group){
         this.groupMems={}
         this.lastMessage=null
-        this.group=groupRel.expand.group
+        this.group=groupRel?.expand?.group ?? group
         this.messages=[]
         this.unseenCount=0
         this.cacheNewMessages=false
-        this.lastSeen=groupRel.lastSeen || 0
-        this.groupRelId=groupRel.id
+        this.lastSeen=groupRel?.lastseen || 0
+        this.groupRelId=groupRel?.id
         this.messagesType='group'
+
+        console.log('===',groupRel,'///',group)
     }
 
     async init(){
-        this.lastMessage = await pb.collection('groupMessages').getFirstListItem(`group = "${this.group.id}"`, {sort:'-created',expand:'from'})
+        try{
+            this.lastMessage = await pb.collection('groupMessages').getFirstListItem(`group = "${this.group.id}"`, {sort:'-created',expand:'from'})
+        }catch{}
         try{
             await this.updateUnseenCount()
         }catch{}
         await this.updateMembers()
-        console.log('###',this.groupMems)
+        console.log('###',this.lastSeen)
 
     }
     
-    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem'})).then(res=>{console.log('+++',res);res.forEach(groupRel=>this.groupMems[groupRel.mem]=groupRel.expand.mem);console.log('###',this.groupMems)})}
+    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem',$autoCancel:false})).then(res=>{console.log('+++',res);res.forEach(groupRel=>this.groupMems[groupRel.mem]=groupRel.expand.mem);console.log('###',this.groupMems)})}
 
-    async updateUnseenCount(){this.unseenCount=(await pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && group = "${this.group.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;console.log(this.allMessagesSorted[this.group.id])}
+    async updateUnseenCount(){this.unseenCount=(await pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && group = "${this.group.id}" && created > "${this.lastSeen}"`, sort:'-created',$autoCancel:false})).totalItems;}
 
 }
 
@@ -102,8 +106,8 @@ class GroupData{
 
 
 class AllGroupsData{
-    constructor(groupRels=[]){
-        this.groupRels=groupRels
+    constructor(){
+        this.groupRels=[]
         // this.groups={}
         this.allMessages={}
     }
@@ -126,15 +130,15 @@ class AllGroupsData{
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ChannelData{
-    constructor(channelRel){
+    constructor(channelRel=null,channel=null){
         this.channelMems={}
         this.lastMessage=null
-        this.channel=channelRel.expand.channel
+        this.channel=channelRel?.expand?.channel ?? channel
         this.messages=[]
         this.unseenCount=0
         this.cacheNewMessages=false
-        this.lastSeen=channelRel.lastseen || 0
-        this.channelRelId=channelRel.id
+        this.lastSeen=channelRel?.lastseen || 0
+        this.channelRelId=channelRel?.id
         this.messagesType='channel'
     }
 
@@ -154,9 +158,9 @@ class ChannelData{
 
 
 class AllChannelsData{
-    constructor(channelRels=[]){
+    constructor(){
         // this.channels={}
-        this.channelRels=channelRels
+        this.channelRels=[]
         this.allMessages={}
     }
 

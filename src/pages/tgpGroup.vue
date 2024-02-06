@@ -24,13 +24,20 @@
     const groupId=route.params.groupId
 
     if(!allGroupsData.allMessages[groupId]){
-        var groupRel
-        try{groupRel=await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}catch{groupRel=await pb.collection('groupMembers').getFirstListItem({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}
-        allGroupsData.allMessages[groupId]=new GroupData(groupRel)
+        // var groupRel
+        // try{groupRel=await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}catch{groupRel=await pb.collection('groupMembers').getFirstListItem({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}
+        // allGroupsData.allMessages[groupId]=new GroupData(groupRel)
+
+        const group=await pb.collection('groups').getOne(groupId)
+        allGroupsData.allMessages[groupId]=new GroupData(null,group)
+        await allGroupsData.allMessages[groupId].init()
     }
     console.log(route)
     const showGroup=ref(route.query.showGroup=='true')
+    const showUser=ref(false)
     provide('showGroup', showGroup)
+    provide('showUser', showUser)
+
     
     onBeforeUnmount(()=>{allGroupsData.allMessages[groupId].updateUnseenCount().then(console.log('*****'))})
 

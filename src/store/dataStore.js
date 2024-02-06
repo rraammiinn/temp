@@ -19,6 +19,8 @@ export const useDataStore = defineStore('data',{
         allChatsData:new AllChatsData(),
         allGroupsData:new AllGroupsData(),
         allChannelsData:new AllChannelsData(),
+        
+        contacts:{}
         // groups:{},
 
 
@@ -36,6 +38,8 @@ export const useDataStore = defineStore('data',{
     }),
     actions:{
         // async updateGroups(){await allGroupsData.updateGroups()},
+        async updateContacts(){await pb.collection('contacts').getFullList({expand:'following'}).then(res=>{this.contacts={};res.forEach(contact=>this.contacts[contact.following]={...contact.expand.following,contactId:contact.id})})},
+
 
         async updateGroupMems(groupId){await this.allGroupsData.updateMembers(groupId)},
         async updateChannelMems(channelId){await this.allChannelsData.updateMembers(channelId)},
@@ -48,7 +52,7 @@ export const useDataStore = defineStore('data',{
 
 
         async updateChatUnseenCount(id){await this.allChatsData.updateUnseenCount(id)},
-        async updateContacts(){await this.allChatsData.updateContacts()},
+        // async updateContacts(){await this.allChatsData.updateContacts()},
         async updateChatRels(){await this.allChatsData.updateRels()},
 
         async updateAllChatMessages(){await this.allChatsData.updateAllMessages()},
@@ -63,6 +67,16 @@ export const useDataStore = defineStore('data',{
             this.updateAllGroupMessages(),
             this.updateAllChannelMessages()
         ])
+    },
+    async init(){
+        await Promise.allSettled([
+            this.updateChatRels(),
+            this.updateGroupRels(),
+            this.updateChannelRels(),
+            this.updateContacts()
+        ])
+
+        await this.updateAllMessages()
     }
     },
     getters:{

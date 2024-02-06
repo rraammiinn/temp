@@ -1,5 +1,5 @@
 <template>
-    <!-- <tg-channel-details :channelId="allChannelsData.allMessages[props.channelId].channel" v-show="showChannel"></tg-channel-details> -->
+    <tg-channel-details :owner="owner" :channel="allChannelsData.allMessages[props.channelId].channel" v-if="showChannel"></tg-channel-details>
   
   <div class="main">
   
@@ -156,6 +156,8 @@
   const scrollable=ref();
   
   const showGoToBottom=ref(false)
+
+
   
   
   function addFiles(){
@@ -214,7 +216,8 @@
   
   
   
-  // import tgChannelDetails from './tgChannelDetails.vue';
+  import tgChannelDetails from './tgChannelDetails.vue';
+  import { ChannelData } from '@/store/dataModels';
   
   const sheet=ref(false)
   const image=ref('')
@@ -226,6 +229,9 @@
   
   const messageGenerator = new ChannelMessageGenerator(props.channelId,props.initMessageId)
   await messageGenerator.initializeMessages()
+  const owner=await pb.collection('users').getOne(allChannelsData.value.allMessages[props.channelId].channel?.owner);
+
+
   // initializeChannelMessages(props.channelId,props.initMessageId)
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{channelsContainer.value?.scrollIntoView({block:'center'});}})
@@ -275,10 +281,10 @@
   
   
   function startRecording() {
-    if (navigator.mediaDevices?.getChannelMedia) {
-    console.log("getChannelMedia supported.");
+    if (navigator.mediaDevices?.getUserMedia) {
+    console.log("getUserMedia supported.");
     navigator.mediaDevices
-      .getChannelMedia(
+      .getUserMedia(
         {
           audio: true,
         },
@@ -315,10 +321,10 @@
       })
   
       .catch((err) => {
-        console.error(`The following getChannelMedia error occurred: ${err}`);
+        console.error(`The following getUserMedia error occurred: ${err}`);
       });
   } else {
-    console.log("getChannelMedia not supported on your browser!");
+    console.log("getUserMedia not supported on your browser!");
   }
   }
   
@@ -335,9 +341,16 @@
   }
 
   async function subscribe(){
-  try{const record = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":props.channelId});
+  try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":props.channelId},{expand:'mem,channel'});
   subscribed.value=true;
-  allChannelsData[props.channelId].channelRelId=record.id
+  const messages=allChannelsData.value.allMessages[props.channelId].messages
+  const cacheNewMessages=allChannelsData.value.allMessages[props.channelId].cacheNewMessages
+  allChannelsData.value.allMessages[props.channelId]=new ChannelData(channelRel)
+  try{
+    await allChannelsData.value.allMessages[props.channelId].init()
+  }catch{}
+  allChannelsData.value.allMessages[props.channelId].messages=messages
+  allChannelsData.value.allMessages[props.channelId].cacheNewMessages=cacheNewMessages
 }
   catch{}}
   

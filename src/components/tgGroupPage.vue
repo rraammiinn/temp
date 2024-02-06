@@ -1,12 +1,14 @@
 <template>
-    <!-- <tg-group-details :groupId="allGroupsData.allMessages[props.groupId].group" v-show="showGroup"></tg-group-details> -->
+    <tg-user-details style="z-index: 888;" :user="user" v-if="showUser"></tg-user-details>
+
+    <tg-group-details :owner="owner" :members="allGroupsData.allMessages[props.groupId].groupMems" :group="allGroupsData.allMessages[props.groupId].group" v-if="showGroup"></tg-group-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allMessages[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -135,7 +137,7 @@
   
   
   <script setup>
-  import { ref, inject, onMounted, computed, onUpdated, onUnmounted } from 'vue';
+  import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect } from 'vue';
   import pb from '@/main';
   import {storeToRefs} from 'pinia'
   import tgScrollable from './tgScrollable.vue';
@@ -146,6 +148,13 @@
   
   import tgCard from './tgCard.vue';
   import {getFileType, getIcon} from '@/funcs/commonFuncs'
+
+  import tgUserDetails from './tgUserDetails.vue';
+
+
+  const user=ref()
+  const showUser =inject('showUser')
+
   
   
   const{updateUnseenCount}=useDataStore()
@@ -210,7 +219,8 @@
   
   
   
-  // import tgGroupDetails from './tgGroupDetails.vue';
+  import tgGroupDetails from './tgGroupDetails.vue';
+  import { GroupData } from '@/store/dataModels';
   
   const sheet=ref(false)
   const image=ref('')
@@ -222,6 +232,9 @@
   
   const messageGenerator = new GroupMessageGenerator(props.groupId,props.initMessageId)
   await messageGenerator.initializeMessages()
+  const owner=await pb.collection('users').getOne(allGroupsData.value.allMessages[props.groupId].group?.owner);
+  // watchEffect(async()=>{if(allGroupsData.allMessages[props.groupId].group?.owner)owner=await pb.collection('users').getOne(allGroupsData.allMessages[props.groupId].group?.owner)})
+
   // initializeGroupMessages(props.groupId,props.initMessageId)
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{groupsContainer.value?.scrollIntoView({block:'center'});}})
@@ -271,10 +284,10 @@
   
   
   function startRecording() {
-    if (navigator.mediaDevices?.getGroupMedia) {
-    console.log("getGroupMedia supported.");
+    if (navigator.mediaDevices?.getUserMedia) {
+    console.log("getUserMedia supported.");
     navigator.mediaDevices
-      .getGroupMedia(
+      .getUserMedia(
         {
           audio: true,
         },
@@ -311,10 +324,10 @@
       })
   
       .catch((err) => {
-        console.error(`The following getGroupMedia error occurred: ${err}`);
+        console.error(`The following getUserMedia error occurred: ${err}`);
       });
   } else {
-    console.log("getGroupMedia not supported on your browser!");
+    console.log("getUserMedia not supported on your browser!");
   }
   }
   
@@ -332,9 +345,16 @@
 
 
   async function join(){
-  try{const record = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":props.groupId});
+  try{const groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":props.groupId},{expand:'mem,group'});
   joined.value=true;
-  allGroupsData[props.groupId].groupRelId=record.id
+  const messages=allGroupsData.value.allMessages[props.groupId].messages
+  const cacheNewMessages=allGroupsData.value.allMessages[props.groupId].cacheNewMessages
+  allGroupsData.value.allMessages[props.groupId]=new GroupData(groupRel)
+  try{
+    await allGroupsData.value.allMessages[props.groupId].init()
+  }catch{}
+  allGroupsData.value.allMessages[props.groupId].messages=messages
+  allGroupsData.value.allMessages[props.groupId].cacheNewMessages=cacheNewMessages
 }
   catch{}}
   

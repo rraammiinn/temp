@@ -24,9 +24,12 @@
     const channelId=route.params.channelId
 
     if(!allChannelsData.allMessages[channelId]){
-        var channelRel
-        try{channelRel=await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}catch{channelRel=await pb.collection('channelMembers').getFirstListItem({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}
-        allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
+        // var channelRel
+        // try{channelRel=await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}catch{channelRel=await pb.collection('channelMembers').getFirstListItem({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}
+        // allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
+
+        const channel=await pb.collection('channels').getOne(channelId)
+        allChannelsData.allMessages[channelId]=new ChannelData(null,channel)
     }
     console.log(route)
     const showChannel=ref(route.query.showChannel=='true')
