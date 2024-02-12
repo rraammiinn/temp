@@ -18,13 +18,13 @@
 <v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
 
 <template v-for="messages in allMessagesSorted">
-    <v-list-item v-if="messages.lastMessage && messages.messagesType=='chat'" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
+    <v-list-item v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
     :prepend-avatar="`/api/files/users/${messages.other.id}/${messages.other.avatar}`"
     :title="messages.other.name"
     :subtitle="messages.lastMessage.text"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
   
-  <v-list-item v-if="messages.lastMessage && messages.messagesType=='group'" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
+  <v-list-item v-if="messages.lastMessage && messages.messagesType=='group' && messages.active" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
     :prepend-avatar="`/api/files/groups/${messages.group.id}/${messages.group.avatar}`"
     :title="messages.group.name"
     :subtitle="`${allGroupsData.allMessages[messages.lastMessage.group].groupMems[messages.lastMessage.from]?.name} : ${messages.lastMessage.text}`"
@@ -37,7 +37,7 @@
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
 
   
-  <v-divider v-if="messages.lastMessage"></v-divider>
+  <v-divider v-if="messages.lastMessage && (messages.messagesType =='channel' || messages.active)"></v-divider>
 </template>
 </v-list>
 
@@ -116,6 +116,7 @@ const showChannelCreationForm=ref(false)
   var startScrollTop=0
   onMounted(()=>{document.querySelector('.v-layout>.v-main').addEventListener('scroll',(e)=>{showActionButton.value = startScrollTop > e.target.scrollTop;startScrollTop=e.target.scrollTop;showActionButtonItems.value=false;},{passive:true})})
   import pb from '@/main';
+import { join } from '@/funcs/groupFuncs';
 
 watchEffect(async ()=>{
   if(chatSearch.value){
@@ -138,7 +139,8 @@ async function createNewGroup(){
 
   const record = await pb.collection('groups').create(formData);
   
-  await pb.collection('groupMembers').create({mem:pb.authStore.model.id,group:record.id})
+  // await pb.collection('groupMembers').create({mem:pb.authStore.model.id,group:record.id})
+  await join(record.id)
   newGroup.value={}
   showGroupCreationForm.value=false
 

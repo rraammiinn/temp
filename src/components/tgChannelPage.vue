@@ -1,12 +1,12 @@
 <template>
-    <tg-channel-details :owner="owner" :channel="allChannelsData.allMessages[props.channelId].channel" v-if="showChannel"></tg-channel-details>
+    <tg-channel-details :subscribed="subscribed" :owner="owner" :channel="allChannelsData.allMessages[props.channelId].channel" v-if="showChannel"></tg-channel-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChannelsData.allMessages" messages-type="channel" :init-message-id="props.initMessageId" :other-id="props.channelId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChannelsData.allMessages" messages-type="channel" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.channelId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -93,7 +93,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-if="!subscribed" color="primary" @click="subscribe" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
+          <v-btn v-if="!subscribed" color="primary" @click="subscribe(props.channelId)" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
 
         </div>
   
@@ -146,6 +146,7 @@
   
   import tgCard from './tgCard.vue';
   import {getFileType, getIcon} from '@/funcs/commonFuncs'
+  import { subscribe } from '@/funcs/channelFuncs';
   
   
   const{updateUnseenCount}=useDataStore()
@@ -182,8 +183,10 @@
     files.value=[]
   }
   
-  const subscribed=computed(()=>!!allChannelsData.value.allMessages[props.channelId].channelRelId)
-  const isOwner=computed(()=>allChannelsData.value.allMessages[props.channelId]?.channel?.owner==pb.authStore.model.id)  
+  // const subscribed=computed(()=>!!allChannelsData.value.allMessages[props.channelId].channelRelId)
+  const subscribed=inject('subscribed')
+  const isOwner=inject('isOwner')
+  // const isOwner=computed(()=>allChannelsData.value.allMessages[props.channelId]?.channel?.owner==pb.authStore.model.id)  
   
   
   const files=ref([]);
@@ -228,7 +231,7 @@
   
   
   const messageGenerator = new ChannelMessageGenerator(props.channelId,props.initMessageId)
-  await messageGenerator.initializeMessages()
+  // await messageGenerator.initializeMessages()
   const owner=await pb.collection('users').getOne(allChannelsData.value.allMessages[props.channelId].channel?.owner);
 
 
@@ -340,19 +343,19 @@
     mediaRecorder.resume();
   }
 
-  async function subscribe(){
-  try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":props.channelId},{expand:'mem,channel'});
-  subscribed.value=true;
-  const messages=allChannelsData.value.allMessages[props.channelId].messages
-  const cacheNewMessages=allChannelsData.value.allMessages[props.channelId].cacheNewMessages
-  allChannelsData.value.allMessages[props.channelId]=new ChannelData(channelRel)
-  try{
-    await allChannelsData.value.allMessages[props.channelId].init()
-  }catch{}
-  allChannelsData.value.allMessages[props.channelId].messages=messages
-  allChannelsData.value.allMessages[props.channelId].cacheNewMessages=cacheNewMessages
-}
-  catch{}}
+//   async function subscribe(){
+//   try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":props.channelId},{expand:'mem,channel'});
+//   subscribed.value=true;
+//   const messages=allChannelsData.value.allMessages[props.channelId].messages
+//   const cacheNewMessages=allChannelsData.value.allMessages[props.channelId].cacheNewMessages
+//   allChannelsData.value.allMessages[props.channelId]=new ChannelData(channelRel)
+//   try{
+//     await allChannelsData.value.allMessages[props.channelId].init()
+//   }catch{}
+//   allChannelsData.value.allMessages[props.channelId].messages=messages
+//   allChannelsData.value.allMessages[props.channelId].cacheNewMessages=cacheNewMessages
+// }
+//   catch{}}
   
   
   

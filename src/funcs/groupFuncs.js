@@ -2,6 +2,7 @@ import pb from "@/main";
 
 
 import {useDataStore} from '@/store/dataStore'
+import { GroupData } from "@/store/dataModels";
 
 
 
@@ -122,7 +123,7 @@ class GroupMessageGenerator{
     useDataStore().allGroupsData.allMessages[this.groupId].messages=last10Messages
     const date = last10Messages.at(-1).created
       if(new Date(useDataStore().allGroupsData.allMessages[this.groupId].lastSeen) < new Date(date)){
-      allMessages.value[props.groupId].lastSeen=date;
+        useDataStore().allGroupsData.allMessages[this.groupId].lastSeen=date;
       pb.collection('groupRels').update(useDataStore().allGroupsData.allMessages[this.groupId].groupRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.groupId)
@@ -132,5 +133,30 @@ class GroupMessageGenerator{
 
 
 
+async function join(groupId){
+  try{
+    await pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[groupId].groupRelId,{"active":true})
+    useDataStore().allGroupsData.allMessages[groupId].active=true
+    useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=true
+  }catch{}
+  try{const groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId, "active":true},{expand:'mem,group'});
+  const messages=useDataStore().allGroupsData.allMessages[groupId].messages
+  const cacheNewMessages=useDataStore().allGroupsData.allMessages[groupId].cacheNewMessages
+  useDataStore().allGroupsData.allMessages[groupId]=new GroupData(groupRel)
+  try{
+    await useDataStore().allGroupsData.allMessages[groupId].init()
+  }catch{}
+  useDataStore().allGroupsData.allMessages[groupId].messages=messages
+  useDataStore().allGroupsData.allMessages[groupId].cacheNewMessages=cacheNewMessages
+}
+  catch{}}
 
-export {GroupMessageGenerator}
+async function leave(groupId){
+  await pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[groupId].groupRelId,{"active":false})
+  useDataStore().allGroupsData.allMessages[groupId].active=false
+  useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=false
+}
+
+
+
+export {GroupMessageGenerator,join,leave}

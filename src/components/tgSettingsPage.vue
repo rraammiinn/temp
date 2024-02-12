@@ -62,13 +62,18 @@ import { inject, ref } from 'vue';
 import {storeToRefs} from 'pinia'
 
 import {useAuthStore} from '@/store/authStore'
+import { useRouter } from 'vue-router';
 
-const {updateLogInState} = useAuthStore()
+
+const router=useRouter()
+
+
+const {updateLogInState,updateAuthData} = useAuthStore()
 const {isLoggedIn,authData}=storeToRefs(useAuthStore())
 
 
 async function logIn(){
-    $router.push('/login')
+    router.push('/login')
 }
 function logOut(){
     pb.authStore.clear();
@@ -90,6 +95,7 @@ async function upload_(){
     var formData = new FormData();
     formData.append('avatar', fileInput.value.files[0]);
     await pb.collection('users').update(authData.value.id, formData);
+    updateAuthData()
 
 }
 
@@ -97,10 +103,11 @@ async function upload_(){
 
 async function change(){
     await pb.collection('users').update(authData.value.id, {'name':name.value, 'bio':bio.value});
+    updateAuthData()
 }
 
 function cancel(){
-    name.value=''
-    bio.value=''
+    name.value=authData.value?.name
+    bio.value=authData.value?.bio
 }
 </script>

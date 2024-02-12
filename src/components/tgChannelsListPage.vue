@@ -8,6 +8,12 @@
               subtitle=""
             >
             <template v-slot:append>
+            <v-btn @click="$router.push({name:'channelSettings', params:{channelId:channel.id}})" v-if="channel.owner == pb.authStore.model.id"
+              color="primary"
+              icon="mdi-tune"
+              variant="text"
+              @click.stop=""
+            ></v-btn>
             <v-btn v-if="channelIds.includes(channel.id)"
               color="error"
               icon="mdi-delete"
@@ -33,6 +39,12 @@
               subtitle=""
             >
             <template v-slot:append>
+            <v-btn @click="$router.push({name:'channelSettings', params:{channelId:channelRel.channel}})" v-if="channelRel.expand.channel.owner == pb.authStore.model.id"
+              color="primary"
+              icon="mdi-tune"
+              variant="text"
+              @click.stop=""
+            ></v-btn>
             <v-btn
               color="error"
               icon="mdi-delete"

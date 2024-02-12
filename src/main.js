@@ -16,6 +16,8 @@ import tgpGroupsList from './pages/tgpGroupsList.vue'
 import tgpChannelsList from './pages/tgpChannelsList.vue'
 import tgpGroup from './pages/tgpGroup.vue'
 import tgpChannel from './pages/tgpChannel.vue'
+import tgpGroupSettings from './pages/tgpGroupSettings.vue';
+import tgpChannelSettings from './pages/tgpChannelSettings.vue';
 
 
 const pb = new PocketBase('/');
@@ -62,6 +64,9 @@ const routes = [
 
   {name:'group', path: '/group/:groupId', component: tgpGroup },
   {name:'channel', path: '/channel/:channelId', component: tgpChannel },
+  {name:'groupSettings', path: '/groupSettings/:groupId', component: tgpGroupSettings },
+  {name:'channelSettings', path: '/channelSettings/:channelId', component: tgpChannelSettings },
+
 
 
   // {name:'catchAll', path: '/:pathMatch(.*)*', redirect: '/' },

@@ -1,5 +1,5 @@
 <template>
-    <tg-user-details style="z-index: 888;" :user="allChatsData.allMessages[props.otherId].other" v-if="showUser"></tg-user-details>
+    <tg-user-details :is-in-rel="isInRel" :blocked="blocked" style="z-index: 888;" :user="allChatsData.allMessages[props.otherId].other" v-if="showUser"></tg-user-details>
   
   <div class="main">
   
@@ -143,6 +143,7 @@
   
   import tgCard from './tgCard.vue';
   import {getFileType, getIcon} from '@/funcs/commonFuncs'
+  import { ChatData } from '@/store/dataModels';
   
   
   const{updateUnseenCount}=useDataStore()
@@ -185,9 +186,9 @@
   
   async function send(){
     if(!isInRel.value){
-      try{await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true})}catch{}
-      try{await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true})}catch{}
-      isInRel.value=true
+      var rel,backRel;
+      try{rel = await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true},{expand:'follower,following'})}catch{}
+      try{backRel = await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{}
     }
       var formData = new FormData();
       console.log(props.otherId)
@@ -223,8 +224,11 @@
   
   
   const messageGenerator = new ChatMessageGenerator(props.otherId,props.initMessageId)
-  await messageGenerator.initializeMessages()
-  const isInRel=computed(()=>!!allChatsData.value.allMessages[props.otherId].relId && !!allChatsData.value.allMessages[props.otherId].backRelId)
+  // await messageGenerator.initializeMessages()
+  // const isInRel=computed(()=>!!allChatsData.value.allMessages[props.otherId].relId && !!allChatsData.value.allMessages[props.otherId].backRelId)
+  // const blocked=computed(()=>!allChatsData.value.allMessages[props.otherId].active)
+  const isInRel=inject('isInRel')
+  const blocked=inject('blocked')
 
   // initializeChatMessages(props.otherId,props.initMessageId)
   

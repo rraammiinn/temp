@@ -21,6 +21,12 @@
                 </div>
             </v-col>
         </div>
+
+        <div style="height: 3.25rem;"></div>
+
+<v-btn @click="unsubscribe(props.channel.id)" v-if="props.subscribed" style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="error">unsubscribe</v-btn>
+<v-btn @click="subscribe(props.channel.id)" v-else style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="primary">subscribe</v-btn>
+
     </div>
     
     </template>
@@ -34,8 +40,9 @@
     
     <script setup>
     import { inject, ref } from 'vue';
+    import {subscribe,unsubscribe} from '@/funcs/channelFuncs'
     
-    const props=defineProps(['channel','owner'])
+    const props=defineProps(['channel','owner','subscribed'])
     const showChannel=inject('showChannel')
     
     

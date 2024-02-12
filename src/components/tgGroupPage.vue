@@ -1,14 +1,14 @@
 <template>
     <tg-user-details style="z-index: 888;" :user="user" v-if="showUser"></tg-user-details>
 
-    <tg-group-details :owner="owner" :members="allGroupsData.allMessages[props.groupId].groupMems" :group="allGroupsData.allMessages[props.groupId].group" v-if="showGroup"></tg-group-details>
+    <tg-group-details :joined="joined" :owner="owner" :members="allGroupsData.allMessages[props.groupId].groupMems" :group="allGroupsData.allMessages[props.groupId].group" v-if="showGroup"></tg-group-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allMessages[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allMessages[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -95,7 +95,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-else color="primary" @click="join" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
+          <v-btn v-else color="primary" @click="join(props.groupId)" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
 
         </div>
   
@@ -143,7 +143,7 @@
   import tgScrollable from './tgScrollable.vue';
   
   import {useDataStore} from '@/store/dataStore'
-  import {getGroupMessages,getGroupMessageById,getPreviousGroupMessages,getNextGroupMessages,getLastGroupMessages,GroupMessageGenerator} from '@/funcs/groupFuncs'
+  import {getGroupMessages,getGroupMessageById,getPreviousGroupMessages,getNextGroupMessages,getLastGroupMessages,GroupMessageGenerator,join} from '@/funcs/groupFuncs'
   
   
   import tgCard from './tgCard.vue';
@@ -189,8 +189,10 @@
     files.value=[]
   }
   
-  const joined=computed(()=>!!allGroupsData.value.allMessages[props.groupId].groupRelId)
-  const isOwner=computed(()=>allGroupsData.value.allMessages[props.groupId]?.group?.owner==pb.authStore.model.id)  
+  // const joined=computed(()=>!!allGroupsData.value.allMessages[props.groupId]?.active)
+  const joined=inject('joined')
+  const isOwner=inject('isOwner')
+  // const isOwner=computed(()=>allGroupsData.value.allMessages[props.groupId]?.group?.owner==pb.authStore.model.id)  
   
   const files=ref([]);
   
@@ -231,7 +233,7 @@
   
   
   const messageGenerator = new GroupMessageGenerator(props.groupId,props.initMessageId)
-  await messageGenerator.initializeMessages()
+  // await messageGenerator.initializeMessages()
   const owner=await pb.collection('users').getOne(allGroupsData.value.allMessages[props.groupId].group?.owner);
   // watchEffect(async()=>{if(allGroupsData.allMessages[props.groupId].group?.owner)owner=await pb.collection('users').getOne(allGroupsData.allMessages[props.groupId].group?.owner)})
 
@@ -344,19 +346,19 @@
   }
 
 
-  async function join(){
-  try{const groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":props.groupId},{expand:'mem,group'});
-  joined.value=true;
-  const messages=allGroupsData.value.allMessages[props.groupId].messages
-  const cacheNewMessages=allGroupsData.value.allMessages[props.groupId].cacheNewMessages
-  allGroupsData.value.allMessages[props.groupId]=new GroupData(groupRel)
-  try{
-    await allGroupsData.value.allMessages[props.groupId].init()
-  }catch{}
-  allGroupsData.value.allMessages[props.groupId].messages=messages
-  allGroupsData.value.allMessages[props.groupId].cacheNewMessages=cacheNewMessages
-}
-  catch{}}
+//   async function join(){
+//   try{const groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":props.groupId},{expand:'mem,group'});
+//   joined.value=true;
+//   const messages=allGroupsData.value.allMessages[props.groupId].messages
+//   const cacheNewMessages=allGroupsData.value.allMessages[props.groupId].cacheNewMessages
+//   allGroupsData.value.allMessages[props.groupId]=new GroupData(groupRel)
+//   try{
+//     await allGroupsData.value.allMessages[props.groupId].init()
+//   }catch{}
+//   allGroupsData.value.allMessages[props.groupId].messages=messages
+//   allGroupsData.value.allMessages[props.groupId].cacheNewMessages=cacheNewMessages
+// }
+//   catch{}}
   
   
   </script>

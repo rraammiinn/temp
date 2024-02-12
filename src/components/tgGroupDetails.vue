@@ -51,7 +51,11 @@
           </v-list-item>
             <v-divider></v-divider>
           </div>
-          <div style="height: 1.5rem;"></div>
+          <div style="height: 3.25rem;"></div>
+
+          <v-btn @click="leave(props.group.id)" v-if="props.joined" style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="error">leave</v-btn>
+          <v-btn @click="join(props.group.id)" v-else style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="primary">join</v-btn>
+
     </div>
     
     </template>
@@ -73,10 +77,11 @@
   
     import { useDataStore } from "@/store/dataStore";
     import {addContact,deleteContact} from '@/funcs/contactFunc';
+    import { join,leave } from '@/funcs/groupFuncs';
 
     const{contacts}=storeToRefs(useDataStore())
     
-    const props=defineProps(['group','owner','members'])
+    const props=defineProps(['group','owner','members','joined'])
     const showGroup=inject('showGroup')
     const showUser=inject('showUser')
     

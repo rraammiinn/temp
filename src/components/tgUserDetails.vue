@@ -18,6 +18,12 @@
             </div>
         </v-col>
     </div>
+
+    <div style="height: 3.25rem;"></div>
+
+<v-btn @click="block(props.user.id)" v-if="props.isInRel && !props.blocked" style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="error">block</v-btn>
+<v-btn @click="unblock(props.user.id)" v-if="props.isInRel && props.blocked" style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="primary">unblock</v-btn>
+
 </div>
 
 </template>
@@ -31,8 +37,9 @@
 
 <script setup>
 import { inject, ref } from 'vue';
+import { block,unblock } from '@/funcs/chatFuncs';
 
-const props=defineProps(['user'])
+const props=defineProps(['user','isInRel','blocked'])
 const showUser=inject('showUser')
 
 

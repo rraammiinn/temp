@@ -7,7 +7,7 @@
     
     
     
-          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
     
     
         </template>
@@ -22,18 +22,18 @@
       <script setup>
       import tgCard from './tgCard.vue';
       import pb from '@/main';
-      import { computed, onUpdated, onMounted, ref } from 'vue';
+      import { computed, onUpdated, onMounted, ref, nextTick } from 'vue';
 
     
     
-      const props = defineProps(['otherId','initMessageId','messageGenerator','messagesType'])
+      const props = defineProps(['otherId','initMessageId','messageGenerator','messagesType','isOwner'])
       const emit = defineEmits(['reachedStart', 'reachedEnd'])
       const allMessages=defineModel('allMessages')
 
 
 
       const scrollable = ref()
-      var updateCause='both'
+      // var updateCause='both'
       var startScrollTop=0;
       // var firstUpdate=true;
       var startEnabled=true;
@@ -41,6 +41,11 @@
       var topCard;
       var bottomCard;
       const showGoToBottom=ref(false)
+
+      await props.messageGenerator.initializeMessages()
+      // await nextTick(init)
+
+
 
 
       console.log('props ::: ',props)
@@ -75,7 +80,7 @@
         )
 
         const startObserver = new IntersectionObserver(
-          (e)=>{console.log('intersected --------->>> start',e);if(e[0].isIntersecting){updateCause = updateCause == 'end' ? 'both' : 'start';props.messageGenerator.getPreviousMessages().then((res)=>{startEnabled=res;topCard=e[0].target;});startObserver.unobserve(e[0].target);}},
+          e=>getPreviousMessages(e),
           {root:scrollable.value}
         )
 
@@ -84,12 +89,12 @@
 
 
         const endObserver = new IntersectionObserver(
-          (e)=>{console.log('intersected --------->>> end',e);if(e[0].isIntersecting){updateCause = updateCause == 'start' ? 'both' : 'end';props.messageGenerator.getNextMessages().then((res)=>{endEnabled=res;bottomCard=e[0].target;});endObserver.unobserve(e[0].target);}},
+          e=>getNextMessages(e),
           {root:scrollable.value}
         )
 
         function attachStartObserver(){
-          if(updateCause != 'goToBottom' && startEnabled && topCard)topCard.scrollIntoView({block:'nearest'});
+          // if(updateCause != 'goToBottom' && startEnabled && topCard)topCard.scrollIntoView({block:'nearest'});
           setTimeout(() => {
             startObserver.observe(document.querySelectorAll('.tg-card')[0])
           }, 1000);
@@ -107,36 +112,44 @@
           Array.from(document.querySelectorAll('.tg-card')).slice(-10).forEach(i=>dateObserver.observe(i))
         }
 
+        function attachAllObservers(){
+          attachStartObserver()
+          attachEndObserver()
+          attachDateObserver()
+        }
 
 
 
-//   async function getPreviousMessages(){console.log('-----------getPreviousMessages----------->>>>>>>>>>>')
-//   try{
-//     const previous10Messages= await getPreviousChatMessages(props.otherId,allMessages.value[props.otherId].messages[0].created)
-//     if(!previous10Messages.length){console.log('no more <<<');return};
-//       allMessages.value[props.otherId].messages=[...previous10Messages, ...allMessages.value[props.otherId].messages]
 
+  async function getPreviousMessages(e){
+    if(e[0].isIntersecting){
+      // updateCause = updateCause == 'end' ? 'both' : 'start';
+      startEnabled = await props.messageGenerator.getPreviousMessages()
+      await nextTick();
+      topCard=e[0].target;
+      startObserver.unobserve(e[0].target);
+      attachStartObserver()
+      attachDateObserver()
+    }
 
-//     }
-//     catch{console.log('start errrrror @@@')}
-//     // updateCause=null;
-// }
+}
   
-//   async function getNextMessages(){console.log('------------getNextMessages---------->>>>>>>>>>>')
-//   try{
-//       const new10Messages= await getNextChatMessages(props.otherId,allMessages.value[props.otherId].messages.at(-1).created)
-//       if(!new10Messages.length){console.log('no more >>>');return};
-//       allMessages.value[props.otherId].messages=[...allMessages.value[props.otherId].messages, ...new10Messages]
-//       if(!new10Messages.length){
-// subscribeToNewMessages()}
-//     }
-//     catch{console.log('end errrrror @@@')}
-//     // updateCause=null;
-// }
+  async function getNextMessages(e){
+    if(e[0].isIntersecting){
+      // updateCause = updateCause == 'start' ? 'both' : 'end';
+      endEnabled = await props.messageGenerator.getNextMessages()
+      await nextTick();
+      bottomCard=e[0].target;
+      endObserver.unobserve(e[0].target);
+      attachEndObserver()
+      attachDateObserver()
+    }
+
+}
               
 
 
-        onUpdated(()=>{if(updateCause=='start')attachStartObserver();else if(updateCause=='end')attachEndObserver();else if(updateCause=='both'){attachStartObserver();attachEndObserver();}else if(updateCause=='goToBottom'){scrollable.value.scrollTop=scrollable.value.scrollHeight;attachStartObserver()};updateCause=null;attachDateObserver();})
+        // onUpdated(()=>{if(updateCause=='start')attachStartObserver();else if(updateCause=='end')attachEndObserver();else if(updateCause=='both'){attachStartObserver();attachEndObserver();}else if(updateCause=='goToBottom'){scrollable.value.scrollTop=scrollable.value.scrollHeight;attachStartObserver()};updateCause=null;attachDateObserver();})
     
 
 
@@ -144,8 +157,11 @@
 
     async function goToBottom(){
       if(endEnabled){
-        updateCause='goToBottom'
+        // updateCause='goToBottom'
         await props.messageGenerator.goToBottom()
+        await nextTick()
+        attachStartObserver()
+        attachDateObserver()
       }
       scrollable.value.scrollTop=scrollable.value.scrollHeight;
   }
@@ -154,9 +170,31 @@
 
 
 
-  onMounted(()=>{document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(document.querySelector('.tg-card:last-of-type').dataset.time)}})
+  // onMounted(()=>{document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(document.querySelector('.tg-card:last-of-type').dataset.time)}})
 
 
 
   console.log('@@@@@almsg',allMessages.value)
+
+
+
+
+  async function init(){
+    if(props.initMessageId){
+      document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
+      }else{
+        scrollable.value?.scrollIntoView({block:'center'});
+      }
+
+      document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});
+      scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
+      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(document.querySelector('.tg-card:last-of-type').dataset.time)}
+
+
+      attachAllObservers()
+
+      }
+
+onMounted(init)
+
       </script>

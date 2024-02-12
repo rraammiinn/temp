@@ -1,8 +1,8 @@
 <template>
-    <v-btn @click="if(!showGroup)$router.back();showGroup=false;" variant="text" icon="mdi-arrow-left"></v-btn>
+    <v-btn style="margin-right: .5rem;" rounded @click="if(!showGroup)$router.back();showGroup=false;" variant="text" icon="mdi-arrow-left"></v-btn>
 <v-avatar @click="showGroup=true;" :image="`/api/files/groups/${props.groupId}/${allGroupMessages[props.groupId].group.avatar}`"></v-avatar>
     <v-spacer></v-spacer>
-    <v-btn variant="text" icon="mdi-dots-vertical"></v-btn>
+    <v-btn rounded variant="text" icon="mdi-dots-vertical"></v-btn>
 </template>
 
 <style scoped>

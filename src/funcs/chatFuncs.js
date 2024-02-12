@@ -120,7 +120,7 @@ class ChatMessageGenerator{
     useDataStore().allChatsData.allMessages[this.otherId].messages=last10Messages
     const date = last10Messages.at(-1).created
       if(new Date(useDataStore().allChatsData.allMessages[this.otherId].lastSeen) < new Date(date)){
-      allMessages.value[props.otherId].lastSeen=date;
+        useDataStore().allChatsData.allMessages[this.otherId].lastSeen=date;
       pb.collection('rels').update(useDataStore().allChatsData.allMessages[this.otherId].relId,{lastseen:date})
       }
     subscribeToNewMessages(this.otherId)
@@ -129,6 +129,18 @@ class ChatMessageGenerator{
 }
 
 
+  async function block(userId){
+    pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":false})
+    useDataStore().allChatsData.allMessages[userId].active=false
+  }
+
+  async function unblock(userId){
+    pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":true})
+    useDataStore().allChatsData.allMessages[userId].active=true
+  }
 
 
-export {ChatMessageGenerator}
+
+
+
+export {ChatMessageGenerator,block,unblock,subscribeToNewMessages}

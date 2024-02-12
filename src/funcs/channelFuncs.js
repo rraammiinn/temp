@@ -2,6 +2,7 @@ import pb from "@/main";
 
 
 import {useDataStore} from '@/store/dataStore'
+import { ChannelData } from "@/store/dataModels";
 
 
 
@@ -121,7 +122,7 @@ class ChannelMessageGenerator{
     useDataStore().allChannelsData.allMessages[this.channelId].messages=last10Messages
     const date = last10Messages.at(-1).created
       if(new Date(useDataStore().allChannelsData.allMessages[this.channelId].lastSeen) < new Date(date)){
-      allMessages.value[props.channelId].lastSeen=date;
+        useDataStore().allChannelsData.allMessages[this.channelId].lastSeen=date;
       pb.collection('channelRels').update(useDataStore().allChannelsData.allMessages[this.channelId].channelRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.channelId)
@@ -130,6 +131,29 @@ class ChannelMessageGenerator{
 }
 
 
+async function subscribe(channelId){
+  try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'});
+  const messages=useDataStore().allChannelsData.allMessages[channelId].messages
+  const cacheNewMessages=useDataStore().allChannelsData.allMessages[channelId].cacheNewMessages
+  useDataStore().allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
+  try{
+    await useDataStore().allChannelsData.allMessages[channelId].init()
+  }catch{}
+  useDataStore().allChannelsData.allMessages[channelId].messages=messages
+  useDataStore().allChannelsData.allMessages[channelId].cacheNewMessages=cacheNewMessages
+}
+  catch{}}
 
 
-export {ChannelMessageGenerator}
+  async function unsubscribe(channelId){
+    pb.collection('channelMembers').delete(useDataStore().allChannelsData.allMessages[channelId].channelRelId)
+    useDataStore().allChannelsData.channelRels = useDataStore().allChannelsData.channelRels.filter(channelRel=>channelRel.channel!=channelId)
+    useDataStore().allChannelsData.allMessages[channelId].channelRelId=null
+  }
+  
+  
+
+
+
+
+export {ChannelMessageGenerator,subscribe,unsubscribe}

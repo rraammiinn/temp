@@ -1,5 +1,5 @@
 <template>
-<v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+<v-app-bar-nav-icon style="margin-right: .5rem;" rounded variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
 <v-toolbar-title v-show="(!showSearch && !chatSearch)">tgram</v-toolbar-title>
 
@@ -16,7 +16,7 @@
         @click:append-inner="onClick"
         v-model="chatSearch"
       ></v-text-field>
-<v-btn @click="showSearch = !showSearch;chatSearch='';" variant="text" :icon='(showSearch||chatSearch) ? "mdi-close" : "mdi-magnify"'></v-btn>
+<v-btn rounded @click="showSearch = !showSearch;chatSearch='';" variant="text" :icon='(showSearch||chatSearch) ? "mdi-close" : "mdi-magnify"'></v-btn>
 
 
 </template>
