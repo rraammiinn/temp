@@ -35,7 +35,7 @@
       const scrollable = ref()
       // var updateCause='both'
       var startScrollTop=0;
-      // var firstUpdate=true;
+      var firstUpdate=true;
       var startEnabled=true;
       var endEnabled=true;
       var topCard;
@@ -188,13 +188,14 @@
 
       document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});
       scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
-      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(document.querySelector('.tg-card:last-of-type').dataset.time)}
+      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages.at(-1).created)}
 
 
       attachAllObservers()
 
       }
 
+// onUpdated(()=>{if(firstUpdate){updateLastSeen(document.querySelector('.tg-card:last-of-type')?.dataset?.time);firstUpdate=false;}})
 onMounted(init)
 
       </script>

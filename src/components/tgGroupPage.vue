@@ -171,7 +171,7 @@
     for (var i=0;i<fileInput.value.files.length;i++){
       files.value.push(fileInput.value.files[i])
     }
-  
+    fileInput.value.value=null
   }
   const fileInput=ref()
   

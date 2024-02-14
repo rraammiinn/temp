@@ -32,7 +32,34 @@
             <v-btn @click="change" prepend-icon="mdi-check">change</v-btn>
         </div>
         <v-divider style="margin-top: 3rem;margin-bottom: 3rem;"/>
-        <v-btn @click="deleteChannel" variant="outlined" color="error" prepend-icon="mdi-delete">delete channel</v-btn>
+
+
+
+
+        <v-dialog transition="dialog-bottom-transition">
+            <template v-slot:activator="{ props }">
+                <v-btn v-bind="props" variant="outlined" color="error" prepend-icon="mdi-delete">delete channel</v-btn>
+            </template>
+
+            <template v-slot:default="{ isActive }">
+                <v-card title="delete channel">
+                <v-card-text>
+                    are you sure you wana delete this channel ?
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn @click="isActive.value = false" variant="outlined">
+                        cancel
+                    </v-btn>
+                    <v-btn @click="deleteChannel" color="error" variant="elevated">
+                        delete
+                    </v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+            </v-dialog>
         </v-col>
     </div>
 
