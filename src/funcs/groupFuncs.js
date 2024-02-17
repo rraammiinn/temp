@@ -124,7 +124,7 @@ class GroupMessageGenerator{
     const date = last10Messages.at(-1).created
       if(new Date(useDataStore().allGroupsData.allMessages[this.groupId].lastSeen) < new Date(date)){
         useDataStore().allGroupsData.allMessages[this.groupId].lastSeen=date;
-      pb.collection('groupRels').update(useDataStore().allGroupsData.allMessages[this.groupId].groupRelId,{lastseen:date})
+      pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[this.groupId].groupRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.groupId)
   }

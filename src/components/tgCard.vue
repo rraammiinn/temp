@@ -14,27 +14,27 @@
 
 
       <div v-if="props.messageType=='group' && props.fromYou" style="display: flex;justify-content: end;flex-direction: column;position: absolute;bottom: .5rem;left: -1.8rem;gap: 1rem;">
-        <v-btn @click="deleteGroupMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete" rounded></v-btn>
+        <v-btn @click="deleteGroupMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
-          <v-btn @click="exitFromEditMode" size="1.5rem" variant="text" icon="mdi-close" style="display: block;" rounded></v-btn>
+          <v-btn @click="cancelEditing" size="1.5rem" variant="text" icon="mdi-close" style="display: block;" rounded></v-btn>
           <v-btn @click="editGroupMessage" size="1.5rem" variant="text" icon="mdi-check" color="primary" rounded></v-btn>
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
       </div>
     
       <div v-if="props.messageType=='channel' && props.isOwner" style="display: flex;position: absolute;top: -2rem;width: max-content;gap: 1rem;">
-        <v-btn @click="deleteChannelMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete" rounded></v-btn>
+        <v-btn @click="deleteChannelMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
-          <v-btn @click="exitFromEditMode" size="1.5rem" variant="text" icon="mdi-close" rounded></v-btn>
+          <v-btn @click="cancelEditing" size="1.5rem" variant="text" icon="mdi-close" rounded></v-btn>
           <v-btn @click="editChannelMessage" size="1.5rem" variant="text" icon="mdi-check" color="primary" rounded></v-btn>
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
       </div>
     
       <div v-if="props.messageType=='chat' && props.fromYou" style="display: flex;position: absolute;top: -2rem;width: max-content;gap: 1rem;">
-        <v-btn @click="deleteChatMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete" rounded></v-btn>
+        <v-btn @click="deleteChatMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
-          <v-btn @click="exitFromEditMode" size="1.5rem" variant="text" icon="mdi-close" rounded></v-btn>
+          <v-btn @click="cancelEditing" size="1.5rem" variant="text" icon="mdi-close" rounded></v-btn>
           <v-btn @click="editChatMessage" size="1.5rem" variant="text" icon="mdi-check" color="primary" rounded></v-btn>
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
@@ -176,6 +176,11 @@
     function goToEditMode(){
       editMode.value=true;
 
+    }
+
+    function cancelEditing(){
+      deletingFiles.value.forEach(fileName=>document.getElementById(fileName).style.display='flex')
+      exitFromEditMode()
     }
 
     function exitFromEditMode(){

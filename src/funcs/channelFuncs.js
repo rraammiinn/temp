@@ -123,7 +123,7 @@ class ChannelMessageGenerator{
     const date = last10Messages.at(-1).created
       if(new Date(useDataStore().allChannelsData.allMessages[this.channelId].lastSeen) < new Date(date)){
         useDataStore().allChannelsData.allMessages[this.channelId].lastSeen=date;
-      pb.collection('channelRels').update(useDataStore().allChannelsData.allMessages[this.channelId].channelRelId,{lastseen:date})
+      pb.collection('channelMembers').update(useDataStore().allChannelsData.allMessages[this.channelId].channelRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.channelId)
   }
