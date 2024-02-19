@@ -1,7 +1,7 @@
 <template><slot></slot></template>
 
 <script setup>
-import { watchEffect } from "vue";
+import { watchEffect, onBeforeUnmount, onUnmounted, onActivated } from "vue";
 import {storeToRefs} from 'pinia'
 import {useDataStore} from '@/store/dataStore'
 import {useAuthStore} from '@/store/authStore'
@@ -9,6 +9,7 @@ import pb from "@/main";
 import { useRouter } from 'vue-router';
 import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
 import {subscribeToNewMessages} from '@/funcs/chatFuncs'
+import { onMounted } from "vue";
 
 const{isLoggedIn,authData}=storeToRefs(useAuthStore())
 const{updateChatRels,updateGroupRels,updateChannelRels,updateGroups,updateAllMessages,updateGroupMems,updateContacts,init}=useDataStore()
@@ -42,13 +43,16 @@ watchEffect(async()=>{
 
 
 
-    pb.collection('users').subscribe('*',(e)=>{try{allChatsData.value.allMessages[e.record.id].lastVisited=e.record.lastvisited;allChatsData.value.allMessages[e.record.id].isOnline=true}catch{}})
-    setInterval(()=>{for(const index in allChatsData.value.allMessages){
-    allChatsData.value.allMessages[index].isOnline=(new Date().getTime()-new Date(allChatsData.value.allMessages[index].lastVisited).getTime())<6900
-    }},5000)
+    // pb.collection('users').subscribe('*',(e)=>{try{allChatsData.value.allMessages[e.record.id].lastVisited=e.record.lastvisited;allChatsData.value.allMessages[e.record.id].isOnline=true}catch{}})
+    // setInterval(()=>{for(const index in allChatsData.value.allMessages){
+    // allChatsData.value.allMessages[index].isOnline=(new Date().getTime()-new Date(allChatsData.value.allMessages[index].lastVisited).getTime())<6900
+    // }},5000)
 
+    pb.collection('users').subscribe('*',(e)=>{
+        try{allChatsData.value.allMessages[e.record.id].isOnline = e.record.online}catch{}
+    })
 
-    setInterval(()=>{pb.collection('users').update(authData.value.id,{lastvisited:new Date().toISOString().replace('T',' ')})},3000)
+    // setInterval(()=>{pb.collection('users').update(authData.value.id,{lastvisited:new Date().toISOString().replace('T',' ')})},3000)
 
     pb.collection('rels').subscribe('*',async(e)=>{
             if(e.action=='create' && e.record.follower==authData.value.id){
@@ -122,6 +126,9 @@ pb.collection('groupMessages').subscribe('*',async(e)=>{
             else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(allChannelsData.value.allMessages[index].lastSeen)){allChannelsData.value.allMessages[index].unseenCount--;};allChannelsData.value.allMessages[index].messages=allChannelsData.value.allMessages[index].messages.filter(msg=>msg.id != e.record.id)}})
 
 
+
+        window.addEventListener("beforeunload", ()=>{pb.collection('users').update(authData.value.id,{online:false})});
+        document.addEventListener('visibilitychange', ()=>{if (document.visibilityState === 'visible'){pb.collection('users').update(authData.value.id,{online:true})}else{pb.collection('users').update(authData.value.id,{online:false})}});
 
 
 </script>

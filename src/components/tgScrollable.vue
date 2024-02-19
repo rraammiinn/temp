@@ -7,7 +7,7 @@
     
     
     
-          <tg-card class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+          <tg-card @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
     
     
         </template>
@@ -43,7 +43,6 @@
       const showGoToBottom=ref(false)
 
       await props.messageGenerator.initializeMessages()
-      // await nextTick(init)
 
 
 
@@ -51,7 +50,6 @@
       console.log('props ::: ',props)
 
 
-      // onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{scrollable.value?.scrollIntoView({block:'center'});}})
 
       async function updateLastSeen(date){
         if(new Date(allMessages.value[props.otherId].lastSeen) < new Date(date)){
@@ -70,10 +68,17 @@
 
         const dateObserver = new IntersectionObserver(
           async(e)=>{
+
             const target=e.filter(i=>i.isIntersecting).at(-1)?.target
+
+            console.log('{{{=========}}}',target)
+
             if(!target)return;
-            const date = target.dataset.time
+            const date = target.getAttribute('created')
+            console.log('+++',date)
+            // const date = allMessages.value[props.otherId].messages.find(msg=>msg.id==target.id).created
             dateObserver.unobserve(target);
+            console.log('+-+-+')
             await updateLastSeen(date);
           },
           {root:scrollable.value}
@@ -94,7 +99,6 @@
         )
 
         function attachStartObserver(){
-          // if(updateCause != 'goToBottom' && startEnabled && topCard)topCard.scrollIntoView({block:'nearest'});
           setTimeout(() => {
             startObserver.observe(document.querySelectorAll('.tg-card')[0])
           }, 1000);
@@ -112,44 +116,45 @@
           Array.from(document.querySelectorAll('.tg-card')).slice(-10).forEach(i=>dateObserver.observe(i))
         }
 
-        function attachAllObservers(){
-          attachStartObserver()
-          attachEndObserver()
-          attachDateObserver()
-        }
+        // function attachAllObservers(){
+        //   attachStartObserver()
+        //   attachEndObserver()
+        //   attachDateObserver()
+        // }
 
 
 
 
   async function getPreviousMessages(e){
     if(e[0].isIntersecting){
-      // updateCause = updateCause == 'end' ? 'both' : 'start';
+      console.log('<<<========={{{')
+
       startEnabled = await props.messageGenerator.getPreviousMessages()
-      await nextTick();
-      topCard=e[0].target;
-      startObserver.unobserve(e[0].target);
-      attachStartObserver()
-      attachDateObserver()
+      // await nextTick();
+      // topCard=e[0].target;
+      // startObserver.unobserve(e[0].target);
+      // attachStartObserver()
+      // attachDateObserver()
     }
 
 }
   
   async function getNextMessages(e){
     if(e[0].isIntersecting){
-      // updateCause = updateCause == 'start' ? 'both' : 'end';
+      console.log('}}}=========>>>')
+
       endEnabled = await props.messageGenerator.getNextMessages()
-      await nextTick();
-      bottomCard=e[0].target;
-      endObserver.unobserve(e[0].target);
-      attachEndObserver()
-      attachDateObserver()
+      // await nextTick();
+      // bottomCard=e[0].target;
+      // endObserver.unobserve(e[0].target);
+      // attachEndObserver()
+      // attachDateObserver()
     }
 
 }
               
 
 
-        // onUpdated(()=>{if(updateCause=='start')attachStartObserver();else if(updateCause=='end')attachEndObserver();else if(updateCause=='both'){attachStartObserver();attachEndObserver();}else if(updateCause=='goToBottom'){scrollable.value.scrollTop=scrollable.value.scrollHeight;attachStartObserver()};updateCause=null;attachDateObserver();})
     
 
 
@@ -157,20 +162,31 @@
 
     async function goToBottom(){
       if(endEnabled){
-        // updateCause='goToBottom'
         await props.messageGenerator.goToBottom()
-        await nextTick()
-        attachStartObserver()
-        attachDateObserver()
+        // await nextTick()
+        // attachStartObserver()
+        // attachDateObserver()
       }
       scrollable.value.scrollTop=scrollable.value.scrollHeight;
+  }
+
+  function cardInsertHandler(id){
+    console.log('inserted :::=====>>> ' ,id)
+    const card=document.getElementById(id)
+    if(id == allMessages.value[props.otherId].messages[0].id){
+      startObserver.observe(card)
+      console.log('@***@, added to start')
+    }else if(id == allMessages.value[props.otherId].messages.at(-1).id){
+      endObserver.observe(card)
+      console.log('@***@, added to end')
+    }
+    dateObserver.observe(card)
   }
 
 
 
 
 
-  // onMounted(()=>{document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(document.querySelector('.tg-card:last-of-type').dataset.time)}})
 
 
 
@@ -180,22 +196,23 @@
 
 
   async function init(){
-    if(props.initMessageId){
-      document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
-      }else{
-        scrollable.value?.scrollIntoView({block:'center'});
-      }
-
-      document.querySelector(`[data-time="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'end',behavior:'smooth'});
-      scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
+    setTimeout(() => {
+            // document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
+            scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
       if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages.at(-1).created)}
 
 
-      attachAllObservers()
+      // attachAllObservers()
 
+      if(props.initMessageId){
+      document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
+      }else{
+        // scrollable.value?.scrollIntoView({block:'center'});
+        document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
+      }
+    }, 1000);
       }
 
-// onUpdated(()=>{if(firstUpdate){updateLastSeen(document.querySelector('.tg-card:last-of-type')?.dataset?.time);firstUpdate=false;}})
 onMounted(init)
 
       </script>

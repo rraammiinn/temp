@@ -18,7 +18,7 @@ class ChatData{
         this.otherLastSeen = backRel?.lastseen || 0
         this.messages=[]
         this.cacheNewMessages=false
-        this.isOnline=false
+        this.isOnline=this.other.online
         this.active=rel?.active
         this.messagesType='chat'
     }

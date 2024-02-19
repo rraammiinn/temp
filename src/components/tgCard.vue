@@ -114,11 +114,14 @@
     <script setup>
     import {getFileType,getIcon} from '@/funcs/commonFuncs'
     import tgFileChip from '@/components/tgFileChip.vue'
-    import {ref} from 'vue'
+    import {ref, onMounted} from 'vue'
     import pb from '@/main';
     
     const showName=ref(false)
+
     const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner'])
+    const emit = defineEmits(['insert'])
+
     const editMode=ref(false)
     const msg=ref(props.text)
     const addingFiles=ref([]);
@@ -198,5 +201,7 @@
         formData.append('files', file)
       }
     }
+
+    onMounted(()=>{emit('insert',props.id)})
     
     </script>
