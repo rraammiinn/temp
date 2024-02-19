@@ -1,6 +1,9 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="if(!showUser)$router.back();showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
     <v-badge :content="allChatsData.allMessages[props.otherId].isOnline ? 'online' : 'offline'" :color="allChatsData.allMessages[props.otherId].isOnline ? 'primary' : null"><v-avatar @click="showUser=true;" :image="`/api/files/users/${props.otherId}/${allChatsData.allMessages[props.otherId].other.avatar}`"></v-avatar></v-badge>
+    <div v-show="!allChatsData.allMessages[props.otherId].isOnline" style="font-size: .65rem;font-weight: bold;margin-top: 3rem;margin-left: -.4rem;opacity: .85;">
+        <span>last seen : {{ allChatsData.allMessages[props.otherId].lastVisited.slice(0,10) }}</span><span style="margin-left: .5rem;">{{ allChatsData.allMessages[props.otherId].lastVisited.slice(10,16) }}</span>
+    </div>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
         <template v-slot:activator="{ props }">

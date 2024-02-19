@@ -49,7 +49,10 @@ watchEffect(async()=>{
     // }},5000)
 
     pb.collection('users').subscribe('*',(e)=>{
-        try{allChatsData.value.allMessages[e.record.id].isOnline = e.record.online}catch{}
+        try{
+            allChatsData.value.allMessages[e.record.id].isOnline = e.record.online;
+            allChatsData.value.allMessages[e.record.id].lastVisited = e.record.updated;
+        }catch{}
     })
 
     // setInterval(()=>{pb.collection('users').update(authData.value.id,{lastvisited:new Date().toISOString().replace('T',' ')})},3000)
@@ -108,6 +111,7 @@ watchEffect(async()=>{
 
 
 pb.collection('groupMessages').subscribe('*',async(e)=>{
+    console.log(e)
         const index=e.record.group;
         if(e.action=='create'){
             if(!allGroupsData.value.allMessages[index].groupMems[e.record.from]){await updateGroupMems(e.record.group)}

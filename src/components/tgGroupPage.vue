@@ -1,7 +1,7 @@
 <template>
     <tg-user-details style="z-index: 888;" :user="user" v-if="showUser"></tg-user-details>
 
-    <tg-group-details :joined="joined" :owner="owner" :members="allGroupsData.allMessages[props.groupId].groupMems" :group="allGroupsData.allMessages[props.groupId].group" v-if="showGroup"></tg-group-details>
+    <tg-group-details @join="async()=>{await allGroupsData.allMessages[props.groupId].init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allMessages[props.groupId].groupMems" :group="allGroupsData.allMessages[props.groupId].group" v-if="showGroup"></tg-group-details>
   
   <div class="main">
   
@@ -95,7 +95,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-else color="primary" @click="join(props.groupId)" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
+          <v-btn v-else color="primary" @click="async()=>{await join(props.groupId);await allGroupsData.allMessages[props.groupId].init();await messageGenerator.initializeMessages()}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
 
         </div>
   

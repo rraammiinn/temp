@@ -12,19 +12,18 @@
               color="primary"
               icon="mdi-tune"
               variant="text"
-              @click.stop=""
             ></v-btn>
             <v-btn v-if="channelIds.includes(channel.id)"
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteChannel(getChannelFromId(channel.id).id)"
+              @click.stop="unsubscribe(channel.id)"
             ></v-btn>
             <v-btn v-else
               color="primary"
               icon="mdi-plus"
               variant="text"
-              @click.stop="addChannel(channel.id)"
+              @click.stop="subscribe(channel.id)"
             ></v-btn>
           </template>
           </v-list-item>
@@ -49,7 +48,7 @@
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteChannel(channelRel.id)"
+              @click.stop="unsubscribe(channelRel.channel)"
             ></v-btn>
           </template>
           </v-list-item>
@@ -76,6 +75,7 @@
   import { storeToRefs } from "pinia";
   
   import { useDataStore } from "@/store/dataStore";
+  import { subscribe, unsubscribe } from '@/funcs/channelFuncs';
   const{updateChannelRels}=useDataStore()
   const{allChannelsData}=storeToRefs(useDataStore())
   
@@ -86,11 +86,11 @@
   
   
   
-  async function addChannel(channel){
-    await pb.collection('channelMembers').create({mem:pb.authStore.model.id, channel:channel})
+  async function addChannel(channelId){
+    await subscribe(channelId)
   }
-  async function deleteChannel(channel){
-    await pb.collection('channelMembers').delete(channel);
+  async function deleteChannel(channelId){
+    await unsubscribe(channelId)
   }
   // async function getChannels(){
   //   return await pb.collection('channels').getFullList({expand:'following'});

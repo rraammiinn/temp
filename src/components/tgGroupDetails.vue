@@ -54,7 +54,7 @@
           <div style="height: 3.25rem;"></div>
 
           <v-btn @click="leave(props.group.id)" v-if="props.joined" style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="error">leave</v-btn>
-          <v-btn @click="join(props.group.id)" v-else style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="primary">join</v-btn>
+          <v-btn @click="async()=>{await join(props.group.id);$emit('join')}" v-else style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="primary">join</v-btn>
 
     </div>
     

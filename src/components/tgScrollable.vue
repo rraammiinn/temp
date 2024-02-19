@@ -173,6 +173,7 @@
   function cardInsertHandler(id){
     console.log('inserted :::=====>>> ' ,id)
     const card=document.getElementById(id)
+    console.log('>>>---------> ',card)
     if(id == allMessages.value[props.otherId].messages[0].id){
       startObserver.observe(card)
       console.log('@***@, added to start')

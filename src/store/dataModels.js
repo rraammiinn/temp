@@ -12,7 +12,7 @@ class ChatData{
         this.other = ((rel?.follower == useAuthStore().authData.id) ? (rel?.expand?.following ?? backRel?.expand?.follower) : (rel?.expand?.follower ?? backRel?.expand?.following)) ?? user
         this.lastSeen = rel?.lastseen || 0
         this.unseenCount = 0
-        this.lastVisited = rel?.expand?.following?.lastvisited ?? 0
+        this.lastVisited = rel?.expand?.following?.updated
         this.relId = rel?.id
         this.backRelId = backRel?.id
         this.otherLastSeen = backRel?.lastseen || 0
@@ -157,7 +157,10 @@ class ChannelData{
 
     async updateMembers(){this.channelMems=(await pb.collection('channelMembers').getFullList({filter:`channel = "${this.channel.id}"`,expand:'mem'})).map(rec=>{this.channelMems[rec.mem]=rec.expand.mem});}
 
-    async updateUnseenCount(){this.unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`channel = "${this.channel.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;}
+    async updateUnseenCount(){
+        if(this.channel.owner == useAuthStore().authData.id){this.unseenCount=0}
+        else{this.unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`channel = "${this.channel.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;}
+    }
 
     async updateChannel(){this.channel=await pb.collection('channels').getOne(this.channel.id)}
 

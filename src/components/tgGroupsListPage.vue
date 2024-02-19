@@ -12,7 +12,6 @@
               color="primary"
               icon="mdi-tune"
               variant="text"
-              @click.stop=""
             ></v-btn>
             <v-btn v-if="activeGroupsIds.includes(group.id)"
               color="error"
@@ -89,12 +88,12 @@
   
   
   
-  async function addGroup(group){
-    await pb.collection('groupMembers').create({mem:pb.authStore.model.id, group:group})
-  }
-  async function deleteGroup(group){
-    await pb.collection('groupMembers').delete(group);
-  }
+  // async function addGroup(group){
+  //   await pb.collection('groupMembers').create({mem:pb.authStore.model.id, group:group})
+  // }
+  // async function deleteGroup(group){
+  //   await pb.collection('groupMembers').delete(group);
+  // }
   // async function getGroups(){
   //   return await pb.collection('groups').getFullList({expand:'following'});
   // }

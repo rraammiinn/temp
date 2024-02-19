@@ -133,16 +133,12 @@ class ChannelMessageGenerator{
 
 async function subscribe(channelId){
   try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'});
-  const messages=useDataStore().allChannelsData.allMessages[channelId].messages
-  const cacheNewMessages=useDataStore().allChannelsData.allMessages[channelId].cacheNewMessages
   useDataStore().allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
-  try{
-    await useDataStore().allChannelsData.allMessages[channelId].init()
-  }catch{}
-  useDataStore().allChannelsData.allMessages[channelId].messages=messages
-  useDataStore().allChannelsData.allMessages[channelId].cacheNewMessages=cacheNewMessages
+  await useDataStore().allChannelsData.allMessages[channelId].init()
+  console.log('#&#', useDataStore().allChannelsData.allMessages[channelId])
 }
-  catch{}}
+  catch{}
+}
 
 
   async function unsubscribe(channelId){
