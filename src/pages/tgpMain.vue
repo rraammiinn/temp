@@ -16,8 +16,8 @@ if(!isLoggedIn){router.push('/login')}
 
 
 
-const chatSearch=ref('')
-provide('chatSearch', chatSearch)
+const searchMessage=ref('')
+provide('searchMessage', searchMessage)
 
 import tgMain from '../components/tgMain.vue';
 import tgMainAppBar from '../components/tgMainAppBar.vue';

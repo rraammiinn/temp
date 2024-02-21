@@ -199,19 +199,21 @@
   async function init(){
     setTimeout(() => {
             // document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
-            scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
-      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages.at(-1).created)}
-
-
+ 
       // attachAllObservers()
 
       if(props.initMessageId){
       document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
       }else{
         // scrollable.value?.scrollIntoView({block:'center'});
-        document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
+        document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center'});
       }
-    }, 1000);
+
+      scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
+      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages.at(-1).created)}
+
+
+    }, 100);
       }
 
 onMounted(init)

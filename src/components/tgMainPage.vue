@@ -2,14 +2,28 @@
 
 
 
-    <v-list v-if="chatSearch" :items="Object.keys(searchChats)"  item-props  lines="three">
+    <v-list v-if="searchMessage" :items="Object.keys(searchMessageResults)"  item-props  lines="three">
 
-<div v-for="searchChat in searchChats" @click="$router.push({name:'chat',params:{otherId:(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchChat.id,showUser:false}})">
-    <v-list-item class="listItem" :class="{online:allMessagesSorted[(searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
-    :prepend-avatar="`/api/files/users/${searchChat[searchChat.from==pb.authStore.model.id ? 'to' : 'from']}/${searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
-    :title="searchChat.expand[searchChat.from==pb.authStore.model.id ? 'to' : 'from'].name"
-    :subtitle="searchChat.text"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchChat.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchChat.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
+<div v-for="searchMessageResult in searchMessageResults">
+    <v-list-item @click="$router.push({name:'chat',params:{otherId:(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchMessageResult.id,showUser:false}})" v-if="searchMessageResult.to" class="listItem" :class="{online:allMessagesSorted[(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
+    :prepend-avatar="`/api/files/users/${searchMessageResult[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']}/${searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
+    :title="searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].name"
+    :subtitle="searchMessageResult.text"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
+
+
+  <v-list-item @click="$router.push({name:'group',params:{groupId:searchMessageResult.group},query:{initMessageId:searchMessageResult.id,showGroup:false}})" v-if="searchMessageResult.group" class="listItem"
+    :prepend-avatar="`/api/files/groups/${searchMessageResult.group}/${searchMessageResult.expand.group.avatar}`"
+    :title="searchMessageResult.expand.group.name"
+    :subtitle="`${searchMessageResult.expand.from.name} : ${searchMessageResult.text}`"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
+
+
+  <v-list-item @click="$router.push({name:'channel',params:{channelId:searchMessageResult.channel},query:{initMessageId:searchMessageResult.id,showChannel:false}})" v-if="searchMessageResult.channel" class="listItem"
+    :prepend-avatar="`/api/files/channels/${searchMessageResult.channel}/${searchMessageResult.expand.channel.avatar}`"
+    :title="searchMessageResult.expand.channel.name"
+    :subtitle="searchMessageResult.text"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
   <v-divider></v-divider>
 </div>
 </v-list>
@@ -101,8 +115,8 @@
   const{allGroupsData,allMessagesSorted}=storeToRefs(useDataStore())
 
 
-  const chatSearch=inject('chatSearch')
-  const searchChats=ref([])
+  const searchMessage=inject('searchMessage')
+  const searchMessageResults=ref([])
 
   const newGroup=ref({})
   const newChannel=ref({})
@@ -119,8 +133,10 @@ const showChannelCreationForm=ref(false)
 import { join } from '@/funcs/groupFuncs';
 
 watchEffect(async ()=>{
-  if(chatSearch.value){
-    searchChats.value=await pb.collection('chatMessages').getFullList({filter:`text ~ "${chatSearch.value}"`,expand:'from,to'})
+  if(searchMessage.value){
+    searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
+    ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
+    ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
   }
 })
 

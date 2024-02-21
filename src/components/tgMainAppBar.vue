@@ -1,11 +1,11 @@
 <template>
 <v-app-bar-nav-icon style="margin-right: .5rem;" rounded variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-<v-toolbar-title v-show="(!showSearch && !chatSearch)">tgram</v-toolbar-title>
+<v-toolbar-title v-show="(!showSearch && !searchMessage)">tgram</v-toolbar-title>
 
 <v-spacer></v-spacer>
 
-<v-text-field ref="input" v-show="(showSearch||chatSearch)" style="margin-right: 1rem;"
+<v-text-field ref="input" v-show="(showSearch||searchMessage)" style="margin-right: 1rem;"
         :loading="loading"
         density="compact"
         variant="solo"
@@ -14,9 +14,9 @@
         single-line
         hide-details
         @click:append-inner="onClick"
-        v-model="chatSearch"
+        v-model="searchMessage"
       ></v-text-field>
-<v-btn rounded @click="showSearch = !showSearch;chatSearch='';$nextTick(()=>{input.focus()});" variant="text" :icon='(showSearch||chatSearch) ? "mdi-close" : "mdi-magnify"'></v-btn>
+<v-btn rounded @click="showSearch = !showSearch;searchMessage='';$nextTick(()=>{input.focus()});" variant="text" :icon='(showSearch||searchMessage) ? "mdi-close" : "mdi-magnify"'></v-btn>
 
 
 </template>
@@ -26,7 +26,7 @@
 
     const drawer=inject('drawer')
     const showSearch=ref(false)
-    const chatSearch=inject('chatSearch')
+    const searchMessage=inject('searchMessage')
     const input=ref()
 
 
