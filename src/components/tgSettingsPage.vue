@@ -75,7 +75,8 @@ const {isLoggedIn,authData}=storeToRefs(useAuthStore())
 async function logIn(){
     router.push('/login')
 }
-function logOut(){
+async function logOut(){
+    await pb.collection('users').update(authData.value.id,{online:false})
     pb.authStore.clear();
     updateLogInState()
 }

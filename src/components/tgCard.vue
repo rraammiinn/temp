@@ -48,7 +48,7 @@
               color="var(--tgBrown)"
               base-color="var(--tgBrown)"
       ></v-textarea>
-      <v-card v-else v-show="props.text" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" :text="props.text">
+      <v-card v-else v-show="props.text" width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" :text="props.text">
     
     
         </v-card>
@@ -71,8 +71,8 @@
               <audio preload="metadata" style="flex-grow: 1;height: 1.5rem;margin: .25rem;min-width: 15rem;" controls :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`"></audio>
             </div>
           </div>
-          <div style="display: flex;padding: .75rem;overflow: scroll;white-space: nowrap;margin-top: .5rem;">
-            <div style="display: flex;flex-direction: column;width: fit-content;" v-for="file in props.files.filter(name=>getFileType(name)=='misc')" :key="file" :id="file">
+          <div style="display: flex;padding: 0;overflow: scroll;white-space: nowrap;margin: auto;width: calc(100% - 1.65rem);">
+            <div style="display: flex;flex-direction: column;width: fit-content;margin-left: -.5rem;" v-for="file in props.files.filter(name=>getFileType(name)=='misc')" :key="file" :id="file">
               <!-- <div style="width: fit-content;"> -->
                 <tg-file-chip :link="`/api/files/${props.messageType}Messages/${props.id}/${file}`" :fileName="file"></tg-file-chip>
                 <v-btn @click="pushDeletingFile(file)" v-if="editMode" variant="text" color="error" icon="mdi-close" size="1.5rem" style="margin-left: 1.125rem;"></v-btn>
