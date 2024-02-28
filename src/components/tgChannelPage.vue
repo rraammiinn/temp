@@ -147,6 +147,11 @@
   import tgCard from './tgCard.vue';
   import {getFileType, getIcon} from '@/funcs/commonFuncs'
   import { subscribe } from '@/funcs/channelFuncs';
+
+  import {useOtherStore} from '@/store/otherStore'
+
+  const {showError} = useOtherStore()
+
   
   
   const{updateUnseenCount}=useDataStore()
@@ -194,7 +199,8 @@
   
   
   async function send(){
-    if(!isOwner.value){
+    try{
+      if(!isOwner.value){
       return;
     }
       var formData = new FormData();
@@ -210,6 +216,8 @@
   
       
       const record = await pb.collection('channelMessages').create(formData);
+    }catch{showError('sending message failed.')}
+
       msg.value=''
       files.value=[]
   

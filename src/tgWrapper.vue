@@ -48,7 +48,7 @@ watchEffect(async()=>{
     // allChatsData.value.allMessages[index].isOnline=(new Date().getTime()-new Date(allChatsData.value.allMessages[index].lastVisited).getTime())<6900
     // }},5000)
 
-    pb.collection('users').subscribe('*',(e)=>{
+    pb.collection('users').subscribe('*',async(e)=>{
         try{
             allChatsData.value.allMessages[e.record.id].isOnline = e.record.online;
             allChatsData.value.allMessages[e.record.id].lastVisited = e.record.updated;

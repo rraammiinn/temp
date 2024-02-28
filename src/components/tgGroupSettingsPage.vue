@@ -83,6 +83,10 @@ import {useAuthStore} from '@/store/authStore'
 import { useDataStore } from '@/store/dataStore';
 import { useRouter } from 'vue-router';
 
+import {useOtherStore} from '@/store/otherStore'
+
+const {showError} = useOtherStore()
+
 const {allGroupsData}=storeToRefs(useDataStore())
 const router=useRouter()
 const props=defineProps(['groupId'])
@@ -102,6 +106,9 @@ const about =ref(allGroupsData.value.allMessages[props.groupId].group.about)
 
 
 async function upload_(){
+    try{
+
+    }catch{showError('uploading avatar failed.')}
     var formData = new FormData();
     formData.append('avatar', fileInput.value.files[0]);
     await pb.collection('groups').update(props.groupId, formData);
@@ -112,6 +119,9 @@ async function upload_(){
 
 
 async function change(){
+    try{
+
+    }catch{showError('changing group name and about failed.')}
     await pb.collection('groups').update(props.groupId, {'name':name.value, 'about':about.value});
     await allGroupsData.value.allMessages[props.groupId].updateGroup()
 }
@@ -123,6 +133,9 @@ function cancel(){
 
 
 async function deleteGroup(){
+    try{
+
+    }catch{showError('deleting group failed.')}
     await pb.collection('groups').delete(props.groupId)
     router.back()
 }

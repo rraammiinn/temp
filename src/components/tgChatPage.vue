@@ -144,6 +144,10 @@
   import tgCard from './tgCard.vue';
   import {getFileType, getIcon} from '@/funcs/commonFuncs'
   import { ChatData } from '@/store/dataModels';
+
+  import {useOtherStore} from '@/store/otherStore'
+
+  const {showError} = useOtherStore()
   
   
   const{updateUnseenCount}=useDataStore()
@@ -185,7 +189,8 @@
   
   
   async function send(){
-    if(!isInRel.value){
+    try{
+      if(!isInRel.value){
       var rel,backRel;
       try{rel = await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true},{expand:'follower,following'})}catch{}
       try{backRel = await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{}
@@ -204,6 +209,8 @@
   
       
       const record = await pb.collection('chatMessages').create(formData);
+    }catch{showError('sending message failed.')}
+
       msg.value=''
       files.value=[]
   

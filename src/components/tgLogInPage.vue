@@ -1,27 +1,68 @@
 <template>
     <div style="height: 100dvh;width: 100vw;display: flex;justify-content: center;align-items: center;">
         <v-col>
-            <v-text-field @change="checkUserExistence" v-model="email" style="margin-bottom: 1rem;" :rules="[rules.required, rules.validEmail]" prepend-inner-icon="mdi-email" variant="outlined" label="email"></v-text-field>
-            <v-text-field v-model="password" style="margin-bottom: 1rem;" :rules="[rules.required, rules.min]" @click:append-inner="showPass = !showPass" :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'" prepend-inner-icon="mdi-key" :type="showPass ? 'text' : 'password'" variant="outlined" label="password"></v-text-field>
-            <v-text-field v-if="!userExists" v-model="confirmPassword" style="margin-bottom: 1rem;" :rules="[rules.required, rules.min, rules.match]" @click:append-inner="showConfPass = !showConfPass" :append-inner-icon="showConfPass ? 'mdi-eye' : 'mdi-eye-off'" prepend-inner-icon="mdi-key" :type="showConfPass ? 'text' : 'password'" variant="outlined" label="confirm password"></v-text-field>
+            <v-row style="width: inherit;margin: auto;">
+                <v-text-field :class="{shrinked : (userExists && user)}" @change="checkUserExistence" v-model="email" style="margin-bottom: 1rem;" :rules="[rules.required, rules.validEmail]" prepend-inner-icon="mdi-email" variant="outlined" label="email"></v-text-field>
+                <img v-if="userExists && user" :src="`/api/files/users/${user.id}/${user.avatar}`" style="border-radius: .25rem;width: 3.5rem;height: 3.5rem;margin-left: 1rem;object-fit: cover;">
+            </v-row>
+            <v-text-field v-model="password" style="margin-bottom: .25rem;" :rules="[rules.required, rules.min]" @click:append-inner="showPass = !showPass" :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'" prepend-inner-icon="mdi-key" :type="showPass ? 'text' : 'password'" variant="outlined" label="password"></v-text-field>
+            <v-btn v-if="userExists && email" @click="async()=>{await pb.collection('users').requestPasswordReset(email);}" variant="text" color="warning" style="opacity: .85;font-size: .65rem;font-weight: bold;margin-left: -1rem;">change password</v-btn>
+            <v-text-field v-if="!userExists" v-model="confirmPassword" style="margin-top: 1rem;" :rules="[rules.required, rules.min, rules.match]" @click:append-inner="showConfPass = !showConfPass" :append-inner-icon="showConfPass ? 'mdi-eye' : 'mdi-eye-off'" prepend-inner-icon="mdi-key" :type="showConfPass ? 'text' : 'password'" variant="outlined" label="confirm password"></v-text-field>
+
+            <v-expansion-panels v-if="!userExists" style="margin-top: 1rem;margin-bottom: 1.5rem;">
+                <v-expansion-panel>
+                    <v-expansion-panel-title>
+                        <div style="display: flex;justify-content: space-between;width: 100%;">
+                            <span>extra</span>
+                            <!-- <span>sss</span> -->
+                            <!-- <img ref="img" style="width: 3rem;height: 3rem;" alt=""> -->
+                        </div>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                        <v-text-field v-model="name" label="name" prepend-inner-icon="mdi-account" variant="outlined"></v-text-field>
+                        <v-file-input v-model="avatar" label="avatar" accept="image/*" prepend-inner-icon="mdi-image" :prepend-icon="null"  variant="outlined"></v-file-input>
+                        <v-textarea v-model="bio" variant="outlined" rows="1" auto-grow label="bio"></v-textarea>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
+
+
             <v-row>
-                <v-btn :loading="passwordLogInLoading" @click="passwordLogIn" style="margin-top: .5rem; margin-left: .75rem;" prepend-icon="mdi-email" color="primary">{{ userExists ? 'login' : 'signup' }}<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
-                <v-btn :loading="googleLogInLoading" @click="googleLogIn" style="margin-top: .5rem; margin-left: .75rem;" prepend-icon="mdi-google" color="error">google login<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
+                <v-btn :loading="passwordLogInLoading" @click="passwordLogIn" style="margin-top: 1.5rem; margin-left: .75rem;" prepend-icon="mdi-email" color="primary">{{ userExists ? 'login' : 'signup' }}<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
+                <v-btn :loading="googleLogInLoading" @click="googleLogIn" style="margin-top: 1.5rem; margin-left: .75rem;" prepend-icon="mdi-google" color="error">google login<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
             </v-row>
         </v-col>
     </div>
 </template>
 
+<style>
+.shrinked{
+    width: calc(100% - 4.5rem);
+}
+</style>
+
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import pb from '@/main';
 
 import {useAuthStore} from '@/store/authStore';
 import { useRouter } from 'vue-router';
 
 import isEmail from 'validator/lib/isEmail'
+import { watchEffect } from 'vue';
+
+import {useOtherStore} from '@/store/otherStore'
+
+const {showError} = useOtherStore()
+
+
+const {isLoggedIn} = useAuthStore()
 
 const router=useRouter()
+
+// console.log('###',router.resolve())
+// if(isLoggedIn){router.push('/emailVerification')}
+
 
 const {updateLogInState,updateAuthData}=useAuthStore()
 
@@ -30,6 +71,13 @@ const googleLogInLoading=ref(false)
 
 var authData;
 
+// const expanded=ref(false)
+const name=ref('')
+const bio=ref('')
+const avatar=ref()
+const img=ref()
+
+const user=ref()
 const userExists=ref(true)
 const email=ref('')
 const password=ref('')
@@ -44,8 +92,10 @@ const rules=ref({
 })
 
 async function passwordLogIn(){
-    if(!email.value || password.value.length < 8) return;
     passwordLogInLoading.value=true
+
+    try{
+    if(!email.value || password.value.length < 8) return;
     if(userExists.value){
     authData = await pb.collection('users').authWithPassword(
     email.value,
@@ -53,29 +103,59 @@ async function passwordLogIn(){
     else if(password.value==confirmPassword.value){
         // authData = await pb.collection('users').create({"username":`"${email.value}"`, "email":`"${email.value}"`, "password":`"${password.value}"`, "passwordConfirm":`"${confirmPassword.value}"`, "emailVisibility": "true"});
         const formData = new FormData();
-        formData.append('name', email.value.substring(0, email.value.indexOf('@')))
+        formData.append('name', name.value || email.value.substring(0, email.value.indexOf('@')))
         // formData.append('username', email.value.substring(0, email.value.indexOf('@')))
         formData.append('email', email.value)
         formData.append('password', password.value)
         formData.append('passwordConfirm', confirmPassword.value)
         formData.append('emailVisibility', true)
+        formData.append('bio', bio.value)
+        if(avatar.value?.[0]){
+            formData.append('avatar', avatar.value[0])
+        }
         await pb.collection('users').create(formData)
         authData = await pb.collection('users').authWithPassword(
             email.value,
             password.value)
     }
-    if(authData) {updateLogInState();updateAuthData();router.back()}
+    if(authData) {updateLogInState();updateAuthData();router.replace('/emailVerification')}
+    }catch{showError('email or password is wrong.')}
+    passwordLogInLoading.value=false
 }
 async function googleLogIn(){
     googleLogInLoading.value=true
+
+    try{
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
-    if(authData) {updateLogInState();updateAuthData();router.back()}
+    if(authData) {
+        updateLogInState();
+        updateAuthData();
+        // router.back()
+        router.replace('/')
+    }
+    }catch{showError('some thing went wrong.')}
+
+    googleLogInLoading.value=false
 }
 
 async function checkUserExistence(){
     try{
-    const user = await pb.collection('users').getFirstListItem(`email = "${email.value}"`)
+    user.value = await pb.collection('users').getFirstListItem(`email = "${email.value}"`)
     userExists.value=true
     }
     catch{userExists.value=false}}
+
+    
+    // function changePreviewAvatar(){
+    //     console.log('???',avatar.value?.[0])
+    //     // img.value.srcObject=avatar.value?.[0]
+    // }
+
+    // const imgUrl=computed(()=>{URL.createObjectURL(avatar.value?.[0])})
+
+    // watchEffect(()=>{
+    //     const reader = new FileReader()
+    //     reader.onloadend=()=>{img.value.src = reader.result}
+    //     reader.readAsDataURL(avatar?.[0])
+    // })
 </script>

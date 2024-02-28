@@ -3,7 +3,7 @@
     <v-col>
     <v-text-field v-model="modelValue.name" color="primary" variant="outlined" label="name"></v-text-field>
     <v-textarea v-model="modelValue.about" rows="1" auto-grow color="primary" variant="outlined" label="about"></v-textarea>
-    <v-file-input v-model="modelValue.avatar" label="avatar" prepend-inner-icon="mdi-image" :prepend-icon="null" variant="outlined"></v-file-input>
+    <v-file-input accept="image/*" v-model="modelValue.avatar" label="avatar" prepend-inner-icon="mdi-image" :prepend-icon="null" variant="outlined"></v-file-input>
 
     <v-row>
         <v-btn @click="$emit('click:cancel')" style="margin-left: .75rem;margin-bottom: .5rem;margin-top: .5rem;" color="error">cancel</v-btn>

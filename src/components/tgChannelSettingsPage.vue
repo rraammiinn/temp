@@ -85,6 +85,10 @@ import {useAuthStore} from '@/store/authStore'
 import { useDataStore } from '@/store/dataStore';
 import { useRouter } from 'vue-router';
 
+import {useOtherStore} from '@/store/otherStore'
+
+const {showError} = useOtherStore()
+
 const {allChannelsData}=storeToRefs(useDataStore())
 const router=useRouter()
 const props=defineProps(['channelId'])
@@ -102,18 +106,24 @@ const about =ref(allChannelsData.value.allMessages[props.channelId].channel.abou
 
 
 async function upload_(){
-    var formData = new FormData();
+    try{
+        var formData = new FormData();
     formData.append('avatar', fileInput.value.files[0]);
     await pb.collection('channels').update(props.channelId, formData);
     await allChannelsData.value.allMessages[props.channelId].updateChannel()
+    }catch{showError('uploading avatar failed.')}
+
 
 }
 
 
 
 async function change(){
-    await pb.collection('channels').update(props.channelId, {'name':name.value, 'about':about.value});
+    try{
+        await pb.collection('channels').update(props.channelId, {'name':name.value, 'about':about.value});
     await allChannelsData.value.allMessages[props.channelId].updateChannel()
+    }catch{showError('changing channel name and about failed.')}
+
 }
 
 function cancel(){
@@ -123,7 +133,10 @@ function cancel(){
 
 
 async function deleteChannel(){
-    await pb.collection('channels').delete(props.channelId)
+    try{
+        await pb.collection('channels').delete(props.channelId)
     router.back()
+    }catch{showError('deleting channel failed.')}
+
 }
 </script>

@@ -65,6 +65,10 @@
   
   import { useDataStore } from "@/store/dataStore";
   import {addContact,deleteContact} from '@/funcs/contactFunc';
+  import {useOtherStore} from '@/store/otherStore'
+
+  const {showError} = useOtherStore()
+
   // const{updateContacts}=useDataStore()
   const{contacts}=storeToRefs(useDataStore())
   

@@ -110,6 +110,10 @@
   import {storeToRefs} from 'pinia'
   import {useDataStore} from '@/store/dataStore'
 
+  import {useOtherStore} from '@/store/otherStore'
+
+  const {showError} = useOtherStore()
+
 
 
   const{allGroupsData,allMessagesSorted}=storeToRefs(useDataStore())
@@ -145,36 +149,42 @@ const showActionButtonItems=ref(false)
 
 
 async function createNewGroup(){
-  if(!newGroup.value.name)return;
+  try{
+    if(!newGroup.value.name)return;
 
-  var formData = new FormData();
-  formData.append('owner',pb.authStore.model.id)
-  formData.append('name',newGroup.value.name)
-  formData.append('about',newGroup.value.about || '')
-  if(newGroup.value.avatar?.[0])formData.append('avatar',newGroup.value.avatar[0])
+var formData = new FormData();
+formData.append('owner',pb.authStore.model.id)
+formData.append('name',newGroup.value.name)
+formData.append('about',newGroup.value.about || '')
+if(newGroup.value.avatar?.[0])formData.append('avatar',newGroup.value.avatar[0])
 
-  const record = await pb.collection('groups').create(formData);
-  
-  // await pb.collection('groupMembers').create({mem:pb.authStore.model.id,group:record.id})
-  await join(record.id)
-  newGroup.value={}
-  showGroupCreationForm.value=false
+const record = await pb.collection('groups').create(formData);
+
+// await pb.collection('groupMembers').create({mem:pb.authStore.model.id,group:record.id})
+await join(record.id)
+newGroup.value={}
+showGroupCreationForm.value=false
+  }catch{showError('group creation failed.')}
+
 
 }
 
 
 async function createNewChannel(){
-  if(!newChannel.value.name)return;
+  try{
+    if(!newChannel.value.name)return;
 
-  var formData = new FormData();
-  formData.append('owner',pb.authStore.model.id)
-  formData.append('name',newChannel.value.name)
-  formData.append('about',newChannel.value.about || '')
-  if(newChannel.value.avatar?.[0])formData.append('avatar',newChannel.value.avatar[0])
+var formData = new FormData();
+formData.append('owner',pb.authStore.model.id)
+formData.append('name',newChannel.value.name)
+formData.append('about',newChannel.value.about || '')
+if(newChannel.value.avatar?.[0])formData.append('avatar',newChannel.value.avatar[0])
 
-  const record = await pb.collection('channels').create(formData);
-  newChannel.value={}
-  showChannelCreationForm.value=false
+const record = await pb.collection('channels').create(formData);
+newChannel.value={}
+showChannelCreationForm.value=false
+  }catch{showError('channel creation failed.')}
+
 
 }
 

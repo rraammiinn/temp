@@ -117,6 +117,11 @@
     import {ref, onMounted} from 'vue'
     import pb from '@/main';
     
+    import {useOtherStore} from '@/store/otherStore'
+
+    const {showError} = useOtherStore()
+
+    
     const showName=ref(false)
 
     const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner'])
@@ -148,31 +153,43 @@
 
     
     async function deleteChatMessage(){
-      pb.collection('chatMessages').delete(props.id)
+      try{
+        await pb.collection('chatMessages').delete(props.id)
+      }catch{showError('deleting message failed.')}
     }
     async function editChatMessage(){
-      var formData = new FormData();
+      try{
+        var formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('chatMessages').update(props.id,formData);
+      }catch{showError('editing message failed.')}
       exitFromEditMode()
     }
     
     async function deleteGroupMessage(){
-      pb.collection('groupMessages').delete(props.id)
+      try{
+        await pb.collection('groupMessages').delete(props.id)
+      }catch{showError('deleting message failed.')}
     }
     async function editGroupMessage(){
-      var formData = new FormData();
+      try{
+        var formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('groupMessages').update(props.id,formData);
+      }catch{showError('editing message failed.')}
       exitFromEditMode()    }
     
     async function deleteChannelMessage(){
-      pb.collection('channelMessages').delete(props.id)
+      try{
+        await pb.collection('channelMessages').delete(props.id)
+      }catch{showError('deleting message failed.')}
     }
     async function editChannelMessage(){
-      var formData = new FormData();
+      try{
+        var formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('channelMessages').update(props.id,formData);
+      }catch{showError('editing message failed.')}
       exitFromEditMode()
     }
     

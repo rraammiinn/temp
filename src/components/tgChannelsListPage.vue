@@ -76,6 +76,11 @@
   
   import { useDataStore } from "@/store/dataStore";
   import { subscribe, unsubscribe } from '@/funcs/channelFuncs';
+
+  import {useOtherStore} from '@/store/otherStore'
+
+  const {showError} = useOtherStore()
+  
   const{updateChannelRels}=useDataStore()
   const{allChannelsData}=storeToRefs(useDataStore())
   

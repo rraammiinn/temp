@@ -78,6 +78,11 @@
   
   import { useDataStore } from "@/store/dataStore";
   import { join,leave } from '@/funcs/groupFuncs';
+
+  import {useOtherStore} from '@/store/otherStore'
+
+  const {showError} = useOtherStore()
+
   const{updateGroupRels}=useDataStore()
   const{allGroupsData}=storeToRefs(useDataStore())
   

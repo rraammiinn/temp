@@ -34,6 +34,20 @@
               :subtitle="member.username"
             >
             <template v-slot:append>
+              <v-btn v-if="props.blockList.includes(member.id)"
+              color="error"
+              icon="mdi-power-off"
+              variant="text"
+              @click.stop="async()=>{await unBlockMember(props.group.id,member.id);props.blockList=props.blockList.filter(memberId=>memberId != member.id);}"
+            ></v-btn>
+            <v-btn v-else
+              color="success"
+              icon="mdi-power"
+              variant="text"
+              @click.stop="async()=>{await blockMember(props.group.id,member.id);props.blockList=[...props.blockList,member.id];}"
+            ></v-btn>
+
+
             <v-btn v-if="Object.keys(contacts).includes(member.id)"
               color="error"
               icon="mdi-delete"
@@ -77,13 +91,18 @@
   
     import { useDataStore } from "@/store/dataStore";
     import {addContact,deleteContact} from '@/funcs/contactFunc';
-    import { join,leave } from '@/funcs/groupFuncs';
+    import { join,leave,blockMember,unBlockMember } from '@/funcs/groupFuncs';
+
+    import {useOtherStore} from '@/store/otherStore'
+
+    const {showError} = useOtherStore()
 
     const{contacts}=storeToRefs(useDataStore())
     
-    const props=defineProps(['group','owner','members','joined'])
+    const props=defineProps(['group','owner','members','joined','blockList'])
     const showGroup=inject('showGroup')
     const showUser=inject('showUser')
+
     
     
     </script>

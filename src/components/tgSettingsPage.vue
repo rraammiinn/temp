@@ -64,6 +64,10 @@ import {storeToRefs} from 'pinia'
 import {useAuthStore} from '@/store/authStore'
 import { useRouter } from 'vue-router';
 
+import {useOtherStore} from '@/store/otherStore'
+
+const {showError} = useOtherStore()
+
 
 const router=useRouter()
 
@@ -76,7 +80,9 @@ async function logIn(){
     router.push('/login')
 }
 async function logOut(){
-    await pb.collection('users').update(authData.value.id,{online:false})
+    try{
+        await pb.collection('users').update(authData.value.id,{online:false})
+    }catch{}
     pb.authStore.clear();
     updateLogInState()
 }
@@ -93,6 +99,9 @@ const bio =ref(authData.value?.bio)
 
 
 async function upload_(){
+    try{
+
+    }catch{showError('uploading avatar failed.')}
     var formData = new FormData();
     formData.append('avatar', fileInput.value.files[0]);
     await pb.collection('users').update(authData.value.id, formData);
@@ -103,6 +112,9 @@ async function upload_(){
 
 
 async function change(){
+    try{
+
+    }catch{showError('changing name and bio failed.')}
     await pb.collection('users').update(authData.value.id, {'name':name.value, 'bio':bio.value});
     updateAuthData()
 }

@@ -81,6 +81,8 @@ class GroupData{
         this.lastSeen=groupRel?.lastseen || 0
         this.groupRelId=groupRel?.id
         this.active=groupRel?.active ?? false
+        this.blockList=groupRel?.expand?.group?.blocklist || group?.blocklist || []
+        this.blocked=this.blockList.includes(useAuthStore().authData.id)
         this.messagesType='group'
 
         console.log('===',groupRel,'///',group)

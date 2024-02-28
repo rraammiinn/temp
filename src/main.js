@@ -18,6 +18,7 @@ import tgpGroup from './pages/tgpGroup.vue'
 import tgpChannel from './pages/tgpChannel.vue'
 import tgpGroupSettings from './pages/tgpGroupSettings.vue';
 import tgpChannelSettings from './pages/tgpChannelSettings.vue';
+import tgpEmailVerification from './pages/tgpEmailVerification.vue';
 
 
 const pb = new PocketBase('/');
@@ -46,6 +47,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+
 const vuetify = createVuetify({
   components,
   directives,
@@ -55,6 +57,8 @@ const routes = [
   // {name:'admin', path: '/_', redirect: '/_'},
   {name:'main', path: '/', component: tgpMain },
   {name:'login', path: '/login', component: tgpLogIn },
+  {name:'emailVerification', path: '/emailVerification', component: tgpEmailVerification },
+
   {name:'chat', path: '/chat/:otherId', component: tgpChat, props:true },
   {name:'contacts', path: '/contacts', component: tgpContacts },
   {name:'settings', path: '/settings', component: tgpSettings },
@@ -90,6 +94,12 @@ const router = createRouter({
   routes, // short for `routes: routes`
   // onBeforeRouteUpdate:(to,from)=>{if(!useAuthStore().isLoggedIn){useRouter().push({name:login})}}
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.name != 'emailVerification' && to.name != 'login' && !(pb.authStore?.model?.verified && pb.authStore?.isValid)) next({ name: 'login' })
+  else next()
+})
+
 
 const pinia = createPinia()
 

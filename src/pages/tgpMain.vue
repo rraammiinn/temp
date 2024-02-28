@@ -11,8 +11,10 @@ import { useRouter } from 'vue-router';
 import {useAuthStore} from '@/store/authStore'
 
 const router=useRouter()
-const {isLoggedIn} = useAuthStore()
-if(!isLoggedIn){router.push('/login')}
+const {isLoggedIn,isVerified,authData} = useAuthStore()
+// if(!isLoggedIn){router.push('/login')}
+// if(!isVerified){router.push('/login')}
+
 
 
 

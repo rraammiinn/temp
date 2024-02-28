@@ -157,6 +157,17 @@ async function leave(groupId){
   useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=false
 }
 
+async function blockMember(groupId,memberId){
+  var formData = new FormData();
+  formData.append("blocklist+", memberId)
+  pb.collection('groups').update(groupId,formData)
+}
+
+async function unBlockMember(groupId,memberId){
+  var formData = new FormData();
+  formData.append("blocklist-", memberId)
+  pb.collection('groups').update(groupId,formData)
+}
 
 
-export {GroupMessageGenerator,join,leave}
+export {GroupMessageGenerator,join,leave,blockMember,unBlockMember}

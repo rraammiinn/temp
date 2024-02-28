@@ -14,6 +14,25 @@
 
 
 </suspense>
+
+
+
+
+<v-snackbar timeout="3000" color="error" variant="tonal" location="top" width="90vw" style="margin-top: 5rem;"
+      v-model="errorVisibility"
+    >
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn
+          icon="mdi-close"
+          color="error"
+          variant="text"
+          @click="errorVisibility = false"
+        >
+        </v-btn>
+      </template>
+    </v-snackbar>
     </v-main>
   </v-app>
 
@@ -35,6 +54,10 @@ provide('drawer', drawer)
 
 import {storeToRefs} from 'pinia'
 import {useSettingsStore} from '@/store/settingsStore'
+import {useOtherStore} from '@/store/otherStore'
+
+const {errorVisibility,errorMessage} = storeToRefs(useOtherStore())
+
 
 
 const {getTheme}=storeToRefs(useSettingsStore())
