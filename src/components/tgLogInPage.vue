@@ -12,10 +12,13 @@
             <v-expansion-panels v-if="!userExists" style="margin-top: 1rem;margin-bottom: 1.5rem;">
                 <v-expansion-panel>
                     <v-expansion-panel-title>
-                        <div style="display: flex;justify-content: space-between;width: 100%;">
+                        <div style="display: flex;align-items: center;justify-content: space-between; width: 100%;">
                             <span>extra</span>
-                            <!-- <span>sss</span> -->
-                            <!-- <img ref="img" style="width: 3rem;height: 3rem;" alt=""> -->
+                            <div style="display: flex;align-items: center;margin-right: 1rem;">
+                                <span style="margin-left: 1rem;" v-show="name">name :</span>
+                                <span style="font-weight: bold;margin-left: .25rem;" v-show="name">{{ name }}</span>
+                                <img v-show="avatar?.[0]" ref="preview" style="border-radius: .25rem;width: 3.5rem;height: 3.5rem;margin-left: 1rem;object-fit: cover;" alt="">
+                            </div>
                         </div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
@@ -42,14 +45,13 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 import pb from '@/main';
 
 import {useAuthStore} from '@/store/authStore';
 import { useRouter } from 'vue-router';
 
 import isEmail from 'validator/lib/isEmail'
-import { watchEffect } from 'vue';
 
 import {useOtherStore} from '@/store/otherStore'
 
@@ -75,7 +77,7 @@ var authData;
 const name=ref('')
 const bio=ref('')
 const avatar=ref()
-const img=ref()
+const preview=ref()
 
 const user=ref()
 const userExists=ref(true)
@@ -158,4 +160,24 @@ async function checkUserExistence(){
     //     reader.onloadend=()=>{img.value.src = reader.result}
     //     reader.readAsDataURL(avatar?.[0])
     // })
+
+
+    // const input = document.getElementById('file-input');
+const previewAvatar = () => {
+    // const file = input.files;
+    if (avatar.value?.[0]) {
+        const fileReader = new FileReader();
+        // const preview = document.getElementById('file-preview');
+fileReader.onload = function (event) {
+            preview.value.setAttribute('src', event.target.result);
+        }
+        fileReader.readAsDataURL(avatar.value[0]);
+    }
+}
+// input.addEventListener("change", previewAvatar);
+
+
+
+
+watchEffect(previewAvatar)
 </script>
