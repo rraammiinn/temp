@@ -53,7 +53,7 @@ class AllChatsData{
     async updateUnseenCount(id){await this.allMessages[id].updateUnseenCount()}
     async updateRels(){this.rels=await pb.collection('rels').getFullList({
         expand:'follower,following'
-    });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id && rel.active);console.log('relsss -> ',this.rels);console.log('backrelsss -> ',this.backRels)}
+    });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id && rel.active);}
 
     async updateAllMessages(){
         await Promise.allSettled(this.rels.map((rel)=>{
@@ -64,7 +64,7 @@ class AllChatsData{
 
 
 
-    ;console.log('all msgs -> ',this.allMessages)}
+}
 
 }
 
@@ -85,7 +85,6 @@ class GroupData{
         this.blocked=this.blockList.includes(useAuthStore().authData.id)
         this.messagesType='group'
 
-        console.log('===',groupRel,'///',group)
     }
 
     async init(){
@@ -96,11 +95,10 @@ class GroupData{
             await this.updateUnseenCount()
         }catch{}
         await this.updateMembers()
-        console.log('###',this.lastSeen)
 
     }
     
-    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem',$autoCancel:false})).then(res=>{console.log('+++',res);res.forEach(groupRel=>this.groupMems[groupRel.mem]=groupRel.expand.mem);console.log('###',this.groupMems)})}
+    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem',$autoCancel:false})).then(res=>{res.forEach(groupRel=>this.groupMems[groupRel.mem]=groupRel.expand.mem);})}
 
     async updateUnseenCount(){this.unseenCount=(await pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && group = "${this.group.id}" && created > "${this.lastSeen}"`, sort:'-created',$autoCancel:false})).totalItems;}
 

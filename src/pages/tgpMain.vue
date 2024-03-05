@@ -25,8 +25,5 @@ import tgMain from '../components/tgMain.vue';
 import tgMainAppBar from '../components/tgMainAppBar.vue';
 import tgMainPage from '../components/tgMainPage.vue';
 
-console.log('@@@@@')
-onBeforeUnmount(()=>{console.log('mud...')})
-onMounted(()=>{console.log('mounted')})
 </script>
 

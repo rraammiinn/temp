@@ -117,6 +117,4 @@
     }
   })
   
-  console.log(allChannelsData.value.channelRels)
-  console.log(channelIds.value)
   </script>

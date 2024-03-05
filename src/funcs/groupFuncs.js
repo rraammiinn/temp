@@ -37,7 +37,6 @@ async function getLastSeenGroupMessages(groupId,endDate,number=10){
 async function initializeGroupMessages(groupId,initMessageId){
   var messages=[]
 
-  console.log('(((((',useDataStore().allGroupsData.allMessages[groupId])
 
     try{
     if(initMessageId){
@@ -66,7 +65,6 @@ async function initializeGroupMessages(groupId,initMessageId){
   if(messages.length<10){
     subscribeToNewMessages(groupId)}
 
-  console.log(')))))',messages)
 
   useDataStore().allGroupsData.allMessages[groupId].messages=messages
   
@@ -94,24 +92,24 @@ class GroupMessageGenerator{
   async getPreviousMessages(){
     try{
       const previous10Messages= await getPreviousGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages[0].created)
-      if(!previous10Messages.length){console.log('no more <<<');subscribeToNewMessages(this.groupId);return false};
+      if(!previous10Messages.length){subscribeToNewMessages(this.groupId);return false};
         useDataStore().allGroupsData.allMessages[this.groupId].messages=[...previous10Messages, ...useDataStore().allGroupsData.allMessages[this.groupId].messages]
   
   
       }
-      catch{console.log('start errrrror @@@')}
+      catch{}
       return true
   }
   async getNextMessages(){
     var new10Messages=[]
     try{
       new10Messages= await getNextGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages.at(-1).created)
-      if(!new10Messages.length){console.log('no more >>>');return};
+      if(!new10Messages.length){return};
       useDataStore().allGroupsData.allMessages[this.groupId].messages=[...useDataStore().allGroupsData.allMessages[this.groupId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
     }
-    catch{console.log('end errrrror @@@')}
+    catch{}
 
     if(new10Messages.length<10){
       subscribeToNewMessages(this.groupId);return false;}

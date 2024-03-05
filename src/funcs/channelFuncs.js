@@ -36,7 +36,6 @@ async function getLastSeenChannelMessages(channelId,endDate,number=10){
 async function initializeChannelMessages(channelId,initMessageId){
   var messages=[]
 
-  console.log('(((((',useDataStore().allChannelsData.allMessages[channelId])
 
     try{
     if(initMessageId){
@@ -65,7 +64,6 @@ async function initializeChannelMessages(channelId,initMessageId){
   if(messages.length<10){
     subscribeToNewMessages(channelId)}
 
-  console.log(')))))',messages)
 
   useDataStore().allChannelsData.allMessages[channelId].messages=messages
   
@@ -93,24 +91,24 @@ class ChannelMessageGenerator{
   async getPreviousMessages(){
     try{
       const previous10Messages= await getPreviousChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages[0].created)
-      if(!previous10Messages.length){console.log('no more <<<');subscribeToNewMessages(this.channelId);return false};
+      if(!previous10Messages.length){subscribeToNewMessages(this.channelId);return false};
         useDataStore().allChannelsData.allMessages[this.channelId].messages=[...previous10Messages, ...useDataStore().allChannelsData.allMessages[this.channelId].messages]
   
   
       }
-      catch{console.log('start errrrror @@@')}
+      catch{}
       return true
   }
   async getNextMessages(){
     var new10Messages=[]
     try{
       new10Messages= await getNextChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages.at(-1).created)
-      if(!new10Messages.length){console.log('no more >>>');return};
+      if(!new10Messages.length){return};
       useDataStore().allChannelsData.allMessages[this.channelId].messages=[...useDataStore().allChannelsData.allMessages[this.channelId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
     }
-    catch{console.log('end errrrror @@@')}
+    catch{}
 
     if(new10Messages.length<10){
       subscribeToNewMessages(this.channelId);return false;}
@@ -135,7 +133,6 @@ async function subscribe(channelId){
   try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'});
   useDataStore().allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
   await useDataStore().allChannelsData.allMessages[channelId].init()
-  console.log('#&#', useDataStore().allChannelsData.allMessages[channelId])
 }
   catch{}
 }

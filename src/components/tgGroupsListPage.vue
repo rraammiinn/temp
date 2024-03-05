@@ -119,5 +119,4 @@
     }
   })
   
-  console.log(allGroupsData.value.groupRels)
   </script>

@@ -32,7 +32,6 @@
         const channel=await pb.collection('channels').getOne(channelId)
         allChannelsData.value.allMessages[channelId]=new ChannelData(null,channel)
     }
-    console.log(route)
     const subscribed=computed(()=>!!allChannelsData.value.allMessages[channelId].channelRelId)
     const isOwner=computed(()=>allChannelsData.value.allMessages[channelId]?.channel?.owner==pb.authStore.model.id)  
     const showChannel=ref(route.query.showChannel=='true')
@@ -40,7 +39,7 @@
     provide('subscribed',subscribed)
     provide('isOwner',isOwner)
     
-    onBeforeUnmount(()=>{allChannelsData.value.allMessages[channelId].updateUnseenCount().then(console.log('*****'))})
+    onBeforeUnmount(()=>{allChannelsData.value.allMessages[channelId].updateUnseenCount()})
 
 
     </script>

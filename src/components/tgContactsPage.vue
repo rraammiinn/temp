@@ -106,6 +106,4 @@
     }
   })
   
-  console.log(contacts.value)
-  // console.log(contactIds.value)
   </script>

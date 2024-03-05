@@ -25,7 +25,6 @@ const{allChatsData,
 
 watchEffect(async()=>{
     if(!isLoggedIn.value)return;
-    console.log('s...')
 
     await init()
     // await updateChatRels()
@@ -35,9 +34,6 @@ watchEffect(async()=>{
     // await updateAllMessages()
 
     // await updateContacts()
-    // console.log('e...')
-    // console.log('groups ---> ',groups.value)
-    // console.log('agm ---> ',allGroupMessages.value)
 
     pb.collection('contacts').subscribe('*', updateContacts)
 
@@ -66,7 +62,6 @@ watchEffect(async()=>{
                 await allChatsData.value.allMessages[e.record.following].init()
             }
         if(e.action=='update' && e.record.following == authData.value.id)allChatsData.value.allMessages[e.record.follower].otherLastSeen=e.record.lastseen
-        console.log(e)
         
         // if(e.record.follower==authData.value.id && e.action=='create'){
         //         // allChatsData.value.allMessages[e.record.following]={lastMessage:null,other:null,messages:[],unseenCount:0,cacheNewMessages:true,lastSeen:null,lastVisited:null,isOnline:false,relId:e.record.id,backRelId:null,otherLastSeen:null};
@@ -96,7 +91,6 @@ watchEffect(async()=>{
 
     pb.collection('groupMembers').subscribe('*',async(e)=>{
 
-        console.log('£££',e);
 
         if(allGroupsData.value.groupRels.find(groupRel=>{groupRel.group==e.record.group}) && e.action=='create'){
                 allGroupsData.value.allMessages[e.record.group].groupMems.push(await pb.collection('users').getFirstListItem(`id = "${e.record.mem}"`))
@@ -111,7 +105,6 @@ watchEffect(async()=>{
 
 
 pb.collection('groupMessages').subscribe('*',async(e)=>{
-    console.log(e)
         const index=e.record.group;
         if(e.action=='create'){
             if(!allGroupsData.value.allMessages[index].groupMems[e.record.from]){await updateGroupMems(e.record.group)}

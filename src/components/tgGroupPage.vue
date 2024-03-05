@@ -184,9 +184,7 @@
   
   
   function removeFile(file){
-    console.log(files.value)
     files.value = files.value.filter(h => h != file)
-    console.log(files.value)
   }
   
   function removeAllFiles() {
@@ -206,7 +204,6 @@
   async function send(){
     try{
       var formData = new FormData();
-      console.log(props.groupId)
       formData.append('from', pb.authStore.model.id)
       formData.append('group', props.groupId)
       formData.append('text', msg.value)
@@ -295,7 +292,6 @@
   
   function startRecording() {
     if (navigator.mediaDevices?.getUserMedia) {
-    console.log("getUserMedia supported.");
     navigator.mediaDevices
       .getUserMedia(
         {
@@ -337,7 +333,6 @@
         console.error(`The following getUserMedia error occurred: ${err}`);
       });
   } else {
-    console.log("getUserMedia not supported on your browser!");
   }
   }
   

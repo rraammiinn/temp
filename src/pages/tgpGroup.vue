@@ -33,7 +33,6 @@
         allGroupsData.value.allMessages[groupId]=new GroupData(null,group)
         await allGroupsData.value.allMessages[groupId].init()
     }
-    console.log(route)
     const joined=computed(()=>!!allGroupsData.value.allMessages[groupId]?.active)
     const isOwner=computed(()=>allGroupsData.value.allMessages[groupId]?.group?.owner==pb.authStore.model.id)  
 
@@ -46,7 +45,7 @@
     provide('isOwner',isOwner)
 
     
-    onBeforeUnmount(()=>{allGroupsData.value.allMessages[groupId].updateUnseenCount().then(console.log('*****'))})
+    onBeforeUnmount(()=>{allGroupsData.value.allMessages[groupId].updateUnseenCount()})
 
 
     </script>

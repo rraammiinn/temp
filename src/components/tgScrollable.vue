@@ -42,12 +42,13 @@
       var bottomCard;
       const showGoToBottom=ref(false)
 
-      await props.messageGenerator.initializeMessages()
+      if(!allMessages.value[props.otherId].cacheNewMessages && !allMessages.value[props.otherId].messages.length){
+        await props.messageGenerator.initializeMessages()
+      }
 
 
 
 
-      console.log('props ::: ',props)
 
 
 
@@ -71,14 +72,11 @@
 
             const target=e.filter(i=>i.isIntersecting).at(-1)?.target
 
-            console.log('{{{=========}}}',target)
 
             if(!target)return;
             const date = target.getAttribute('created')
-            console.log('+++',date)
             // const date = allMessages.value[props.otherId].messages.find(msg=>msg.id==target.id).created
             dateObserver.unobserve(target);
-            console.log('+-+-+')
             await updateLastSeen(date);
           },
           {root:scrollable.value}
@@ -127,7 +125,6 @@
 
   async function getPreviousMessages(e){
     if(e[0].isIntersecting){
-      console.log('<<<========={{{')
 
       startEnabled = await props.messageGenerator.getPreviousMessages()
       // await nextTick();
@@ -141,7 +138,6 @@
   
   async function getNextMessages(e){
     if(e[0].isIntersecting){
-      console.log('}}}=========>>>')
 
       endEnabled = await props.messageGenerator.getNextMessages()
       // await nextTick();
@@ -171,15 +167,11 @@
   }
 
   function cardInsertHandler(id){
-    console.log('inserted :::=====>>> ' ,id)
     const card=document.getElementById(id)
-    console.log('>>>---------> ',card)
     if(id == allMessages.value[props.otherId].messages[0].id){
       startObserver.observe(card)
-      console.log('@***@, added to start')
     }else if(id == allMessages.value[props.otherId].messages.at(-1).id){
       endObserver.observe(card)
-      console.log('@***@, added to end')
     }
     dateObserver.observe(card)
   }
@@ -191,7 +183,6 @@
 
 
 
-  console.log('@@@@@almsg',allMessages.value)
 
 
 

@@ -34,7 +34,6 @@ async function getLastSeenChatMessages(otherId,endDate,number=10){
 async function initializeChatMessages(otherId,initMessageId){
   var messages=[]
 
-  console.log('(((((',useDataStore().allChatsData.allMessages[otherId])
 
     try{
     if(initMessageId){
@@ -63,7 +62,6 @@ async function initializeChatMessages(otherId,initMessageId){
   if(messages.length<10){
   subscribeToNewMessages(otherId)}
 
-  console.log(')))))',messages)
 
   useDataStore().allChatsData.allMessages[otherId].messages=messages
   
@@ -91,24 +89,24 @@ class ChatMessageGenerator{
   async getPreviousMessages(){
     try{
       const previous10Messages= await getPreviousChatMessages(this.otherId,useDataStore().allChatsData.allMessages[this.otherId].messages[0].created)
-      if(!previous10Messages.length){console.log('no more <<<');return false};
+      if(!previous10Messages.length){return false};
         useDataStore().allChatsData.allMessages[this.otherId].messages=[...previous10Messages, ...useDataStore().allChatsData.allMessages[this.otherId].messages]
   
   
       }
-      catch{console.log('start errrrror @@@')}
+      catch{}
       return true
   }
   async getNextMessages(){
     var new10Messages=[]
     try{
       new10Messages= await getNextChatMessages(this.otherId,useDataStore().allChatsData.allMessages[this.otherId].messages.at(-1).created)
-      if(!new10Messages.length){console.log('no more >>>');subscribeToNewMessages(this.otherId);return false;};
+      if(!new10Messages.length){subscribeToNewMessages(this.otherId);return false;};
       useDataStore().allChatsData.allMessages[this.otherId].messages=[...useDataStore().allChatsData.allMessages[this.otherId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
     }
-    catch{console.log('end errrrror @@@')}
+    catch{}
 
     if(new10Messages.length<10){
       subscribeToNewMessages(this.otherId);return false;}

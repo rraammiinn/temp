@@ -134,9 +134,7 @@
     const fileInput=ref()
 
     function removeFile(file){
-    console.log(addingFiles.value)
     addingFiles.value = addingFiles.value.filter(h => h != file)
-    console.log(addingFiles.value)
   }
 
     function addFiles(){

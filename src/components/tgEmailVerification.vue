@@ -27,16 +27,15 @@ const {updateLogInState,updateAuthData}=useAuthStore()
 const disabled=ref(false)
 const btnText=ref()
 
-try{
+if(pb.authData?.model?.verified)router.replace('/');
 
+try{
+    await requestVerification()
 }catch{showError('sending verification email failed.\nmake sure your email is valid.')}
-await requestVerification()
 
 
 pb.collection('users').subscribe(useAuthStore().authData.id,async(e)=>{
-        console.log('<>',pb.authStore.model.verified)
         await pb.collection('users').authRefresh();
-        console.log('<>',pb.authStore.model.verified)
 
 
         if(pb.authStore.model.verified){

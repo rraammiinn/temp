@@ -62,7 +62,6 @@ const {isLoggedIn} = useAuthStore()
 
 const router=useRouter()
 
-// console.log('###',router.resolve())
 // if(isLoggedIn){router.push('/emailVerification')}
 
 
@@ -149,7 +148,6 @@ async function checkUserExistence(){
 
     
     // function changePreviewAvatar(){
-    //     console.log('???',avatar.value?.[0])
     //     // img.value.srcObject=avatar.value?.[0]
     // }
 
