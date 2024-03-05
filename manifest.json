@@ -4,6 +4,6 @@
     "start_url": ".",
     "display": "standalone",
     "description": "tgram",
-    "icons":[{"src":"./pencil.svg","type":"image/svg+xml","purpose": "maskable any","sizes":"256x256 any"}]
+    "icons":[{"src":"./icon.svg","type":"image/svg+xml","purpose": "maskable any","sizes":"256x256 any"}]
 
 }
