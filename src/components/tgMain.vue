@@ -10,14 +10,14 @@
           v-model="drawer"
           location="left"
           temporary
-          style="position: fixed;height: 100%;"
+          style="position: fixed;height: 100%;padding-bottom: 3rem;"
         >
           <v-list>
             <slot name="sideBarItems"><tg-side-bar-items></tg-side-bar-items></slot>
         </v-list>
         </v-navigation-drawer>
   
-        <v-main style="height: 100vh;overflow:auto;">
+        <v-main style="height: 100dvh;overflow:auto;">
           <slot name="main"></slot>
         </v-main>
       </v-layout>

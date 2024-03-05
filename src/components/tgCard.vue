@@ -68,7 +68,7 @@
           <div style="display: flex;align-items: center;flex-direction: column;">
             <div style="width: calc(100% - 1rem);display: flex;align-items: center;" v-for="file in props.files.filter(name=>getFileType(name)=='audio')" :key="file" :id="file">
               <v-btn @click="pushDeletingFile(file)" v-if="editMode" variant="text" color="error" icon="mdi-close" size="1.5rem" style="margin-right: .25rem;"></v-btn>
-              <audio preload="metadata" style="flex-grow: 1;height: 1.5rem;margin: .25rem;min-width: 15rem;" controls :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`"></audio>
+              <audio preload="metadata" style="flex-grow: 1;height: 1.5rem;margin: .25rem;min-width: 10rem;" controls :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`"></audio>
             </div>
           </div>
           <div style="display: flex;padding: 0;overflow: scroll;white-space: nowrap;margin: auto;width: calc(100% - 1.65rem);">

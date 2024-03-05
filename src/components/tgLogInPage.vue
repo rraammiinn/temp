@@ -1,5 +1,5 @@
 <template>
-    <div style="height: 100dvh;width: 100vw;display: flex;justify-content: center;align-items: center;">
+    <div style="height: 100dvh;width: 100vw;display: flex;justify-content: center;align-items: center;overflow-y: auto;padding-top: 3rem;padding-bottom: 3rem;">
         <v-col>
             <v-row style="width: inherit;margin: auto;">
                 <v-text-field :class="{shrinked : (userExists && user)}" @change="checkUserExistence" v-model="email" style="margin-bottom: 1rem;" :rules="[rules.required, rules.validEmail]" prepend-inner-icon="mdi-email" variant="outlined" label="email"></v-text-field>
