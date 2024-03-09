@@ -7,7 +7,7 @@
     
     
     
-          <tg-card @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="`/api/files/users/${message.from}/${allMessages[props.otherId].groupMems?.[message.from]?.avatar}`" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+          <tg-card @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="getUserAvatarUrl(message.from, allMessages[props.otherId].groupMems?.[message.from]?.avatar)" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
     
     
         </template>
@@ -23,6 +23,9 @@
       import tgCard from './tgCard.vue';
       import pb from '@/main';
       import { computed, onUpdated, onMounted, ref, nextTick } from 'vue';
+
+      import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+
 
     
     
@@ -201,7 +204,7 @@
       }
 
       scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
-      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages.at(-1).created)}
+      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages?.at(-1)?.created)}
 
 
     }, 100);

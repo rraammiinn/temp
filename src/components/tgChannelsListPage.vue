@@ -3,7 +3,7 @@
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
           <div v-for="channel in searchedChannels" @click="allChannelsData[channel.id]={channel:channel,messages:[]};$router.push({name:'channel', params:{channelId:channel.id},query:{initMessageId:'',showChannel:true}})" :key="channel.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/channels/${channel.id}/${channel.avatar}`"
+              :prepend-avatar="getChannelAvatarUrl(channel.id, channel.avatar)"
               :title="channel.name"
               subtitle=""
             >
@@ -33,7 +33,7 @@
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">channels</h3>
             <div v-for="channelRel in allChannelsData.channelRels" @click="$router.push({name:'channel', params:{channelId:channelRel.channel},query:{initMessageId:'',showChannel:true}})" :key="channelRel.channel">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/channels/${channelRel.channel}/${channelRel.expand.channel.avatar}`"
+              :prepend-avatar="getChannelAvatarUrl(channelRel.channel, channelRel.expand.channel.avatar)"
               :title="channelRel.expand.channel.name"
               subtitle=""
             >
@@ -79,15 +79,18 @@
 
   import {useOtherStore} from '@/store/otherStore'
 
+  import {getChannelAvatarUrl} from '@/funcs/commonFuncs';
+
+
   const {showError} = useOtherStore()
   
   const{updateChannelRels}=useDataStore()
-  const{allChannelsData}=storeToRefs(useDataStore())
+  const{allChannelsData, searchedChannels}=storeToRefs(useDataStore())
   
   updateChannelRels()
   
   const channelSearch=inject('channelSearch')
-  const searchedChannels=ref([])
+  // const searchedChannels=ref([])
   
   
   
@@ -111,10 +114,10 @@
   
   const channelIds=computed(()=>allChannelsData.value.channelRels.map(channel=>channel.channel))
   
-  watchEffect(async ()=>{
-    if(channelSearch.value){
-      searchedChannels.value=await pb.collection('channels').getFullList({filter:`name ~ "${channelSearch.value}"`})
-    }
-  })
+  // watchEffect(async ()=>{
+  //   if(channelSearch.value){
+  //     searchedChannels.value=await pb.collection('channels').getFullList({filter:`name ~ "${channelSearch.value}"`})
+  //   }
+  // })
   
   </script>

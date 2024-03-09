@@ -1,8 +1,8 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="if(!showUser)$router.back();showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-    <v-badge :content="allChatsData.allMessages[props.otherId].isOnline ? 'online' : 'offline'" :color="allChatsData.allMessages[props.otherId].isOnline ? 'primary' : null"><v-avatar @click="showUser=true;" :image="`/api/files/users/${props.otherId}/${allChatsData.allMessages[props.otherId].other.avatar}`"></v-avatar></v-badge>
-    <div v-show="!allChatsData.allMessages[props.otherId].isOnline" style="font-size: .65rem;font-weight: bold;margin-top: 3rem;margin-left: -.4rem;opacity: .85;">
-        <span>last seen : {{ allChatsData.allMessages[props.otherId].lastVisited.slice(0,10) }}</span><span style="margin-left: .5rem;">{{ allChatsData.allMessages[props.otherId].lastVisited.slice(10,16) }}</span>
+    <v-badge :content="user.isOnline ? 'online' : 'offline'" :color="user.isOnline ? 'primary' : null"><v-avatar @click="showUser=true;" :image="getUserAvatarUrl(props.otherId, user.other?.avatar || user.avatar)"></v-avatar></v-badge>
+    <div v-show="!user.isOnline" style="font-size: .65rem;font-weight: bold;margin-top: 3rem;margin-left: -.4rem;opacity: .85;">
+        <span>last seen : {{ user.updated.slice(0,10) }}</span><span style="margin-left: .5rem;">{{ user.updated.slice(10,16) }}</span>
     </div>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
@@ -28,15 +28,21 @@
 </style>
 
 <script setup>
-import {inject,ref} from 'vue';
+import {inject,ref,computed} from 'vue';
 import pb from '@/main';
 import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'
 import { block,unblock } from '@/funcs/chatFuncs';
 import { addContact } from '@/funcs/contactFunc';
+import { useOtherStore } from "@/store/otherStore";
 
-const {allChatsData,contacts}=storeToRefs(useDataStore())
+import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+
+
+const {showUserSearch}=storeToRefs(useOtherStore())
+
+const {allChatsData,contacts,users}=storeToRefs(useDataStore())
 
 const props=defineProps(['otherId'])
 
@@ -49,4 +55,14 @@ const blocked=inject('blocked')
 // const isOnline=ref(false)
 // pb.collection('users').subscribe(props.otherId, (e)=>{isOnline.value = true ;lastseen=e.record.lastseen;})
 // setInterval(()=>{isOnline.value = new Date().getTime() - new Date(lastseen).getTime() < 6000},1000)
+
+const user = computed(()=>{
+    if(showUserSearch && users.value.find(u=>u.id == props.otherId)){
+        return users.value.find(u=>u.id == props.otherId)
+    }else{
+        return allChatsData.value.allMessages[props.otherId]
+    }
+    })
+
+console.log(user)
 </script>

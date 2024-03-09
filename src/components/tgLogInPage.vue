@@ -3,7 +3,7 @@
         <v-col>
             <v-row style="width: inherit;margin: auto;">
                 <v-text-field :class="{shrinked : (userExists && user)}" @change="checkUserExistence" v-model="email" style="margin-bottom: 1rem;" :rules="[rules.required, rules.validEmail]" prepend-inner-icon="mdi-email" variant="outlined" label="email"></v-text-field>
-                <img v-if="userExists && user" :src="`/api/files/users/${user.id}/${user.avatar}`" style="border-radius: .25rem;width: 3.5rem;height: 3.5rem;margin-left: 1rem;object-fit: cover;">
+                <img v-if="userExists && user" :src="getUserAvatarUrl(user.id, user.avatar)" style="border-radius: .25rem;width: 3.5rem;height: 3.5rem;margin-left: 1rem;object-fit: cover;">
             </v-row>
             <v-text-field v-model="password" style="margin-bottom: .25rem;" :rules="[rules.required, rules.min]" @click:append-inner="showPass = !showPass" :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'" prepend-inner-icon="mdi-key" :type="showPass ? 'text' : 'password'" variant="outlined" label="password"></v-text-field>
             <v-btn v-if="userExists && email" @click="async()=>{await pb.collection('users').requestPasswordReset(email);}" variant="text" color="warning" style="opacity: .85;font-size: .65rem;font-weight: bold;margin-left: -1rem;">change password</v-btn>
@@ -31,7 +31,7 @@
 
 
             <v-row>
-                <v-btn :loading="passwordLogInLoading" @click="passwordLogIn" style="margin-top: 1.5rem; margin-left: .75rem;" prepend-icon="mdi-email" color="primary">{{ userExists ? 'login' : 'signup' }}<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
+                <v-btn :loading="passwordLogInLoading" @click="passwordLogIn" :disabled="disabled" style="margin-top: 1.5rem; margin-left: .75rem;" prepend-icon="mdi-email" color="primary">{{ userExists ? 'login' : 'signup' }}<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
                 <v-btn :loading="googleLogInLoading" @click="googleLogIn" style="margin-top: 1.5rem; margin-left: .75rem;" prepend-icon="mdi-google" color="error">google login<template v-slot:loader><v-progress-linear indeterminate></v-progress-linear></template></v-btn>
             </v-row>
         </v-col>
@@ -54,6 +54,9 @@ import { useRouter } from 'vue-router';
 import isEmail from 'validator/lib/isEmail'
 
 import {useOtherStore} from '@/store/otherStore'
+
+import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+
 
 const {showError} = useOtherStore()
 
@@ -178,4 +181,6 @@ fileReader.onload = function (event) {
 
 
 watchEffect(previewAvatar)
+
+const disabled = computed(()=>!(isEmail(email.value) && password.value.length >= 8 && (userExists.value || password.value == confirmPassword.value)))
 </script>

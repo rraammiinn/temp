@@ -9,6 +9,10 @@
 import { inject, provide, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {useAuthStore} from '@/store/authStore'
+import { storeToRefs } from "pinia";
+import { useOtherStore } from "@/store/otherStore";
+
+const {searchMessage}=storeToRefs(useOtherStore())
 
 const router=useRouter()
 const {isLoggedIn,isVerified,authData} = useAuthStore()
@@ -18,7 +22,7 @@ const {isLoggedIn,isVerified,authData} = useAuthStore()
 
 
 
-const searchMessage=ref('')
+// const searchMessage=ref('')
 provide('searchMessage', searchMessage)
 
 import tgMain from '../components/tgMain.vue';

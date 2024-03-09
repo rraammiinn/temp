@@ -23,9 +23,13 @@
 
 <script setup>
     import { ref, inject } from 'vue';
+    import { storeToRefs } from "pinia";
+    import { useOtherStore } from "@/store/otherStore";
+
+    const {showMessageSearch : showSearch}=storeToRefs(useOtherStore())
 
     const drawer=inject('drawer')
-    const showSearch=ref(false)
+    // const showSearch=ref(false)
     const searchMessage=inject('searchMessage')
     const input=ref()
 

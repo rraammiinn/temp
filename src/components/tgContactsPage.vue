@@ -3,7 +3,7 @@
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
           <div v-for="user in users" @click="$router.push({name:'chat', params:{otherId:user.id},query:{initMessageId:'',showUser:true}})" :key="user.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/users/${user.id}/${user.avatar}`"
+              :prepend-avatar="getUserAvatarUrl(user.id,user.avatar)"
               :title="user.name"
               :subtitle="user.username"
             >
@@ -28,7 +28,7 @@
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">contacts</h3>
             <div v-for="contact in contacts" @click="$router.push({name:'chat', params:{otherId:contact.id},query:{initMessageId:'',showUser:true}})" :key="contact.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/users/${contact.id}/${contact.avatar}`"
+              :prepend-avatar="getUserAvatarUrl(contact.id,contact.avatar)"
               :title="contact.name"
               :subtitle="contact.username"
             >
@@ -67,15 +67,20 @@
   import {addContact,deleteContact} from '@/funcs/contactFunc';
   import {useOtherStore} from '@/store/otherStore'
 
+  import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+
+
+
+
   const {showError} = useOtherStore()
 
   // const{updateContacts}=useDataStore()
-  const{contacts}=storeToRefs(useDataStore())
+  const{contacts,users}=storeToRefs(useDataStore())
   
   // updateContacts()
   
   const userSearch=inject('userSearch')
-  const users=ref()
+  // const users=ref()
   
   
   
@@ -100,10 +105,10 @@
   
   // const contactIds=computed(()=>contacts.value.map(contact=>contact.following))
   
-  watchEffect(async ()=>{
-    if(userSearch.value){
-      users.value=await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})
-    }
-  })
+  // watchEffect(async ()=>{
+  //   if(userSearch.value){
+  //     users.value=await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})
+  //   }
+  // })
   
   </script>

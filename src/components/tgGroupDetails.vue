@@ -1,8 +1,8 @@
 <template>
 
-    <div style="width: 100vw;height: 100dvh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4rem;">
+    <div style="width: 100vw;height: 100dvh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4.1rem;">
         <div class="main">
-            <img style="width: 100%;" :src="`/api/files/groups/${props.group.id}/${props.group.avatar}`" alt="">
+            <img style="width: 100%;" :src="getGroupAvatarUrl(props.group.id, props.group.avatar)" alt="">
             <div style="width: 100%;margin-bottom: 1rem;">
                 <v-btn @click="showGroup=false;showUser=false;" icon="mdi-message" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
             </div>
@@ -13,7 +13,7 @@
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex;justify-content: space-between;">
                         <h3>{{props.owner.name}}</h3>
-                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="`/api/files/users/${props.owner.id}/${props.owner.avatar}`"></v-avatar>
+                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
                     </div>
                     <h5 style="opacity: .5;">owner</h5>
                 </div>
@@ -29,7 +29,7 @@
         <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">members</h3>
             <div v-for="member in props.members" @click="$router.push({name:'chat', params:{otherId:member.id},query:{initMessageId:'',showUser:true}})" :key="member.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/users/${member.id}/${member.avatar}`"
+              :prepend-avatar="getUserAvatarUrl(member.id, member.avatar)"
               :title="member.name"
               :subtitle="member.username"
             >
@@ -94,6 +94,9 @@
     import { join,leave,blockMember,unBlockMember } from '@/funcs/groupFuncs';
 
     import {useOtherStore} from '@/store/otherStore'
+
+    import {getUserAvatarUrl, getGroupAvatarUrl} from '@/funcs/commonFuncs';
+
 
     const {showError} = useOtherStore()
 

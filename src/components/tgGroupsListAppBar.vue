@@ -18,7 +18,11 @@
 
 <script setup>
 import {ref, inject} from 'vue';
-const showSearch=ref(false)
+import { storeToRefs } from "pinia";
+import { useOtherStore } from "@/store/otherStore";
+
+const {showGroupSearch : showSearch}=storeToRefs(useOtherStore())
+// const showSearch=ref(false)
 const groupSearch=inject('groupSearch')
 const input=ref()
 

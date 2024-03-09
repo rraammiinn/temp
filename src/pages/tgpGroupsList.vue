@@ -11,8 +11,12 @@
     import tgMain from '../components/tgMain.vue';
     import tgGroupsListAppBar from '../components/tgGroupsListAppBar.vue';
     import tgGroupsListPage from '../components/tgGroupsListPage.vue';
+    import { storeToRefs } from "pinia";
+    import { useOtherStore } from "@/store/otherStore";
 
-    const groupSearch=ref('')
+    const {groupSearch}=storeToRefs(useOtherStore())
+
+    // const groupSearch=ref('')
     provide('groupSearch', groupSearch)
 
 

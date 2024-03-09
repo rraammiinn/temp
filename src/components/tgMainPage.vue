@@ -6,21 +6,21 @@
 
 <div v-for="searchMessageResult in searchMessageResults">
     <v-list-item @click="$router.push({name:'chat',params:{otherId:(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchMessageResult.id,showUser:false}})" v-if="searchMessageResult.to" class="listItem" :class="{online:allMessagesSorted[(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
-    :prepend-avatar="`/api/files/users/${searchMessageResult[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']}/${searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].avatar}`"
+    :prepend-avatar="getUserAvatarUrl(searchMessageResult[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'], searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].avatar)"
     :title="searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].name"
     :subtitle="searchMessageResult.text"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
 
 
   <v-list-item @click="$router.push({name:'group',params:{groupId:searchMessageResult.group},query:{initMessageId:searchMessageResult.id,showGroup:false}})" v-if="searchMessageResult.group" class="listItem"
-    :prepend-avatar="`/api/files/groups/${searchMessageResult.group}/${searchMessageResult.expand.group.avatar}`"
+    :prepend-avatar="getGroupAvatarUrl(searchMessageResult.group, searchMessageResult.expand.group.avatar)"
     :title="searchMessageResult.expand.group.name"
     :subtitle="`${searchMessageResult.expand.from.name} : ${searchMessageResult.text}`"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
 
 
   <v-list-item @click="$router.push({name:'channel',params:{channelId:searchMessageResult.channel},query:{initMessageId:searchMessageResult.id,showChannel:false}})" v-if="searchMessageResult.channel" class="listItem"
-    :prepend-avatar="`/api/files/channels/${searchMessageResult.channel}/${searchMessageResult.expand.channel.avatar}`"
+    :prepend-avatar="getChannelAvatarUrl(searchMessageResult.channel, searchMessageResult.expand.channel.avatar)"
     :title="searchMessageResult.expand.channel.name"
     :subtitle="searchMessageResult.text"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
@@ -33,19 +33,19 @@
 
 <template v-for="messages in allMessagesSorted">
     <v-list-item v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
-    :prepend-avatar="`/api/files/users/${messages.other.id}/${messages.other.avatar}`"
+    :prepend-avatar="getUserAvatarUrl(messages.other.id, messages.other.avatar)"
     :title="messages.other.name"
     :subtitle="messages.lastMessage.text"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
   
   <v-list-item v-if="messages.lastMessage && messages.messagesType=='group' && messages.active" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
-    :prepend-avatar="`/api/files/groups/${messages.group.id}/${messages.group.avatar}`"
+    :prepend-avatar="getGroupAvatarUrl(messages.group.id, messages.group.avatar)"
     :title="messages.group.name"
     :subtitle="`${allGroupsData.allMessages[messages.lastMessage.group].groupMems[messages.lastMessage.from]?.name} : ${messages.lastMessage.text}`"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
 
   <v-list-item v-if="messages.lastMessage && messages.messagesType=='channel'" class="listItem" @click="$router.push({name:'channel',params:{channelId:messages.channel.id},query:{showChannel:false}})"
-    :prepend-avatar="`/api/files/channels/${messages.channel.id}/${messages.channel.avatar}`"
+    :prepend-avatar="getChannelAvatarUrl(messages.channel.id, messages.channel.avatar)"
     :title="messages.channel.name"
     :subtitle="`${messages.lastMessage.text}`"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
@@ -112,15 +112,18 @@
 
   import {useOtherStore} from '@/store/otherStore'
 
+  import {getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl} from '@/funcs/commonFuncs';
+
+
   const {showError} = useOtherStore()
 
 
 
-  const{allGroupsData,allMessagesSorted}=storeToRefs(useDataStore())
+  const{allGroupsData,allMessagesSorted,searchMessageResults}=storeToRefs(useDataStore())
 
 
   const searchMessage=inject('searchMessage')
-  const searchMessageResults=ref([])
+  // const searchMessageResults=ref([])
 
   const newGroup=ref({})
   const newChannel=ref({})
@@ -136,13 +139,13 @@ const showChannelCreationForm=ref(false)
   import pb from '@/main';
 import { join } from '@/funcs/groupFuncs';
 
-watchEffect(async ()=>{
-  if(searchMessage.value){
-    searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
-    ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
-    ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
-  }
-})
+// watchEffect(async ()=>{
+//   if(searchMessage.value){
+//     searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
+//     ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
+//     ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
+//   }
+// })
 
 const showActionButton=ref(true)
 const showActionButtonItems=ref(false)

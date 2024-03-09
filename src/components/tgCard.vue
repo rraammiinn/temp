@@ -2,10 +2,10 @@
     <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
 
 
-    <div :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;">
+    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 10rem;">
     
     
-      <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" style="height: 3rem;margin-left: -2rem;margin-top: -2rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-color: var(--tgBrown);border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;">
+      <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" @contextmenu.prevent="$emit('userSelect',props.userId)" style="height: 3rem;margin-left: -2rem;margin-top: -2rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-color: var(--tgBrown);border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;">
         <img style="height: 100%;width: 2.6rem;object-fit: cover;border-radius: .3rem;" :src="props.avatar" :style="{borderTopRightRadius : (showName ? '0' : '.3rem'), borderBottomRightRadius : (showName ? '0' : '.3rem')}" alt="">
         <span v-show="showName" style="margin-left: 1rem;font-weight: bolder;margin-right: .5rem;overflow-x: hidden;">{{ props.name }}</span>
       </div>
@@ -13,31 +13,45 @@
 
 
 
-      <div v-if="props.messageType=='group' && props.fromYou" style="display: flex;justify-content: end;flex-direction: column;position: absolute;bottom: .5rem;left: -1.8rem;gap: 1rem;">
-        <v-btn @click="deleteGroupMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
+      <div v-if="props.messageType=='group' && showActions" style="display: flex;justify-content: end;flex-direction: column;position: absolute;bottom: .5rem;left: -1.8rem;justify-content: space-between;height: calc(100% - 2.5rem);">
+                <div v-if="props.fromYou" style="display: flex;flex-direction: column;gap: 1rem;">
+                  <v-btn @click="deleteGroupMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
           <v-btn @click="cancelEditing" size="1.5rem" variant="text" icon="mdi-close" style="display: block;" rounded></v-btn>
           <v-btn @click="editGroupMessage" size="1.5rem" variant="text" icon="mdi-check" color="primary" rounded></v-btn>
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
+                </div>
+                        <v-btn style="margin-top: auto;" @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+
+        
       </div>
     
-      <div v-if="props.messageType=='channel' && props.isOwner" style="display: flex;position: absolute;top: -2rem;width: max-content;gap: 1rem;">
-        <v-btn @click="deleteChannelMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
+      <div v-if="props.messageType=='channel' && showActions" style="display: flex;position: absolute;top: -2rem;width: max-content;justify-content: space-between;width: calc(100% - 1rem);">
+                <div v-if="props.isOwner" style="display: flex;gap: 1rem;">
+                  <v-btn @click="deleteChannelMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
           <v-btn @click="cancelEditing" size="1.5rem" variant="text" icon="mdi-close" rounded></v-btn>
           <v-btn @click="editChannelMessage" size="1.5rem" variant="text" icon="mdi-check" color="primary" rounded></v-btn>
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
+                </div>
+                        <v-btn style="margin-left: auto;" @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+
+        
       </div>
     
-      <div v-if="props.messageType=='chat' && props.fromYou" style="display: flex;position: absolute;top: -2rem;width: max-content;gap: 1rem;">
-        <v-btn @click="deleteChatMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
+      <div v-if="props.messageType=='chat' && showActions" style="display: flex;position: absolute;top: -2rem;width: max-content;justify-content: space-between;width: calc(100% - 1rem);">
+        <div v-if="props.fromYou" style="display: flex;gap: 1rem;">
+          <v-btn @click="deleteChatMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
           <v-btn @click="cancelEditing" size="1.5rem" variant="text" icon="mdi-close" rounded></v-btn>
           <v-btn @click="editChatMessage" size="1.5rem" variant="text" icon="mdi-check" color="primary" rounded></v-btn>
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
+        </div>
+        <v-btn style="margin-left: auto;" @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+
       </div>
     
       <v-textarea v-if="editMode"  v-model="msg"
@@ -118,6 +132,8 @@
     import pb from '@/main';
     
     import {useOtherStore} from '@/store/otherStore'
+
+    const showActions=ref(false)
 
     const {showError} = useOtherStore()
 
@@ -215,6 +231,10 @@
       for (const file of addingFiles.value){
         formData.append('files', file)
       }
+    }
+
+    async function copy(){
+      try{await navigator.clipboard.writeText(props.text);}catch{}
     }
 
     onMounted(()=>{emit('insert',props.id)})

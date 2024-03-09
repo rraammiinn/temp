@@ -20,7 +20,14 @@ export const useDataStore = defineStore('data',{
         allGroupsData:new AllGroupsData(),
         allChannelsData:new AllChannelsData(),
         
-        contacts:{}
+        contacts:{},
+
+
+        users:[],
+        searchedGroups:[],
+        searchedChannels:[],
+
+        searchMessageResults:[]
         // groups:{},
 
 

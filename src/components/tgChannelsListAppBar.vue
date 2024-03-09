@@ -18,7 +18,11 @@
 
 <script setup>
 import {ref, inject} from 'vue';
-const showSearch=ref(false)
+import { storeToRefs } from "pinia";
+import { useOtherStore } from "@/store/otherStore";
+
+const {showChannelSearch : showSearch}=storeToRefs(useOtherStore())
+// const showSearch=ref(false)
 const channelSearch=inject('channelSearch')
 const input=ref()
 

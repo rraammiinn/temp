@@ -11,8 +11,11 @@
     import tgMain from '../components/tgMain.vue';
     import tgContactsAppBar from '../components/tgContactsAppBar.vue';
     import tgContactsPage from '../components/tgContactsPage.vue';
+    import { storeToRefs } from "pinia";
+    import { useOtherStore } from "@/store/otherStore";
 
-    const userSearch=ref('')
+    const {userSearch}=storeToRefs(useOtherStore())
+    // const userSearch=ref('')
     provide('userSearch', userSearch)
 
 

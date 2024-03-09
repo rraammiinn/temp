@@ -18,7 +18,11 @@
 
 <script setup>
 import {ref, inject} from 'vue';
-const showSearch=ref(false)
+import { storeToRefs } from "pinia";
+import { useOtherStore } from "@/store/otherStore";
+
+const {showUserSearch : showSearch}=storeToRefs(useOtherStore())
+// const showSearch=ref(false)
 const userSearch=inject('userSearch')
 const input=ref()
 

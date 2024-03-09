@@ -12,7 +12,8 @@ class ChatData{
         this.other = ((rel?.follower == useAuthStore().authData.id) ? (rel?.expand?.following ?? backRel?.expand?.follower) : (rel?.expand?.follower ?? backRel?.expand?.following)) ?? user
         this.lastSeen = rel?.lastseen || 0
         this.unseenCount = 0
-        this.lastVisited = rel?.expand?.following?.updated
+        this.updated = rel?.expand?.following?.updated
+        this.lastVisited = this.updated
         this.relId = rel?.id
         this.backRelId = backRel?.id
         this.otherLastSeen = backRel?.lastseen || 0

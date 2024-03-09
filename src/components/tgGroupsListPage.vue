@@ -3,7 +3,7 @@
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">global</h3>
           <div v-for="group in searchedGroups" @click="allGroupsData[group.id]={group:group,messages:[]};$router.push({name:'group', params:{groupId:group.id},query:{initMessageId:'',showGroup:true}})" :key="group.id">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/groups/${group.id}/${group.avatar}`"
+              :prepend-avatar="getGroupAvatarUrl(group.id, group.avatar)"
               :title="group.name"
               subtitle=""
             >
@@ -34,7 +34,7 @@
       <template v-for="groupRel in allGroupsData.groupRels">
         <div v-if="groupRel.active" @click="$router.push({name:'group', params:{groupId:groupRel.group},query:{initMessageId:'',showGroup:true}})" :key="groupRel.group">
               <v-list-item class="listItem"
-              :prepend-avatar="`/api/files/groups/${groupRel.group}/${groupRel.expand.group.avatar}`"
+              :prepend-avatar="getGroupAvatarUrl(groupRel.group, groupRel.expand.group.avatar)"
               :title="groupRel.expand.group.name"
               subtitle=""
             >
@@ -81,15 +81,17 @@
 
   import {useOtherStore} from '@/store/otherStore'
 
+  
+
   const {showError} = useOtherStore()
 
   const{updateGroupRels}=useDataStore()
-  const{allGroupsData}=storeToRefs(useDataStore())
+  const{allGroupsData, searchedGroups}=storeToRefs(useDataStore())
   
   updateGroupRels()
   
   const groupSearch=inject('groupSearch')
-  const searchedGroups=ref([])
+  // const searchedGroups=ref([])
   
   
   
@@ -113,10 +115,10 @@
   
   const activeGroupsIds=computed(()=>allGroupsData.value.groupRels.filter(groupRel=>groupRel.active).map(groupRel=>groupRel.group))
   
-  watchEffect(async ()=>{
-    if(groupSearch.value){
-      searchedGroups.value=await pb.collection('groups').getFullList({filter:`name ~ "${groupSearch.value}"`})
-    }
-  })
+  // watchEffect(async ()=>{
+  //   if(groupSearch.value){
+  //     searchedGroups.value=await pb.collection('groups').getFullList({filter:`name ~ "${groupSearch.value}"`})
+  //   }
+  // })
   
   </script>

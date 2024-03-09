@@ -5,6 +5,8 @@ import { watchEffect, onBeforeUnmount, onUnmounted, onActivated } from "vue";
 import {storeToRefs} from 'pinia'
 import {useDataStore} from '@/store/dataStore'
 import {useAuthStore} from '@/store/authStore'
+import { useOtherStore } from "@/store/otherStore";
+
 import pb from "@/main";
 import { useRouter } from 'vue-router';
 import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
@@ -15,13 +17,53 @@ const{isLoggedIn,authData}=storeToRefs(useAuthStore())
 const{updateChatRels,updateGroupRels,updateChannelRels,updateGroups,updateAllMessages,updateGroupMems,updateContacts,init}=useDataStore()
 const{allChatsData,
     allGroupsData,
-    allChannelsData
+    allChannelsData,
+    
+    users,
+    searchedGroups,
+    searchedChannels,
+
+    searchMessageResults
     // allGroupMessages,
     // allChannelMessages,
     // groupRels,
     // channelRels,
     // groups
 }=storeToRefs(useDataStore())
+
+
+const {userSearch, groupSearch, channelSearch, searchMessage}=storeToRefs(useOtherStore())
+
+
+
+
+
+watchEffect(async ()=>{
+    if(userSearch.value){
+      users.value=await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})
+    }
+})
+
+watchEffect(async ()=>{
+    if(groupSearch.value){
+      searchedGroups.value=await pb.collection('groups').getFullList({filter:`name ~ "${groupSearch.value}"`})
+    }
+})
+
+watchEffect(async ()=>{
+    if(channelSearch.value){
+      searchedChannels.value=await pb.collection('channels').getFullList({filter:`name ~ "${channelSearch.value}"`})
+    }
+})
+
+
+watchEffect(async ()=>{
+  if(searchMessage.value){
+    searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
+    ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
+    ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
+  }
+})
 
 watchEffect(async()=>{
     if(!isLoggedIn.value)return;

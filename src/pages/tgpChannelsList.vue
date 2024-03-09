@@ -11,8 +11,12 @@
     import tgMain from '../components/tgMain.vue';
     import tgChannelsListAppBar from '../components/tgChannelsListAppBar.vue';
     import tgChannelsListPage from '../components/tgChannelsListPage.vue';
+    import { storeToRefs } from "pinia";
+    import { useOtherStore } from "@/store/otherStore";
 
-    const channelSearch=ref('')
+    const {channelSearch}=storeToRefs(useOtherStore())
+
+    // const channelSearch=ref('')
     provide('channelSearch', channelSearch)
 
 

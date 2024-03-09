@@ -1,6 +1,6 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="$router.back();" variant="text" icon="mdi-arrow-left"></v-btn>
-<v-avatar :image="`/api/files/channels/${props.channelId}/${allChannelsData.allMessages[props.channelId].channel.avatar}`"></v-avatar>
+<v-avatar :image="getChannelAvatarUrl(props.channelId, allChannelsData.allMessages[props.channelId].channel.avatar)"></v-avatar>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
         <template v-slot:activator="{ props }">
@@ -30,6 +30,9 @@ import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'
 import { subscribe, unsubscribe } from '@/funcs/channelFuncs';
+
+import {getChannelAvatarUrl} from '@/funcs/commonFuncs';
+
 
 const {allChannelsData}=storeToRefs(useDataStore())
 

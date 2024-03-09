@@ -1,8 +1,8 @@
 <template>
 
-    <div style="width: 100vw;height: 100dvh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4rem;">
+    <div style="width: 100vw;height: 100dvh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4.1rem;">
         <div class="main">
-            <img style="width: 100%;" :src="`/api/files/channels/${props.channel.id}/${props.channel.avatar}`" alt="">
+            <img style="width: 100%;" :src="getChannelAvatarUrl(props.channel.id, props.channel.avatar)" alt="">
             <div style="width: 100%;margin-bottom: 1rem;">
                 <v-btn @click="showChannel=false;" icon="mdi-message" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
             </div>
@@ -13,7 +13,7 @@
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex;justify-content: space-between;">
                         <h3>{{props.owner.name}}</h3>
-                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="`/api/files/users/${props.owner.id}/${props.owner.avatar}`"></v-avatar>
+                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
                     </div>
                 </div>
                 <div style="margin-bottom: 1.5rem;">
@@ -41,6 +41,9 @@
     <script setup>
     import { inject, ref } from 'vue';
     import {subscribe,unsubscribe} from '@/funcs/channelFuncs'
+
+    import {getChannelAvatarUrl, getUserAvatarUrl} from '@/funcs/commonFuncs';
+
     
     const props=defineProps(['channel','owner','subscribed'])
     const showChannel=inject('showChannel')
