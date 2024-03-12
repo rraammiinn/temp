@@ -8,7 +8,7 @@
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allMessages[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allMessages[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -49,7 +49,7 @@
         </div>
   
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
-          <div v-if="joined && !blocked" style="padding-bottom:1rem;display:flex">
+          <!-- <div v-if="joined && !blocked" style="padding-bottom:1rem;display:flex">
             <v-btn v-if="!isRecording"
               color="primary"
               icon="mdi-microphone"
@@ -76,9 +76,52 @@
               @click.stop="pauseRecording"
             ></v-btn>
             </div>
+          </div> -->
+
+
+          <div v-if="joined && !blocked" style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;">
+            <div style="display: flex;flex-shrink: 0;">
+              <v-btn v-if="!isRecording"
+              color="primary"
+              icon="mdi-microphone"
+              variant="text"
+              @click.stop="startRecording"
+            ></v-btn>
+            <div v-else>
+              <v-btn
+              color="error"
+              icon="mdi-stop"
+              variant="text"
+              @click.stop="stopRecording"
+            ></v-btn>
+            <v-btn v-if="isPaused"
+              color="success"
+              icon="mdi-play"
+              variant="text"
+              @click.stop="resumeRecording"
+            ></v-btn>
+            <v-btn v-else
+              color="warning"
+              icon="mdi-pause"
+              variant="text"
+              @click.stop="pauseRecording"
+            ></v-btn>
+            </div>
+            </div>
+            
+            <div v-if="replyTo" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
+              <img v-if="replyToAvatarUrl" :src="replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;">
+            <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
+            <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
+            </div>
           </div>
+
+
+
   
           <v-textarea v-if="joined && !blocked"
+            dir="auto"
+            ref="messageInput"
             label="message"
             auto-grow
             variant="solo-filled"
@@ -178,6 +221,8 @@
     fileInput.value.value=null
   }
   const fileInput=ref()
+  const messageInput=ref()
+
   
   const showGroup=inject('showGroup')
   const groupsContainer=ref()
@@ -207,6 +252,10 @@
       formData.append('from', pb.authStore.model.id)
       formData.append('group', props.groupId)
       formData.append('text', msg.value)
+
+      if(replyTo.value){
+        formData.append('replyto', replyTo.value)
+      }
   
       for (const file of files.value){
   
@@ -218,11 +267,17 @@
     }catch{showError('sending message failed.')}
 
       msg.value=''
+      replyTo.value=''
+      replyToAvatarUrl.value=''
+      replyToText.value=''
       files.value=[]
   
   }
   
   const msg=ref('')
+  const replyTo=ref('')
+  const replyToAvatarUrl=ref('')
+  const replyToText=ref('')
   
   
   

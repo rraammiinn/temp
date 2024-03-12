@@ -22,7 +22,7 @@
                         </div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                        <v-text-field v-model="name" label="name" prepend-inner-icon="mdi-account" variant="outlined"></v-text-field>
+                        <v-text-field dir="auto" v-model="name" label="name" prepend-inner-icon="mdi-account" variant="outlined"></v-text-field>
                         <v-file-input v-model="avatar" label="avatar" accept="image/*" prepend-inner-icon="mdi-image" :prepend-icon="null"  variant="outlined"></v-file-input>
                         <v-textarea v-model="bio" variant="outlined" rows="1" auto-grow label="bio"></v-textarea>
                     </v-expansion-panel-text>

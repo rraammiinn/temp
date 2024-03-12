@@ -40,6 +40,7 @@ import { createApp } from 'vue'
 import { registerPlugins } from '@/plugins'
 
 import './assets/style.css'
+import './assets/animation.css'
 
 
 import 'vuetify/styles'

@@ -40,7 +40,7 @@ const {userSearch, groupSearch, channelSearch, searchMessage}=storeToRefs(useOth
 
 watchEffect(async ()=>{
     if(userSearch.value){
-      users.value=await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})
+      users.value=(await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})).filter(user=>user.id != authData.value.id)
     }
 })
 

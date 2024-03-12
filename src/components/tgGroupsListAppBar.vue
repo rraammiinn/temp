@@ -1,8 +1,12 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="$router.back()" variant="text" icon="mdi-arrow-left"></v-btn>
-    <v-toolbar-title v-show="(!showSearch && !groupSearch)">groups</v-toolbar-title>
+    <Transition name="fade-and-move">
+      <v-toolbar-title v-show="(!showSearch && !groupSearch)">groups</v-toolbar-title>
+    </Transition>
     <v-spacer></v-spacer>
-    <v-text-field ref="input" v-show="(showSearch||groupSearch)" style="margin-right: 1rem;"
+    <Transition name="scale">
+      <v-text-field ref="input" v-show="(showSearch||groupSearch)" style="margin-right: 1rem;"
+      dir="auto"
         :loading="loading"
         density="compact"
         variant="solo"
@@ -13,6 +17,8 @@
         @click:append-inner="onClick"
         v-model="groupSearch"
       ></v-text-field>
+    </Transition>
+    
     <v-btn rounded @click="showSearch = !showSearch;groupSearch='';$nextTick(()=>{input.focus()});" variant="text" :icon='(showSearch||groupSearch) ? "mdi-close" : "mdi-plus"'></v-btn>
 </template>
 

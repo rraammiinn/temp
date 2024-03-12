@@ -25,13 +25,18 @@
     const otherId=route.params.otherId
 
     if(!allChatsData.value.allMessages[otherId]){
-        // var rel,backRel
-        // try{rel=await pb.collection('rels').create({follower:pb.authStore.model.id, following:otherId, active:true},{expand:'follower,following'})}catch{rel=await pb.collection('rels').getFirstListItem(`follower = "${pb.authStore.model.id}" && following = "${otherId}"`,{expand:'follower,following'})}
-        // try{backRel=await pb.collection('rels').create({follower:otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{backRel=await pb.collection('rels').getFirstListItem(`follower = "${otherId}" && following = "${pb.authStore.model.id}"`,{expand:'follower,following'})}
-        // allChatsData.value.allMessages[otherId]=new ChatData(rel,backRel)
-
-        const user=await pb.collection('users').getOne(otherId)
-        allChatsData.value.allMessages[otherId]=new ChatData(null,null,user)
+        var rel,backRel,user
+        try{
+            rel=await pb.collection('rels').getFirstListItem(`follower = "${pb.authStore.model.id}" && following = "${otherId}"`,{expand:'follower,following'})
+            backRel=await pb.collection('rels').getFirstListItem(`follower = "${otherId}" && following = "${pb.authStore.model.id}"`,{expand:'follower,following'})
+        }catch{
+            user=await pb.collection('users').getOne(otherId)
+        }
+        finally{
+            allChatsData.value.allMessages[otherId]=new ChatData(rel,backRel,user)
+            await allChatsData.value.allMessages[otherId].init()
+        }
+        
     }
     const isInRel=computed(()=>!!allChatsData.value.allMessages[otherId].relId && !!allChatsData.value.allMessages[otherId].backRelId)
     const blocked=computed(()=>!allChatsData.value.allMessages[otherId].active)

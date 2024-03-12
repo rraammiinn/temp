@@ -77,6 +77,7 @@
           </div>
   
           <v-textarea v-if="subscribed && isOwner"
+            dir="auto"
             label="message"
             auto-grow
             variant="solo-filled"

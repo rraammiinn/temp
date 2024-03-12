@@ -2,12 +2,14 @@
     <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
 
 
-    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 10rem;">
+    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 13rem;display: flex;flex-direction: column;justify-content: space-between;min-height: 15rem;">
     
     
       <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" @contextmenu.prevent="$emit('userSelect',props.userId)" style="height: 3rem;margin-left: -2rem;margin-top: -2rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-color: var(--tgBrown);border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;">
-        <img style="height: 100%;width: 2.6rem;object-fit: cover;border-radius: .3rem;" :src="props.avatar" :style="{borderTopRightRadius : (showName ? '0' : '.3rem'), borderBottomRightRadius : (showName ? '0' : '.3rem')}" alt="">
-        <span v-show="showName" style="margin-left: 1rem;font-weight: bolder;margin-right: .5rem;overflow-x: hidden;">{{ props.name }}</span>
+        <img style="height: 100%;width: 2.6rem;min-width: 2.6rem;object-fit: cover;border-radius: .3rem;" :src="props.avatar" :style="{borderTopRightRadius : (showName ? '0' : '.3rem'), borderBottomRightRadius : (showName ? '0' : '.3rem')}" alt="">
+        <Transition name="width">
+          <span v-show="showName" style="margin-left: 1rem;font-weight: bolder;margin-right: .5rem;overflow-x: hidden;">{{ props.name }}</span>
+        </Transition>
       </div>
       
 
@@ -22,9 +24,10 @@
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
                 </div>
-                        <v-btn style="margin-top: auto;" @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
-
-        
+                <div style="display: flex;flex-direction: column;gap: 1rem;margin-top: auto;">
+                  <v-btn @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+                  <v-btn @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>        
+                </div>
       </div>
     
       <div v-if="props.messageType=='channel' && showActions" style="display: flex;position: absolute;top: -2rem;width: max-content;justify-content: space-between;width: calc(100% - 1rem);">
@@ -36,9 +39,10 @@
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
                 </div>
-                        <v-btn style="margin-left: auto;" @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
-
-        
+                <div style="display: flex;gap: 1rem;margin-left: auto;">
+                  <!-- <v-btn style="margin-top: auto;" @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>     -->
+                  <v-btn @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>    
+                </div>
       </div>
     
       <div v-if="props.messageType=='chat' && showActions" style="display: flex;position: absolute;top: -2rem;width: max-content;justify-content: space-between;width: calc(100% - 1rem);">
@@ -50,11 +54,14 @@
         </div>
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
         </div>
-        <v-btn style="margin-left: auto;" @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
-
+        <div style="display: flex;gap: 1rem;margin-left: auto;">
+          <v-btn @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+          <v-btn @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>    
+        </div>
       </div>
     
       <v-textarea v-if="editMode"  v-model="msg"
+              dir="auto"
               auto-grow
               variant="outlined"
               rows="1"
@@ -62,10 +69,15 @@
               color="var(--tgBrown)"
               base-color="var(--tgBrown)"
       ></v-textarea>
-      <v-card v-else v-show="props.text" width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" :text="props.text">
-    
-    
+      <div v-else v-show="props.text" :dir="dir" style="width: 100%;">
+        <v-card width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
+        <template #text>
+          <!-- <div style="min-height:2rem" :innerHTML="text"></div> -->
+          <span dir="auto" style="display: block;min-height: 1rem;" v-for="(line,index) in textLines" :id="`${props.id}-line-${index+1}`">{{ line }}</span>
+        </template>
         </v-card>
+      </div>
+      
     
           <div v-if="props.files.filter(name=>getFileType(name)=='image').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;">
             <div style="display: flex;margin: .5rem;" v-for="file in props.files.filter(name=>getFileType(name)=='image')" :key="file" :id="file">
@@ -117,18 +129,35 @@
     
           <div style="padding: 1rem;display: flex;opacity: .5;font-size: .5rem;font-weight: bold;" :style="{justifyContent : (props.messageType=='channel') ? 'center' :'space-between'}">
             <span>{{new Date(props.time).toLocaleTimeString([],{ hour12: false })}}</span>
-            <v-icon style="margin-left: .5rem;" v-if="props.fromYou && props.messageType=='chat'" :icon="props.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
+            <div style="display: flex;gap: .25rem;margin-left: .5rem;">
+              <v-icon @click="$emit('goToMessage', props.repliedMessageId)" v-if="props.repliedMessageId" icon="mdi-link"></v-icon>
+              <v-icon v-if="props.fromYou && props.messageType=='chat'" :icon="props.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
+            </div>
           </div>
 
     </div>
 
     </template>
+
+    <style scoped>
+    .width-enter-active,
+    .width-leave-active {
+      transition: all 0.5s ease-in-out;
+    }
+
+    .width-enter-from,
+    .width-leave-to {
+      width: 0 !important;
+      margin: 0 !important;
+      transform: scaleX(0);
+    }
+    </style>
     
     
     <script setup>
     import {getFileType,getIcon} from '@/funcs/commonFuncs'
     import tgFileChip from '@/components/tgFileChip.vue'
-    import {ref, onMounted} from 'vue'
+    import {ref, onMounted, computed, onUpdated} from 'vue'
     import pb from '@/main';
     
     import {useOtherStore} from '@/store/otherStore'
@@ -140,14 +169,21 @@
     
     const showName=ref(false)
 
-    const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner'])
-    const emit = defineEmits(['insert'])
+    const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner','repliedMessageId'])
+    const emit = defineEmits(['insert','reply'])
 
     const editMode=ref(false)
     const msg=ref(props.text)
     const addingFiles=ref([]);
     const deletingFiles=ref([]);
     const fileInput=ref()
+
+    // const text = computed(()=>{return props.text.replaceAll('\n\n','\n \n').split('\n').map((line)=>`<div>${line}</div>`).join('')})
+    const textLines = computed(()=>props.text.split('\n'))
+    const dir = ref('auto')
+    
+    // onUpdated(()=>{dir.value=getComputedStyle(document.getElementById('line-1')).direction})
+
 
     function removeFile(file){
     addingFiles.value = addingFiles.value.filter(h => h != file)
@@ -237,6 +273,10 @@
       try{await navigator.clipboard.writeText(props.text);}catch{}
     }
 
-    onMounted(()=>{emit('insert',props.id)})
+    function reply(){
+      emit('reply',props.id,props.avatar,props.text)
+    }
+
+    onMounted(()=>{emit('insert',props.id);dir.value=getComputedStyle(document.getElementById(`${props.id}-line-1`)).direction;})
     
     </script>

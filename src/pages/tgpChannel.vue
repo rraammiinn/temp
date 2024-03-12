@@ -25,12 +25,14 @@
     const channelId=route.params.channelId
 
     if(!allChannelsData.value.allMessages[channelId]){
-        // var channelRel
-        // try{channelRel=await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}catch{channelRel=await pb.collection('channelMembers').getFirstListItem({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}
-        // allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
-
-        const channel=await pb.collection('channels').getOne(channelId)
+        try{
+            const channelRel=await pb.collection('channelMembers').getFirstListItem(`channel = "${channelId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,channel'})
+        allChannelsData.value.allMessages[channelId]=new ChannelData(channelRel)
+        }catch{
+            const channel=await pb.collection('channels').getOne(channelId)
         allChannelsData.value.allMessages[channelId]=new ChannelData(null,channel)
+        }
+        await allChannelsData.value.allMessages[channelId].init()
     }
     const subscribed=computed(()=>!!allChannelsData.value.allMessages[channelId].channelRelId)
     const isOwner=computed(()=>allChannelsData.value.allMessages[channelId]?.channel?.owner==pb.authStore.model.id)  

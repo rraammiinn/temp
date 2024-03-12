@@ -58,3 +58,61 @@ html{
 .v-card-item__content{
   overflow: visible;
 }
+
+
+
+
+
+.fade-and-move-enter-active,
+.fade-and-move-leave-active {
+  transition: all 0.25s ease;
+}
+
+.fade-and-move-enter-from,
+.fade-and-move-leave-to {
+  opacity: 0;
+  /* margin-right: -10rem; */
+  transform: translateX(-5rem);
+}
+
+.scale-enter-active{
+  animation: grow .5s ease;
+}
+.scale-leave-active {
+  animation: shrink 1s ease;
+}
+
+/* .scale-enter-from,
+.scale-leave-to {
+  transform: scaleX(0);
+} */
+
+.alert-enter-active{
+  animation: alert-in 1s ease;
+}
+.alert-leave-active {
+  animation: alert-out 1s ease;
+}
+
+.delayed-scale-enter-active{
+  animation: delayed-scale 1s ease;
+}
+.delayed-scale-leave-active {
+  animation: delayed-scale 1s ease reverse;
+}
+
+.move-up-enter-active{
+  animation: move-up .5s ease;
+}
+.move-up-leave-active {
+  animation: delayed-move-down 1.5s ease;
+}
+
+.delayed-move-up-enter-active{
+  animation: delayed-move-up 1s ease;
+}
+.delayed-move-up-leave-active {
+  animation: move-down .5s ease;
+}
+
+

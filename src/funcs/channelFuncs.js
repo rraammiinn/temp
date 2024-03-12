@@ -149,4 +149,4 @@ async function subscribe(channelId){
 
 
 
-export {ChannelMessageGenerator,subscribe,unsubscribe}
+export {ChannelMessageGenerator,subscribe,unsubscribe,subscribeToNewMessages}

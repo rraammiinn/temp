@@ -12,6 +12,7 @@
 <input accept="image/*" ref="fileInput" @change="upload_" type="file" hidden>
 
             <v-text-field
+            dir="auto"
             label="group name"
             persistent-hint
             variant="outlined"
@@ -19,6 +20,7 @@
             
           ></v-text-field>
           <v-textarea
+          dir="auto"
           label="about"
           auto-grow
           variant="outlined"

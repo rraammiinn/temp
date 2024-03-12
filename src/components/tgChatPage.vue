@@ -6,7 +6,7 @@
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChatsData.allMessages" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChatsData.allMessages" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -47,8 +47,9 @@
         </div>
   
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
-          <div style="padding-bottom:1rem;display:flex">
-            <v-btn v-if="!isRecording"
+          <div style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;">
+            <div style="display: flex;flex-shrink: 0;">
+              <v-btn v-if="!isRecording"
               color="primary"
               icon="mdi-microphone"
               variant="text"
@@ -74,9 +75,18 @@
               @click.stop="pauseRecording"
             ></v-btn>
             </div>
+            </div>
+            
+            <div v-if="replyTo" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
+              <!-- <img v-if="replyToAvatarUrl" :src="replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;"> -->
+            <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
+            <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
+            </div>
           </div>
   
           <v-textarea
+            dir="auto"
+            ref="messageInput"
             label="message"
             auto-grow
             variant="solo-filled"
@@ -167,6 +177,7 @@
     fileInput.value.value=null
   }
   const fileInput=ref()
+  const messageInput=ref()
   
   const showUser=inject('showUser')
   const chatsContainer=ref()
@@ -197,7 +208,10 @@
       formData.append('from', pb.authStore.model.id)
       formData.append('to', props.otherId)
       formData.append('text', msg.value)
-      formData.append('seen', false)
+
+      if(replyTo.value){
+        formData.append('replyto', replyTo.value)
+      }
   
       for (const file of files.value){
   
@@ -209,11 +223,17 @@
     }catch{showError('sending message failed.')}
 
       msg.value=''
+      replyTo.value=''
+      replyToAvatarUrl.value=''
+      replyToText.value=''
       files.value=[]
   
   }
   
   const msg=ref('')
+  const replyTo=ref('')
+  const replyToAvatarUrl=ref('')
+  const replyToText=ref('')
   
   
   

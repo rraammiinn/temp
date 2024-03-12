@@ -1,0 +1,160 @@
+@keyframes grow {
+    0% {
+      transform: scaleX(0);
+    }
+    60% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+  
+  @keyframes shrink {
+    0% {
+      transform: scaleX(1);
+    }
+  
+    100% {
+      transform: scaleX(0);
+    }
+  }
+  
+  
+  @keyframes move-up {
+    0% {
+      transform: translateY(4.5rem)
+      }
+    100% {
+      transform: translateY(0)
+      }
+  }
+  
+  @keyframes delayed-move-up {
+    0% {
+      display: none;
+      transform: translateY(4.5rem)
+      }
+    50% {
+      display: none;
+      transform: translateY(4.5rem)
+      }
+    100% {
+      transform: translateY(0)
+      }
+  }
+  
+  @keyframes move-down {
+    0% {
+      transform: translateY(0)
+      }
+    80% {
+       transform: translateY(0)
+      }
+    100% {
+      transform: translateY(4.5rem)
+      }
+  }
+  
+  @keyframes delayed-move-down {
+    0% {
+      transform: translateY(0)
+      }
+    50% {
+      transform: translateY(0)
+      }
+    100% {
+      transform: translateY(4.5rem)
+      }
+  }
+  
+  @keyframes delayed-scale {
+    0% {
+      transform: scaleX(0);
+    }
+    50% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+  
+  @keyframes alert-in {
+    0% {
+      transform: translateY(-10rem);
+    }
+    50% {
+      transform: translateY(0);
+      transform: rotateZ(20deg);
+    }
+    60% {
+      transform: rotateZ(20deg);
+    }
+    70% {
+      transform: rotateZ(-15deg);
+    }
+    80% {
+      transform: rotateZ(10deg);
+    }
+    90% {
+      transform: rotateZ(-5deg);
+    }
+    100% {
+      transform: rotateZ(0);
+    }
+  }
+  
+  @keyframes alert-out {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-10rem);
+    }
+  }
+  
+  
+  
+  
+  .fade-first-button-enter-active{
+    transition: all 0.25s ease;
+  }
+  .fade-first-button-leave-active {
+    transition: all 0.5s ease;
+    transition-delay: 1s;
+  }
+  
+  .fade-first-button-enter-from,
+  .fade-first-button-leave-to {
+    opacity: 0;
+    transform: scale(0);
+  }
+  
+  
+  
+  .fade-second-button-enter-active{
+    transition: all 0.5s ease;
+  }
+  .fade-second-button-leave-active {
+    transition: all 0.25s ease;
+    transition-delay: 1s;
+  }
+  
+  .fade-second-button-enter-from,
+  .fade-second-button-leave-to {
+    opacity: 0;
+    transform: scale(0);
+  }
+  
+  
+  .rotate-enter-active,
+  .rotate-leave-active {
+    transition: all 0.25s ease;
+  }
+  
+  .rotate-enter-from,
+  .rotate-leave-to {
+    opacity: 0;
+    transform: rotateZ(45deg);
+  }

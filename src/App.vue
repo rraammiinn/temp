@@ -18,7 +18,7 @@
 
 
 
-<v-snackbar timeout="3000" color="error" variant="tonal" location="top" width="90vw" style="margin-top: 5rem;"
+  <v-snackbar v-show="errorVisibility" timeout="3000" color="error" variant="tonal" location="top" width="90vw" style="margin-top: 5rem;"
       v-model="errorVisibility"
     >
       {{ errorMessage }}

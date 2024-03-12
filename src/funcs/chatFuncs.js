@@ -25,6 +25,10 @@ async function getLastSeenChatMessages(otherId,endDate,number=10){
   return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created <= "${endDate}"`, sort: '-created'})).items.reverse()
 }
 
+async function getChatMessagesBetween(otherId,startDate,endDate){
+  return await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created > "${startDate}" && created < "${endDate}"`, sort: 'created'})
+}
+
 
 
 
@@ -122,6 +126,14 @@ class ChatMessageGenerator{
       pb.collection('rels').update(useDataStore().allChatsData.allMessages[this.otherId].relId,{lastseen:date})
       }
     subscribeToNewMessages(this.otherId)
+  }
+
+  async getRepliedMessage(repliedMessageId){
+    const repliedMessage = await getChatMessageById(repliedMessageId)
+    const startDate = repliedMessage.created
+    const endDate = useDataStore().allChatsData.allMessages[this.otherId].messages[0].created
+    const betweenMessages = await getChatMessagesBetween(this.otherId,startDate,endDate)
+    useDataStore().allChatsData.allMessages[this.otherId].messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allMessages[this.otherId].messages]
   }
 
 }

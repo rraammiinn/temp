@@ -81,6 +81,9 @@
 
   import {useOtherStore} from '@/store/otherStore'
 
+  import {getGroupAvatarUrl} from '@/funcs/commonFuncs';
+
+
   
 
   const {showError} = useOtherStore()

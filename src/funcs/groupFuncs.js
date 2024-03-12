@@ -28,6 +28,10 @@ async function getLastSeenGroupMessages(groupId,endDate,number=10){
   return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()
 }
 
+async function getGroupMessagesBetween(groupId,startDate,endDate){
+  return await pb.collection('groupMessages').getFullList({filter:`group = "${groupId}" && created > "${startDate}" && created < "${endDate}"`, sort: 'created'})
+}
+
 
 
 
@@ -92,7 +96,7 @@ class GroupMessageGenerator{
   async getPreviousMessages(){
     try{
       const previous10Messages= await getPreviousGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages[0].created)
-      if(!previous10Messages.length){subscribeToNewMessages(this.groupId);return false};
+      if(!previous10Messages.length){return false};
         useDataStore().allGroupsData.allMessages[this.groupId].messages=[...previous10Messages, ...useDataStore().allGroupsData.allMessages[this.groupId].messages]
   
   
@@ -104,7 +108,7 @@ class GroupMessageGenerator{
     var new10Messages=[]
     try{
       new10Messages= await getNextGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages.at(-1).created)
-      if(!new10Messages.length){return};
+      if(!new10Messages.length){subscribeToNewMessages(this.groupId);return false};
       useDataStore().allGroupsData.allMessages[this.groupId].messages=[...useDataStore().allGroupsData.allMessages[this.groupId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
@@ -125,6 +129,14 @@ class GroupMessageGenerator{
       pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[this.groupId].groupRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.groupId)
+  }
+
+  async getRepliedMessage(repliedMessageId){
+    const repliedMessage = await getGroupMessageById(repliedMessageId)
+    const startDate = repliedMessage.created
+    const endDate = useDataStore().allChatsData.allMessages[this.groupId].messages[0].created
+    const betweenMessages = await getChatMessagesBetween(this.groupId,startDate,endDate)
+    useDataStore().allChatsData.allMessages[this.groupId].messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allMessages[this.groupId].messages]
   }
 
 }
@@ -168,4 +180,4 @@ async function unBlockMember(groupId,memberId){
 }
 
 
-export {GroupMessageGenerator,join,leave,blockMember,unBlockMember}
+export {GroupMessageGenerator,join,leave,blockMember,unBlockMember,subscribeToNewMessages}

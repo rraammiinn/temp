@@ -25,11 +25,13 @@ class ChatData{
     }
 
     async init(){
-        // this.other = (this.rel.follower == useAuthStore().authData.id) ? this.rel.expand.following : this.rel.expand.follower
 
-        this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created'})
-
-        await this.updateUnseenCount()
+        try{
+            this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created'})
+        }catch{}
+        try{
+            await this.updateUnseenCount()
+        }catch{}
 
 
 
@@ -151,8 +153,12 @@ class ChannelData{
     }
 
     async init(){
-        this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created'})
-        await this.updateUnseenCount()
+        try{
+            this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created'})
+        }catch{}
+        try{
+            await this.updateUnseenCount()
+        }catch{}
 
     }
 
