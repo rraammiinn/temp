@@ -27,8 +27,8 @@
 
 
         <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">members</h3>
-            <div v-for="member in props.members" @click="$router.push({name:'chat', params:{otherId:member.id},query:{initMessageId:'',showUser:true}})" :key="member.id">
-              <v-list-item class="listItem"
+            <template v-for="member in props.members">
+              <v-list-item v-if="member.id != pb.authStore.model.id" @click="$router.push({name:'chat', params:{otherId:member.id},query:{initMessageId:'',showUser:true}})" :key="member.id" class="listItem"
               :prepend-avatar="getUserAvatarUrl(member.id, member.avatar)"
               :title="member.name"
               :subtitle="member.username"
@@ -63,8 +63,8 @@
           </template>
 
           </v-list-item>
-            <v-divider></v-divider>
-          </div>
+            <v-divider v-if="member.id != pb.authStore.model.id"></v-divider>
+          </template>
           <div style="height: 3.25rem;"></div>
 
           <v-btn @click="leave(props.group.id)" v-if="props.joined" style="position: fixed;bottom:0;margin: .5rem;" width="calc(100% - 1rem)" color="error">leave</v-btn>
@@ -88,6 +88,8 @@
     <script setup>
     import { inject, ref } from 'vue';
     import { storeToRefs } from "pinia";
+
+    import pb from '@/main';
   
     import { useDataStore } from "@/store/dataStore";
     import {addContact,deleteContact} from '@/funcs/contactFunc';

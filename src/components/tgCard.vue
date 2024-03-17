@@ -69,11 +69,11 @@
               color="var(--tgBrown)"
               base-color="var(--tgBrown)"
       ></v-textarea>
-      <div v-else v-show="props.text" :dir="dir" style="width: 100%;">
+      <div v-else v-show="text" :dir="dir" style="width: 100%;">
         <v-card width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
         <template #text>
-          <!-- <div style="min-height:2rem" :innerHTML="text"></div> -->
-          <span dir="auto" style="display: block;min-height: 1rem;" v-for="(line,index) in textLines" :id="`${props.id}-line-${index+1}`">{{ line }}</span>
+          <div :innerHTML="text"></div>
+          <!-- <span dir="auto" style="display: block;min-height: 1rem;" v-for="(line,index) in textLines" :id="`${props.id}-line-${index+1}`">{{ line }}</span> -->
         </template>
         </v-card>
       </div>
@@ -105,6 +105,8 @@
               <!-- </div> -->
             </div>
           </div>
+
+          <a v-for="link in links" :href="link" style="all:unset;display:block;"><v-btn variant="text" prepend-icon="mdi-link" height="1rem" width="fit-content" style="font-size: .5rem;font-weight: bold;font-style: italic;overflow-x: clip;justify-content: flex-start;max-width: calc(100% - 1rem);">{{ link }}</v-btn></a>
 
 
           <div style="display: flex;align-items: center;justify-content: space-between;white-space: 100%;">
@@ -178,7 +180,12 @@
     const deletingFiles=ref([]);
     const fileInput=ref()
 
-    // const text = computed(()=>{return props.text.replaceAll('\n\n','\n \n').split('\n').map((line)=>`<div>${line}</div>`).join('')})
+    var links = []
+
+      var text = props.text;
+      Array.from(text.matchAll(new RegExp(/https?:\/\/[^\s]+/,'g'))).forEach(link => text= text.replaceAll(link[0],`<a class="link" href="${link[0]}">${link[0]}</a>`));
+      text = text.split('\n').map((line, index)=>`<span id="${props.id}-line-${index+1}" dir="auto" style="display: block;min-height: 1rem;">${line}</span>`).join('');
+      if(props.text.replaceAll(new RegExp(/https?:\/\/[^\s]+/,'g'),'').trim() == ''){links=props.text.split('\n').map(link=>link.trim()).filter(link=>link);text=null;}
     const textLines = computed(()=>props.text.split('\n'))
     const dir = ref('auto')
     

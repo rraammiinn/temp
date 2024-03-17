@@ -2,7 +2,7 @@
     <v-card style="padding: 1rem;">
     <v-col>
     <v-text-field dir="auto" v-model="modelValue.name" color="primary" variant="outlined" label="name"></v-text-field>
-    <v-textarea v-model="modelValue.about" rows="1" auto-grow color="primary" variant="outlined" label="about"></v-textarea>
+    <v-textarea dir="auto" v-model="modelValue.about" rows="1" auto-grow color="primary" variant="outlined" label="about"></v-textarea>
     <v-file-input accept="image/*" v-model="modelValue.avatar" label="avatar" prepend-inner-icon="mdi-image" :prepend-icon="null" variant="outlined"></v-file-input>
 
     <v-row>

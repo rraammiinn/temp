@@ -27,7 +27,8 @@ const {updateLogInState,updateAuthData}=useAuthStore()
 const disabled=ref(false)
 const btnText=ref()
 
-if(pb.authData?.model?.verified)router.replace('/');
+
+if(pb.authStore?.model?.verified)router.replace('/');
 
 try{
     await requestVerification()

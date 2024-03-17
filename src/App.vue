@@ -8,7 +8,11 @@
 
       <tg-wrapper>
         <suspense>
-          <router-view></router-view>
+          <router-view v-slot="{ Component, route }">
+            <transition name="slide-right">
+              <component :is="Component" :key="route.path" />
+            </transition>
+          </router-view>
         </suspense>
       </tg-wrapper>
 

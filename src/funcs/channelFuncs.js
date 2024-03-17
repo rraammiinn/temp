@@ -91,7 +91,7 @@ class ChannelMessageGenerator{
   async getPreviousMessages(){
     try{
       const previous10Messages= await getPreviousChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages[0].created)
-      if(!previous10Messages.length){subscribeToNewMessages(this.channelId);return false};
+      if(!previous10Messages.length){return false};
         useDataStore().allChannelsData.allMessages[this.channelId].messages=[...previous10Messages, ...useDataStore().allChannelsData.allMessages[this.channelId].messages]
   
   
@@ -103,7 +103,7 @@ class ChannelMessageGenerator{
     var new10Messages=[]
     try{
       new10Messages= await getNextChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages.at(-1).created)
-      if(!new10Messages.length){return};
+      if(!new10Messages.length){subscribeToNewMessages(this.channelId);return false;};
       useDataStore().allChannelsData.allMessages[this.channelId].messages=[...useDataStore().allChannelsData.allMessages[this.channelId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}

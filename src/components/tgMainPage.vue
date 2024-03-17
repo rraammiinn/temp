@@ -32,7 +32,7 @@
 <v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
 
 <template v-for="messages in allMessagesSorted">
-    <v-list-item v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
+    <v-list-item v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active && messages.other.id != pb.authStore.model.id" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
     :prepend-avatar="getUserAvatarUrl(messages.other.id, messages.other.avatar)"
     :title="messages.other.name"
     :subtitle="messages.lastMessage.text"

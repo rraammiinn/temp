@@ -53,26 +53,26 @@
               color="primary"
               icon="mdi-microphone"
               variant="text"
-              @click.stop="startRecording"
+              @click.stop="()=>{voiceRecorder.startRecording()}"
             ></v-btn>
             <div v-else>
               <v-btn
               color="error"
               icon="mdi-stop"
               variant="text"
-              @click.stop="stopRecording"
+              @click.stop="()=>{voiceRecorder.stopRecording()}"
             ></v-btn>
             <v-btn v-if="isPaused"
               color="success"
               icon="mdi-play"
               variant="text"
-              @click.stop="resumeRecording"
+              @click.stop="()=>{voiceRecorder.resumeRecording()}"
             ></v-btn>
             <v-btn v-else
               color="warning"
               icon="mdi-pause"
               variant="text"
-              @click.stop="pauseRecording"
+              @click.stop="()=>{voiceRecorder.pauseRecording()}"
             ></v-btn>
             </div>
             </div>
@@ -156,6 +156,9 @@
   import { ChatData } from '@/store/dataModels';
 
   import {useOtherStore} from '@/store/otherStore'
+
+  import {VoiceRecorder} from '@/funcs/mediaFuncs'
+
 
   const {showError} = useOtherStore()
   
@@ -297,68 +300,69 @@
   
   const isRecording=ref(false);
   const isPaused=ref(false);
-  var chunks=[];
-  var mediaRecorder;
+  // var chunks=[];
+  // var mediaRecorder;
+  
+  const voiceRecorder = new VoiceRecorder(()=>{isRecording.value=true;isPaused.value=false;},(file)=>{isRecording.value=false;files.value.push(file)},()=>{isPaused.value=false;},()=>{isPaused.value=true;})
   
   
+  // function startRecording() {
+  //   if (navigator.mediaDevices?.getUserMedia) {
+  //   navigator.mediaDevices
+  //     .getUserMedia(
+  //       {
+  //         audio: true,
+  //       },
+  //     )
   
-  function startRecording() {
-    if (navigator.mediaDevices?.getUserMedia) {
-    navigator.mediaDevices
-      .getUserMedia(
-        {
-          audio: true,
-        },
-      )
+  //     .then((stream) => {
+  //       isRecording.value=true;
+  //       isPaused.value=false;
   
-      .then((stream) => {
-        isRecording.value=true;
-        isPaused.value=false;
+  //       mediaRecorder = new MediaRecorder(stream);
   
-        mediaRecorder = new MediaRecorder(stream);
+  //       mediaRecorder.onstop = (e) => {
+  //         isRecording.value=false;
+  //         const blob = new Blob(chunks, { type: "audio/mp3; codecs=mp3" });
+  //         const file = new File([blob],'voice.mp3',{ type: 'audio/mp3' })
+  //         files.value.push(file)
+  //   }
   
-        mediaRecorder.onstop = (e) => {
-          isRecording.value=false;
-          const blob = new Blob(chunks, { type: "audio/mp3; codecs=mp3" });
-          const file = new File([blob],'voice.mp3',{ type: 'audio/mp3' })
-          files.value.push(file)
-    }
+  //   mediaRecorder.onpause = (e) => {
+  //     isPaused.value=true;
+  //   }
   
-    mediaRecorder.onpause = (e) => {
-      isPaused.value=true;
-    }
-  
-    mediaRecorder.onresume = (e) => {
-      isPaused.value=false;
-    }
+  //   mediaRecorder.onresume = (e) => {
+  //     isPaused.value=false;
+  //   }
   
   
-        mediaRecorder.ondataavailable = (e) => {
-        chunks.push(e.data);
-  };
-    chunks=[];
-    mediaRecorder.start();
+  //       mediaRecorder.ondataavailable = (e) => {
+  //       chunks.push(e.data);
+  // };
+  //   chunks=[];
+  //   mediaRecorder.start();
   
-      })
+  //     })
   
-      .catch((err) => {
-        console.error(`The following getUserMedia error occurred: ${err}`);
-      });
-  } else {
-  }
-  }
+  //     .catch((err) => {
+  //       console.error(`The following getUserMedia error occurred: ${err}`);
+  //     });
+  // } else {
+  // }
+  // }
   
-  function stopRecording() {
-    mediaRecorder.stop();
-  }
+  // function stopRecording() {
+  //   mediaRecorder.stop();
+  // }
   
-  function pauseRecording() {
-    mediaRecorder.pause();
-  }
+  // function pauseRecording() {
+  //   mediaRecorder.pause();
+  // }
   
-  function resumeRecording() {
-    mediaRecorder.resume();
-  }
+  // function resumeRecording() {
+  //   mediaRecorder.resume();
+  // }
   
   
   </script>
