@@ -17,6 +17,12 @@ function getFileType(name){
     if(fileType=='misc') return 'mdi-file';else if(fileType=='audio') return 'mdi-music';else return `mdi-${fileType}`;
   }
 
+  function getFileIcon(fileName){
+    if(fileName=='voice.mp3')return 'mdi-microphone';
+    else if(fileName=='video.mp4')return 'mdi-webcam';
+    else return getIcon(getFileType(fileName));
+  }
+
 
 
 
@@ -38,4 +44,4 @@ function getFileType(name){
     return channelAvatar ? `/api/files/channels/${channelId}/${channelAvatar}` : bellImage;
   }
 
-  export{getFileType, getIcon, getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl}
+  export{getFileType, getIcon, getFileIcon, getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl}

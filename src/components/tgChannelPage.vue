@@ -39,7 +39,7 @@
         closable
         color="var(--tgBrown)"
         close-icon="mdi-delete"
-        :prepend-icon="file.name=='voice.mp3' ? 'mdi-microphone' : getIcon(getFileType(file.name))"
+        :prepend-icon="getFileIcon(file.name)"
         :model-value="true"
       >
         {{ file.name }}
@@ -50,28 +50,29 @@
           <div v-if="subscribed && isOwner" style="padding-bottom:1rem;display:flex">
             <v-btn v-if="!isRecording"
               color="primary"
-              icon="mdi-microphone"
+              :icon="mediaType == 'audio' ? 'mdi-microphone' : 'mdi-webcam'"
               variant="text"
-              @click.stop="()=>{voiceRecorder.startRecording()}"
+              @click.stop="()=>{recorder.startRecording(videoPreview)}"
+              @contextmenu.stop.prevent="if(mediaType == 'audio')mediaType = 'video';else mediaType = 'audio'"
             ></v-btn>
             <div v-else>
               <v-btn
               color="error"
               icon="mdi-stop"
               variant="text"
-              @click.stop="()=>{voiceRecorder.stopRecording()}"
+              @click.stop="()=>{recorder.stopRecording()}"
             ></v-btn>
             <v-btn v-if="isPaused"
               color="success"
               icon="mdi-play"
               variant="text"
-              @click.stop="()=>{voiceRecorder.resumeRecording()}"
+              @click.stop="()=>{recorder.resumeRecording()}"
             ></v-btn>
             <v-btn v-else
               color="warning"
               icon="mdi-pause"
               variant="text"
-              @click.stop="()=>{voiceRecorder.pauseRecording()}"
+              @click.stop="()=>{recorder.pauseRecording()}"
             ></v-btn>
             </div>
           </div>
@@ -102,7 +103,9 @@
       </div>
       <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
   
-      <!-- <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;" color="primary" size="3.5rem" elevation="24" :style="{bottom: (files.length)? '8rem':'5.25rem'}"></v-btn> -->
+
+      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: 50%;"></video>
+
   
   
   </template>
@@ -146,12 +149,15 @@
   
   
   import tgCard from './tgCard.vue';
-  import {getFileType, getIcon} from '@/funcs/commonFuncs'
+  import {getFileType, getIcon, getFileIcon} from '@/funcs/commonFuncs'
   import { subscribe } from '@/funcs/channelFuncs';
 
   import {useOtherStore} from '@/store/otherStore'
 
-  import {VoiceRecorder} from '@/funcs/mediaFuncs'
+  import {VoiceRecorder, VideoRecorder} from '@/funcs/mediaFuncs'
+
+  const videoPreview = ref()
+
 
 
   const {showError} = useOtherStore()
@@ -190,10 +196,8 @@
     files.value=[]
   }
   
-  // const subscribed=computed(()=>!!allChannelsData.value.allMessages[props.channelId].channelRelId)
   const subscribed=inject('subscribed')
   const isOwner=inject('isOwner')
-  // const isOwner=computed(()=>allChannelsData.value.allMessages[props.channelId]?.channel?.owner==pb.authStore.model.id)  
   
   
   const files=ref([]);
@@ -240,11 +244,9 @@
   
   
   const messageGenerator = new ChannelMessageGenerator(props.channelId,props.initMessageId)
-  // await messageGenerator.initializeMessages()
   const owner=await pb.collection('users').getOne(allChannelsData.value.allMessages[props.channelId].channel?.owner);
 
 
-  // initializeChannelMessages(props.channelId,props.initMessageId)
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{channelsContainer.value?.scrollIntoView({block:'center'});}})
  
@@ -261,111 +263,28 @@
   
   
   
-  
-  // async function goToBottom(){
-  //   if(endEnabled.value){
-  //   startEnabled.value=true
-  //   endEnabled.value=false
-  //   allChannelsData.allMessages.value[props.channelId].messages= await getLastChannelMessages(props.channelId)
-  //   isGoToBottom=true
-  //   const date = allChannelsData.allMessages.value[props.channelId].messages.at(-1).created
-  //     if(new Date(allChannelsData.allMessages.value[props.channelId].lastSeen) < new Date(date)){
-  //     allChannelsData.allMessages.value[props.channelId].lastSeen=date;
-  //     pb.collection('channelRels').update(allChannelsData.allMessages.value[props.channelId].channelRelId,{lastseen:date})
-  //     }
-  //   subscribeToNewMessages()
-  //   if(allChannelsData.allMessages.value[props.channelId].messages.length<10)startEnabled.value=false;}
-  //   else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
-  // }
+
   var startScrollTop=0
   
  
   
-  // onUnmounted(()=>updateUnseenCount(props.channelId))
   
 
   
   const isRecording=ref(false);
   const isPaused=ref(false);
-  // var chunks=[];
-  // var mediaRecorder;
+
+  const mediaType=ref('audio');
+
 
   const voiceRecorder = new VoiceRecorder(()=>{isRecording.value=true;isPaused.value=false;},(file)=>{isRecording.value=false;files.value.push(file)},()=>{isPaused.value=false;},()=>{isPaused.value=true;})
 
+  const videoRecorder = new VideoRecorder(()=>{isRecording.value=true;isPaused.value=false;videoPreview.value.style.display='block';},(file)=>{isRecording.value=false;videoPreview.value.srcObject=null;videoPreview.value.style.display='none';files.value.push(file)},()=>{isPaused.value=false;videoPreview.value.style.display='block';},()=>{isPaused.value=true;videoPreview.value.style.display='none';})
   
-  
-  
-  // function startRecording() {
-  //   if (navigator.mediaDevices?.getUserMedia) {
-  //   navigator.mediaDevices
-  //     .getUserMedia(
-  //       {
-  //         audio: true,
-  //       },
-  //     )
-  
-  //     .then((stream) => {
-  //       isRecording.value=true;
-  //       isPaused.value=false;
-  
-  //       mediaRecorder = new MediaRecorder(stream);
-  
-  //       mediaRecorder.onstop = (e) => {
-  //         isRecording.value=false;
-  //         const blob = new Blob(chunks, { type: "audio/mp3; codecs=mp3" });
-  //         const file = new File([blob],'voice.mp3',{ type: 'audio/mp3' })
-  //         files.value.push(file)
-  //   }
-  
-  //   mediaRecorder.onpause = (e) => {
-  //     isPaused.value=true;
-  //   }
-  
-  //   mediaRecorder.onresume = (e) => {
-  //     isPaused.value=false;
-  //   }
-  
-  
-  //       mediaRecorder.ondataavailable = (e) => {
-  //       chunks.push(e.data);
-  // };
-  //   chunks=[];
-  //   mediaRecorder.start();
-  
-  //     })
-  
-  //     .catch((err) => {
-  //       console.error(`The following getUserMedia error occurred: ${err}`);
-  //     });
-  // } else {
-  // }
-  // }
-  
-  // function stopRecording() {
-  //   mediaRecorder.stop();
-  // }
-  
-  // function pauseRecording() {
-  //   mediaRecorder.pause();
-  // }
-  
-  // function resumeRecording() {
-  //   mediaRecorder.resume();
-  // }
+  const recorder = computed(()=>(mediaType.value == 'audio' ? voiceRecorder : videoRecorder))
 
-//   async function subscribe(){
-//   try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":props.channelId},{expand:'mem,channel'});
-//   subscribed.value=true;
-//   const messages=allChannelsData.value.allMessages[props.channelId].messages
-//   const cacheNewMessages=allChannelsData.value.allMessages[props.channelId].cacheNewMessages
-//   allChannelsData.value.allMessages[props.channelId]=new ChannelData(channelRel)
-//   try{
-//     await allChannelsData.value.allMessages[props.channelId].init()
-//   }catch{}
-//   allChannelsData.value.allMessages[props.channelId].messages=messages
-//   allChannelsData.value.allMessages[props.channelId].cacheNewMessages=cacheNewMessages
-// }
-//   catch{}}
+
+  
   
   
   

@@ -25,7 +25,7 @@
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
                 </div>
                 <div style="display: flex;flex-direction: column;gap: 1rem;margin-top: auto;">
-                  <v-btn @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+                <v-btn @click="copy" size="1.5rem" variant="text" :color="copied ? 'success' : 'default'" :icon=" copied ? 'mdi-check' : 'mdi-content-copy'" rounded></v-btn>
                   <v-btn @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>        
                 </div>
       </div>
@@ -41,7 +41,7 @@
                 </div>
                 <div style="display: flex;gap: 1rem;margin-left: auto;">
                   <!-- <v-btn style="margin-top: auto;" @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>     -->
-                  <v-btn @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>    
+                  <v-btn @click="copy" size="1.5rem" variant="text" :color="copied ? 'success' : 'default'" :icon=" copied ? 'mdi-check' : 'mdi-content-copy'" rounded></v-btn>    
                 </div>
       </div>
     
@@ -55,7 +55,7 @@
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
         </div>
         <div style="display: flex;gap: 1rem;margin-left: auto;">
-          <v-btn @click="copy" size="1.5rem" variant="text" icon="mdi-content-copy" rounded></v-btn>
+          <v-btn @click="copy" size="1.5rem" variant="text" :color="copied ? 'success' : 'default'" :icon=" copied ? 'mdi-check' : 'mdi-content-copy'" rounded></v-btn>
           <v-btn @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>    
         </div>
       </div>
@@ -86,9 +86,9 @@
             </div>
           </div>
           <div v-if="props.files.filter(name=>getFileType(name)=='video').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;margin-bottom: 1rem;">
-            <div v-for="file in props.files.filter(name=>getFileType(name)=='video')" :key="file" :id="file">
+            <div v-for="file in props.files.filter(name=>getFileType(name)=='video')" :key="file" :id="file" style="text-align: center;flex-grow: 1;flex-shrink: 0;">
               <v-btn @click="pushDeletingFile(file)" v-if="editMode" rounded variant="text" color="error" icon="mdi-close" size="1.5rem" style="margin-left: 1rem;"></v-btn>
-              <video controls preload="metadata" style="margin: .5rem;height: 8rem;border-radius: .3rem;" :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`" onerror="this.style.display='none'"></video>
+              <video controls preload="metadata" style="margin: .5rem;height: 8rem;border-radius: .3rem;width: calc(100% - 1rem);" :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`" onerror="this.style.display='none'"></video>
             </div>
           </div>
           <div style="display: flex;align-items: center;flex-direction: column;">
@@ -179,6 +179,8 @@
     const addingFiles=ref([]);
     const deletingFiles=ref([]);
     const fileInput=ref()
+
+    const copied = ref(false)
 
     var links = []
 
@@ -277,7 +279,13 @@
     }
 
     async function copy(){
-      try{await navigator.clipboard.writeText(props.text);}catch{}
+      try{
+        await navigator.clipboard.writeText(props.text);
+        copied.value=true;
+        setTimeout(() => {
+          copied.value=false;
+        }, 3000);
+      }catch{}
     }
 
     function reply(){

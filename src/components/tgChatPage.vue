@@ -39,46 +39,46 @@
         closable
         color="var(--tgBrown)"
         close-icon="mdi-delete"
-        :prepend-icon="file.name=='voice.mp3' ? 'mdi-microphone' : getIcon(getFileType(file.name))"
+        :prepend-icon="getFileIcon(file.name)"
         :model-value="true"
       >
         {{ file.name }}
       </v-chip>
         </div>
-  
+
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
           <div style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;">
             <div style="display: flex;flex-shrink: 0;">
               <v-btn v-if="!isRecording"
               color="primary"
-              icon="mdi-microphone"
+              :icon="mediaType == 'audio' ? 'mdi-microphone' : 'mdi-webcam'"
               variant="text"
-              @click.stop="()=>{voiceRecorder.startRecording()}"
+              @click.stop="()=>{recorder.startRecording(videoPreview)}"
+              @contextmenu.stop.prevent="if(mediaType == 'audio')mediaType = 'video';else mediaType = 'audio'"
             ></v-btn>
             <div v-else>
               <v-btn
               color="error"
               icon="mdi-stop"
               variant="text"
-              @click.stop="()=>{voiceRecorder.stopRecording()}"
+              @click.stop="()=>{recorder.stopRecording()}"
             ></v-btn>
             <v-btn v-if="isPaused"
               color="success"
               icon="mdi-play"
               variant="text"
-              @click.stop="()=>{voiceRecorder.resumeRecording()}"
+              @click.stop="()=>{recorder.resumeRecording()}"
             ></v-btn>
             <v-btn v-else
               color="warning"
               icon="mdi-pause"
               variant="text"
-              @click.stop="()=>{voiceRecorder.pauseRecording()}"
+              @click.stop="()=>{recorder.pauseRecording()}"
             ></v-btn>
             </div>
             </div>
             
             <div v-if="replyTo" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
-              <!-- <img v-if="replyToAvatarUrl" :src="replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;"> -->
             <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
             <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
             </div>
@@ -108,8 +108,8 @@
       </div>
       <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
   
-      <!-- <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;" color="primary" size="3.5rem" elevation="24" :style="{bottom: (files.length)? '8rem':'5.25rem'}"></v-btn> -->
   
+      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: 50%;"></video>
   
   </template>
   
@@ -152,13 +152,14 @@
   
   
   import tgCard from './tgCard.vue';
-  import {getFileType, getIcon} from '@/funcs/commonFuncs'
+  import {getFileType, getIcon, getFileIcon} from '@/funcs/commonFuncs'
   import { ChatData } from '@/store/dataModels';
 
   import {useOtherStore} from '@/store/otherStore'
 
-  import {VoiceRecorder} from '@/funcs/mediaFuncs'
+  import {VoiceRecorder, VideoRecorder} from '@/funcs/mediaFuncs'
 
+  const videoPreview = ref()
 
   const {showError} = useOtherStore()
   
@@ -251,13 +252,9 @@
   
   
   const messageGenerator = new ChatMessageGenerator(props.otherId,props.initMessageId)
-  // await messageGenerator.initializeMessages()
-  // const isInRel=computed(()=>!!allChatsData.value.allMessages[props.otherId].relId && !!allChatsData.value.allMessages[props.otherId].backRelId)
-  // const blocked=computed(()=>!allChatsData.value.allMessages[props.otherId].active)
   const isInRel=inject('isInRel')
   const blocked=inject('blocked')
 
-  // initializeChatMessages(props.otherId,props.initMessageId)
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{chatsContainer.value?.scrollIntoView({block:'center'});}})
  
@@ -275,94 +272,25 @@
   
   
   
-  // async function goToBottom(){
-  //   if(endEnabled.value){
-  //   startEnabled.value=true
-  //   endEnabled.value=false
-  //   allChatsData.allMessages.value[props.otherId].messages= await getLastChatMessages(props.otherId)
-  //   isGoToBottom=true
-  //   const date = allChatsData.allMessages.value[props.otherId].messages.at(-1).created
-  //     if(new Date(allChatsData.allMessages.value[props.otherId].lastSeen) < new Date(date)){
-  //     allChatsData.allMessages.value[props.otherId].lastSeen=date;
-  //     pb.collection('rels').update(allChatsData.allMessages.value[props.otherId].relId,{lastseen:date})
-  //     }
-  //   subscribeToNewMessages()
-  //   if(allChatsData.allMessages.value[props.otherId].messages.length<10)startEnabled.value=false;}
-  //   else{scrollable.value.scrollTop=scrollable.value.scrollHeight;showGoToBottom.value=false;}
-  // }
+
   var startScrollTop=0
   
  
   
-  // onUnmounted(()=>updateUnseenCount(props.otherId))
   
 
   
   const isRecording=ref(false);
   const isPaused=ref(false);
-  // var chunks=[];
-  // var mediaRecorder;
+  
+  const mediaType=ref('audio');
   
   const voiceRecorder = new VoiceRecorder(()=>{isRecording.value=true;isPaused.value=false;},(file)=>{isRecording.value=false;files.value.push(file)},()=>{isPaused.value=false;},()=>{isPaused.value=true;})
+
+  const videoRecorder = new VideoRecorder(()=>{isRecording.value=true;isPaused.value=false;videoPreview.value.style.display='block';},(file)=>{isRecording.value=false;videoPreview.value.srcObject=null;videoPreview.value.style.display='none';files.value.push(file)},()=>{isPaused.value=false;videoPreview.value.style.display='block';},()=>{isPaused.value=true;videoPreview.value.style.display='none';})
   
-  
-  // function startRecording() {
-  //   if (navigator.mediaDevices?.getUserMedia) {
-  //   navigator.mediaDevices
-  //     .getUserMedia(
-  //       {
-  //         audio: true,
-  //       },
-  //     )
-  
-  //     .then((stream) => {
-  //       isRecording.value=true;
-  //       isPaused.value=false;
-  
-  //       mediaRecorder = new MediaRecorder(stream);
-  
-  //       mediaRecorder.onstop = (e) => {
-  //         isRecording.value=false;
-  //         const blob = new Blob(chunks, { type: "audio/mp3; codecs=mp3" });
-  //         const file = new File([blob],'voice.mp3',{ type: 'audio/mp3' })
-  //         files.value.push(file)
-  //   }
-  
-  //   mediaRecorder.onpause = (e) => {
-  //     isPaused.value=true;
-  //   }
-  
-  //   mediaRecorder.onresume = (e) => {
-  //     isPaused.value=false;
-  //   }
-  
-  
-  //       mediaRecorder.ondataavailable = (e) => {
-  //       chunks.push(e.data);
-  // };
-  //   chunks=[];
-  //   mediaRecorder.start();
-  
-  //     })
-  
-  //     .catch((err) => {
-  //       console.error(`The following getUserMedia error occurred: ${err}`);
-  //     });
-  // } else {
-  // }
-  // }
-  
-  // function stopRecording() {
-  //   mediaRecorder.stop();
-  // }
-  
-  // function pauseRecording() {
-  //   mediaRecorder.pause();
-  // }
-  
-  // function resumeRecording() {
-  //   mediaRecorder.resume();
-  // }
-  
+  const recorder = computed(()=>(mediaType.value == 'audio' ? voiceRecorder : videoRecorder))
+
+
   
   </script>
