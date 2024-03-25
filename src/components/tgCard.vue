@@ -2,11 +2,11 @@
     <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
 
 
-    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 13rem;display: flex;flex-direction: column;justify-content: space-between;min-height: 15rem;">
+    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 13rem;display: flex;flex-direction: column;justify-content: space-between;gap: .5rem;" class="main" :class="{'expanded' : showActions && props.messageType=='group', 'collapsed' : !showActions}">
     
     
-      <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" @contextmenu.prevent="$emit('userSelect',props.userId)" style="height: 3rem;margin-left: -2rem;margin-top: -2rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-color: var(--tgBrown);border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;">
-        <img style="height: 100%;width: 2.6rem;min-width: 2.6rem;object-fit: cover;border-radius: .3rem;" :src="props.avatar" :style="{borderTopRightRadius : (showName ? '0' : '.3rem'), borderBottomRightRadius : (showName ? '0' : '.3rem')}" alt="">
+      <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" @contextmenu.prevent="$emit('userSelect',props.userId)" style="height: 3.2rem;margin-left: -2.1rem;margin-top: -2.1rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-color: var(--tgBrown);border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;">
+        <img style="height: 100%;width: 2.8rem;min-width: 2.8rem;object-fit: cover;border-radius: .3rem;" :src="props.avatar" :style="{borderTopRightRadius : (showName ? '0' : '.3rem'), borderBottomRightRadius : (showName ? '0' : '.3rem')}" alt="">
         <Transition name="width">
           <span v-show="showName" style="margin-left: 1rem;font-weight: bolder;margin-right: .5rem;overflow-x: hidden;">{{ props.name }}</span>
         </Transition>
@@ -15,7 +15,7 @@
 
 
 
-      <div v-if="props.messageType=='group' && showActions" style="display: flex;justify-content: end;flex-direction: column;position: absolute;bottom: .5rem;left: -1.8rem;justify-content: space-between;height: calc(100% - 2.5rem);">
+      <div v-if="props.messageType=='group' && showActions" style="display: flex;justify-content: end;flex-direction: column;position: absolute;bottom: .5rem;left: -1.65rem;justify-content: space-between;height: calc(100% - 2.5rem);">
                 <div v-if="props.fromYou" style="display: flex;flex-direction: column;gap: 1rem;">
                   <v-btn @click="deleteGroupMessage" size="1.5rem" color="error" variant="text" icon="mdi-delete-forever" rounded></v-btn>
         <div v-if="editMode">
@@ -69,7 +69,7 @@
               color="var(--tgBrown)"
               base-color="var(--tgBrown)"
       ></v-textarea>
-      <div v-else v-show="text" :dir="dir" style="width: 100%;">
+      <div v-if="!editMode && text" :dir="dir" style="width: 100%;">
         <v-card width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
         <template #text>
           <div :innerHTML="text"></div>
@@ -91,13 +91,13 @@
               <video controls preload="metadata" style="margin: .5rem;height: 8rem;border-radius: .3rem;width: calc(100% - 1rem);" :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`" onerror="this.style.display='none'"></video>
             </div>
           </div>
-          <div style="display: flex;align-items: center;flex-direction: column;">
+          <div v-if="props.files.filter(name=>getFileType(name)=='audio').length"  style="display: flex;align-items: center;flex-direction: column;">
             <div style="width: calc(100% - 1rem);display: flex;align-items: center;" v-for="file in props.files.filter(name=>getFileType(name)=='audio')" :key="file" :id="file">
               <v-btn @click="pushDeletingFile(file)" v-if="editMode" variant="text" color="error" icon="mdi-close" size="1.5rem" style="margin-right: .25rem;"></v-btn>
               <audio preload="metadata" style="flex-grow: 1;height: 1.5rem;margin: .25rem;min-width: 10rem;" controls :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`"></audio>
             </div>
           </div>
-          <div style="display: flex;padding: 0;overflow: scroll;white-space: nowrap;margin: auto;width: calc(100% - 1.65rem);">
+          <div v-if="props.files.filter(name=>getFileType(name)=='misc').length"  style="display: flex;padding: 0;overflow: auto;white-space: nowrap;margin: auto;width: calc(100% - 1.65rem);">
             <div style="display: flex;flex-direction: column;width: fit-content;margin-left: -.5rem;" v-for="file in props.files.filter(name=>getFileType(name)=='misc')" :key="file" :id="file">
               <!-- <div style="width: fit-content;"> -->
                 <tg-file-chip :link="`/api/files/${props.messageType}Messages/${props.id}/${file}`" :fileName="file"></tg-file-chip>
@@ -112,7 +112,7 @@
           <div style="display: flex;align-items: center;justify-content: space-between;white-space: 100%;">
             <v-btn @click="fileInput.click()" v-if="editMode" variant="text" color="primary" icon="mdi-plus" rounded></v-btn>
 
-            <div style="overflow: auto;white-space: nowrap;overflow-y: hidden;height: 3.5rem;padding-top: .2rem;">
+            <div style="overflow: auto;white-space: nowrap;overflow-y: hidden;height: fit-content;padding-top: .2rem;">
 
               <v-chip v-for="file in addingFiles" :key="file"
               @click:close="removeFile(file)"
@@ -153,6 +153,37 @@
       margin: 0 !important;
       transform: scaleX(0);
     }
+
+
+
+
+
+    .main:not(.expanded){
+      animation-name: collapse;
+      /* animation-direction: reverse; */
+      animation-duration: 1s;
+      animation-timing-function:ease;
+      animation-fill-mode: forwards;
+    }
+
+    .main.expanded{
+      animation-name: expand;
+      animation-duration: 1s;
+      animation-timing-function:ease;
+      animation-fill-mode: forwards;
+    }
+
+
+@keyframes expand {
+  from {min-height: 0;}
+  to {min-height: 15rem;}
+}
+
+@keyframes collapse {
+  from {min-height: 15rem;}
+  to {min-height: 0;}
+}
+
     </style>
     
     
@@ -166,7 +197,7 @@
 
     const showActions=ref(false)
 
-    const {showError} = useOtherStore()
+    const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
     
     const showName=ref(false)
@@ -212,44 +243,57 @@
 
     
     async function deleteChatMessage(){
+      showProgressBar()
       try{
         await pb.collection('chatMessages').delete(props.id)
       }catch{showError('deleting message failed.')}
+      hideProgressBar()
     }
     async function editChatMessage(){
+      showProgressBar()
       try{
         var formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('chatMessages').update(props.id,formData);
       }catch{showError('editing message failed.')}
       exitFromEditMode()
+      hideProgressBar()
     }
     
     async function deleteGroupMessage(){
+      showProgressBar()
       try{
         await pb.collection('groupMessages').delete(props.id)
       }catch{showError('deleting message failed.')}
+      hideProgressBar()
     }
     async function editGroupMessage(){
+      showProgressBar()
       try{
         var formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('groupMessages').update(props.id,formData);
       }catch{showError('editing message failed.')}
-      exitFromEditMode()    }
+      exitFromEditMode()
+    hideProgressBar()
+  }
     
     async function deleteChannelMessage(){
+      showProgressBar()
       try{
         await pb.collection('channelMessages').delete(props.id)
       }catch{showError('deleting message failed.')}
+      hideProgressBar()
     }
     async function editChannelMessage(){
+      showProgressBar()
       try{
         var formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('channelMessages').update(props.id,formData);
       }catch{showError('editing message failed.')}
       exitFromEditMode()
+      hideProgressBar()
     }
     
     function goToEditMode(){
@@ -266,7 +310,7 @@
       msg.value=props.text
       addingFiles.value=[]
       deletingFiles.value=[]
-      fileInput.value.value=null
+      fileInput.value=null
       editMode.value=false
     }
     

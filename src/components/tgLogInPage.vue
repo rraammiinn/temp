@@ -58,7 +58,7 @@ import {useOtherStore} from '@/store/otherStore'
 import {getUserAvatarUrl} from '@/funcs/commonFuncs';
 
 
-const {showError} = useOtherStore()
+const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 
 const {isLoggedIn} = useAuthStore()

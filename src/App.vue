@@ -22,7 +22,7 @@
 
 
 
-  <v-snackbar v-show="errorVisibility" timeout="3000" color="error" variant="tonal" location="top" width="90vw" style="margin-top: 5rem;"
+  <v-snackbar v-show="errorVisibility" timeout="3000" color="error" variant="elevated" location="top" width="90vw" style="margin-top: 5rem;"
       v-model="errorVisibility"
     >
       {{ errorMessage }}
@@ -30,9 +30,23 @@
       <template v-slot:actions>
         <v-btn
           icon="mdi-close"
-          color="error"
           variant="text"
           @click="errorVisibility = false"
+        >
+        </v-btn>
+      </template>
+    </v-snackbar>
+
+    <v-snackbar v-show="alertVisibility" timeout="3000" :color="alertType" variant="elevated" location="top" width="90vw" style="margin-top: 5rem;"
+      v-model="alertVisibility"
+    >
+      {{ alertMessage }}
+
+      <template v-slot:actions>
+        <v-btn
+          icon="mdi-close"
+          variant="text"
+          @click="alertVisibility = false"
         >
         </v-btn>
       </template>
@@ -60,7 +74,7 @@ import {storeToRefs} from 'pinia'
 import {useSettingsStore} from '@/store/settingsStore'
 import {useOtherStore} from '@/store/otherStore'
 
-const {errorVisibility,errorMessage} = storeToRefs(useOtherStore())
+const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType} = storeToRefs(useOtherStore())
 
 
 

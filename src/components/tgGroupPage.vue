@@ -177,7 +177,7 @@
 
 
 
-  const {showError} = useOtherStore()
+  const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 
   const user=ref()
@@ -226,6 +226,7 @@
   
   
   async function send(){
+    showProgressBar()
     try{
       var formData = new FormData();
       formData.append('from', pb.authStore.model.id)
@@ -250,7 +251,7 @@
       replyToAvatarUrl.value=''
       replyToText.value=''
       files.value=[]
-  
+    hideProgressBar()
   }
   
   const msg=ref('')

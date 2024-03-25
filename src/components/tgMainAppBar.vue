@@ -35,6 +35,7 @@
     import { useOtherStore } from "@/store/otherStore";
 
     const {showMessageSearch : showSearch}=storeToRefs(useOtherStore())
+    const {showProgressBar, hideProgressBar}=useOtherStore()
 
     const drawer=inject('drawer')
     // const showSearch=ref(false)

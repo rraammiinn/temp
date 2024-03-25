@@ -142,6 +142,8 @@ async function subscribe(channelId){
     pb.collection('channelMembers').delete(useDataStore().allChannelsData.allMessages[channelId].channelRelId)
     useDataStore().allChannelsData.channelRels = useDataStore().allChannelsData.channelRels.filter(channelRel=>channelRel.channel!=channelId)
     useDataStore().allChannelsData.allMessages[channelId].channelRelId=null
+    useDataStore().allChannelsData.allMessages[channelId].active=false
+  
   }
   
   

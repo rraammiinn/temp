@@ -41,6 +41,7 @@ import {getUserAvatarUrl} from '@/funcs/commonFuncs';
 
 
 const {showUserSearch}=storeToRefs(useOtherStore())
+const {showProgressBar, hideProgressBar}=useOtherStore()
 
 const {allChatsData,contacts,users}=storeToRefs(useDataStore())
 

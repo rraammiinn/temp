@@ -72,7 +72,7 @@
 
 
 
-  const {showError} = useOtherStore()
+  const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
   // const{updateContacts}=useDataStore()
   const{contacts,users}=storeToRefs(useDataStore())

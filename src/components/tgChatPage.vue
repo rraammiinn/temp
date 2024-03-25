@@ -161,7 +161,7 @@
 
   const videoPreview = ref()
 
-  const {showError} = useOtherStore()
+  const {showError, showProgressBar, hideProgressBar} = useOtherStore()
   
   
   const{updateUnseenCount}=useDataStore()
@@ -202,6 +202,7 @@
   
   
   async function send(){
+    showProgressBar()
     try{
       if(!isInRel.value){
       var rel,backRel;
@@ -231,7 +232,7 @@
       replyToAvatarUrl.value=''
       replyToText.value=''
       files.value=[]
-  
+    hideProgressBar()
   }
   
   const msg=ref('')

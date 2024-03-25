@@ -28,6 +28,7 @@ import { storeToRefs } from "pinia";
 import { useOtherStore } from "@/store/otherStore";
 
 const {showChannelSearch : showSearch}=storeToRefs(useOtherStore())
+const{showProgressBar, hideProgressBar}=useOtherStore()
 // const showSearch=ref(false)
 const channelSearch=inject('channelSearch')
 const input=ref()

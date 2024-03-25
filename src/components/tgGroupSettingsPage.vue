@@ -55,7 +55,7 @@
                     <v-btn @click="isActive.value = false" variant="outlined">
                         cancel
                     </v-btn>
-                    <v-btn @click="deleteGroup" color="error" variant="elevated">
+                    <v-btn @click="async()=>{await deleteGroup();isActive.value = false;}" color="error" variant="elevated">
                         delete
                     </v-btn>
                 </v-card-actions>
@@ -90,7 +90,7 @@ import {useOtherStore} from '@/store/otherStore'
 import {getGroupAvatarUrl} from '@/funcs/commonFuncs';
 
 
-const {showError} = useOtherStore()
+const {showError, showAlert, showProgressBar, hideProgressBar} = useOtherStore()
 
 const {allGroupsData}=storeToRefs(useDataStore())
 const router=useRouter()
@@ -111,24 +111,29 @@ const about =ref(allGroupsData.value.allMessages[props.groupId].group.about)
 
 
 async function upload_(){
+    showProgressBar()
     try{
-
+        var formData = new FormData();
+        formData.append('avatar', fileInput.value.files[0]);
+        await pb.collection('groups').update(props.groupId, formData);
+        await allGroupsData.value.allMessages[props.groupId].updateGroup()
+        showAlert('new avatar uploaded successfully', 'success')
     }catch{showError('uploading avatar failed.')}
-    var formData = new FormData();
-    formData.append('avatar', fileInput.value.files[0]);
-    await pb.collection('groups').update(props.groupId, formData);
-    await allGroupsData.value.allMessages[props.groupId].updateGroup()
+    hideProgressBar()
 
 }
 
 
 
 async function change(){
+    showProgressBar()
     try{
-
+        await pb.collection('groups').update(props.groupId, {'name':name.value, 'about':about.value});
+        await allGroupsData.value.allMessages[props.groupId].updateGroup()
+        showAlert('changes applied successfully', 'success')
     }catch{showError('changing group name and about failed.')}
-    await pb.collection('groups').update(props.groupId, {'name':name.value, 'about':about.value});
-    await allGroupsData.value.allMessages[props.groupId].updateGroup()
+    hideProgressBar()
+    
 }
 
 function cancel(){
@@ -138,10 +143,12 @@ function cancel(){
 
 
 async function deleteGroup(){
+    showProgressBar()
     try{
-
+        await pb.collection('groups').delete(props.groupId)
+        router.go(-(router.options.history.state.position - 1))
+        showAlert('group deleted successfully', 'success')
     }catch{showError('deleting group failed.')}
-    await pb.collection('groups').delete(props.groupId)
-    router.back()
+    hideProgressBar()
 }
 </script>

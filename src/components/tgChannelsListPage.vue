@@ -8,10 +8,11 @@
               subtitle=""
             >
             <template v-slot:append>
-            <v-btn @click="$router.push({name:'channelSettings', params:{channelId:channel.id}})" v-if="channel.owner == pb.authStore.model.id"
+            <v-btn v-if="channel.owner == pb.authStore.model.id"
               color="primary"
               icon="mdi-tune"
               variant="text"
+              @click.stop="$router.push({name:'channelSettings', params:{channelId:channel.id}})"
             ></v-btn>
             <v-btn v-if="channelIds.includes(channel.id)"
               color="error"
@@ -38,11 +39,11 @@
               subtitle=""
             >
             <template v-slot:append>
-            <v-btn @click="$router.push({name:'channelSettings', params:{channelId:channelRel.channel}})" v-if="channelRel.expand.channel.owner == pb.authStore.model.id"
+            <v-btn v-if="channelRel.expand.channel.owner == pb.authStore.model.id"
               color="primary"
               icon="mdi-tune"
               variant="text"
-              @click.stop=""
+              @click.stop="$router.push({name:'channelSettings', params:{channelId:channelRel.channel}})"
             ></v-btn>
             <v-btn
               color="error"
@@ -82,7 +83,7 @@
   import {getChannelAvatarUrl} from '@/funcs/commonFuncs';
 
 
-  const {showError} = useOtherStore()
+  const {showError, showProgressBar, hideProgressBar} = useOtherStore()
   
   const{updateChannelRels}=useDataStore()
   const{allChannelsData, searchedChannels}=storeToRefs(useDataStore())

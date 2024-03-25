@@ -160,7 +160,7 @@
 
 
 
-  const {showError} = useOtherStore()
+  const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
   
   
@@ -205,6 +205,7 @@
   
   
   async function send(){
+    showProgressBar()
     try{
       if(!isOwner.value){
       return;
@@ -225,7 +226,7 @@
 
       msg.value=''
       files.value=[]
-  
+    hideProgressBar()
   }
   
   const msg=ref('')

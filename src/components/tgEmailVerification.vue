@@ -20,7 +20,7 @@ import { useRouter } from 'vue-router';
 
 import {useOtherStore} from '@/store/otherStore'
 
-const {showError} = useOtherStore()
+const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 const router=useRouter()
 const {updateLogInState,updateAuthData}=useAuthStore()

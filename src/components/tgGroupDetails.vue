@@ -100,7 +100,7 @@
     import {getUserAvatarUrl, getGroupAvatarUrl} from '@/funcs/commonFuncs';
 
 
-    const {showError} = useOtherStore()
+    const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
     const{contacts}=storeToRefs(useDataStore())
     

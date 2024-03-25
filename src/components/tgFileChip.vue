@@ -1,7 +1,7 @@
 <template>
-    <v-chip @click.stop="()=>{}" style="margin: .5rem;width: fit-content;" color="primary">
+    <v-chip @click.stop="()=>{}" style="margin: .5rem;width: fit-content;" color="primary" class="tg-file-chip" :class="{'expanded' : showName}">
     <template #prepend>
-        <a style="text-decoration: none;" :download="props.fileName.slice(0,props.fileName.lastIndexOf('.')-11)+props.fileName.slice(props.fileName.lastIndexOf('.'))" :href="props.link">
+        <a style="all:unset" :download="props.fileName.slice(0,props.fileName.lastIndexOf('.')-11)+props.fileName.slice(props.fileName.lastIndexOf('.'))" :href="props.link">
         <v-icon icon="mdi-file"></v-icon>
         </a>
         </template>
@@ -11,6 +11,7 @@
             {{ lable }}
             </v-chip>
 </template>
+
 
 <script setup>
 import { ref, defineProps, computed } from "vue";

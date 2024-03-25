@@ -55,7 +55,7 @@
                     <v-btn @click="isActive.value = false" variant="outlined">
                         cancel
                     </v-btn>
-                    <v-btn @click="deleteChannel" color="error" variant="elevated">
+                    <v-btn @click="async()=>{await deleteChannel();isActive.value = false;}" color="error" variant="elevated">
                         delete
                     </v-btn>
                 </v-card-actions>
@@ -92,7 +92,7 @@ import {useOtherStore} from '@/store/otherStore'
 import {getChannelAvatarUrl} from '@/funcs/commonFuncs';
 
 
-const {showError} = useOtherStore()
+const {showError, showAlert, showProgressBar, hideProgressBar} = useOtherStore()
 
 const {allChannelsData}=storeToRefs(useDataStore())
 const router=useRouter()
@@ -111,12 +111,15 @@ const about =ref(allChannelsData.value.allMessages[props.channelId].channel.abou
 
 
 async function upload_(){
+    showProgressBar()
     try{
         var formData = new FormData();
-    formData.append('avatar', fileInput.value.files[0]);
-    await pb.collection('channels').update(props.channelId, formData);
-    await allChannelsData.value.allMessages[props.channelId].updateChannel()
+        formData.append('avatar', fileInput.value.files[0]);
+        await pb.collection('channels').update(props.channelId, formData);
+        await allChannelsData.value.allMessages[props.channelId].updateChannel()
+        showAlert('new avatar uploaded successfully', 'success')
     }catch{showError('uploading avatar failed.')}
+    hideProgressBar()
 
 
 }
@@ -124,10 +127,13 @@ async function upload_(){
 
 
 async function change(){
+    showProgressBar()
     try{
         await pb.collection('channels').update(props.channelId, {'name':name.value, 'about':about.value});
-    await allChannelsData.value.allMessages[props.channelId].updateChannel()
+        await allChannelsData.value.allMessages[props.channelId].updateChannel()
+        showAlert('changes applied successfully', 'success')
     }catch{showError('changing channel name and about failed.')}
+    hideProgressBar()
 
 }
 
@@ -138,10 +144,13 @@ function cancel(){
 
 
 async function deleteChannel(){
+    showProgressBar()
     try{
         await pb.collection('channels').delete(props.channelId)
-    router.back()
+        router.go(-(router.options.history.state.position - 1))
+        showAlert('channel deleted successfully', 'success')
     }catch{showError('deleting channel failed.')}
+    hideProgressBar()
 
 }
 </script>

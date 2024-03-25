@@ -149,6 +149,7 @@ class ChannelData{
         this.cacheNewMessages=false
         this.lastSeen=channelRel?.lastseen || 0
         this.channelRelId=channelRel?.id
+        this.active=true
         this.messagesType='channel'
     }
 

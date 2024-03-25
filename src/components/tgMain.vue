@@ -4,6 +4,12 @@
       <v-layout>
         <v-app-bar prominent style="position: fixed;">
           <slot name="appBar"></slot>
+          <v-progress-linear
+      color="primary"
+      indeterminate
+      style="z-index: 99999;position: absolute;top: unset;bottom: 0;"
+      v-show="progressBarVisibility"
+    ></v-progress-linear>
         </v-app-bar>
   
         <v-navigation-drawer
@@ -27,8 +33,14 @@
   
   <script setup>
     import { inject } from 'vue';
+    import { storeToRefs } from 'pinia';
 
     import tgSideBarItems from './tgSideBarItems.vue';
+
+    import { useOtherStore } from '@/store/otherStore';
+
+    const {progressBarVisibility} = storeToRefs(useOtherStore())
+    const {showProgressBar, hideProgressBar}=useOtherStore()
 
     const drawer=inject('drawer')
   </script>

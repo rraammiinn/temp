@@ -28,6 +28,7 @@ import { storeToRefs } from "pinia";
 import { useOtherStore } from "@/store/otherStore";
 
 const {showGroupSearch : showSearch}=storeToRefs(useOtherStore())
+const {showProgressBar, hideProgressBar}=useOtherStore()
 // const showSearch=ref(false)
 const groupSearch=inject('groupSearch')
 const input=ref()

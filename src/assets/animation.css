@@ -274,4 +274,50 @@
 
 
 
+
+
+
+
+  .tg-file-chip:not(.expanded) .v-chip__content{
+    animation-name: collapse-width;
+    /* animation-direction: reverse; */
+    animation-duration: 1s;
+    animation-timing-function:ease;
+    animation-fill-mode: forwards;
+  }
+
+  .tg-file-chip.expanded .v-chip__content{
+    animation-name: expand-width;
+    animation-duration: 1s;
+    animation-timing-function:ease;
+    animation-fill-mode: forwards;
+  }
+
+
+@keyframes expand-width {
+from {max-width: 0;}
+to {max-width: 10rem;}
+}
+
+@keyframes collapse-width {
+from {width: 1rem;}
+to {width: 0;}
+}
+
+
+
+
   
+
+
+.pop-enter-active,
+.pop-leave-active {
+  transition: all .5s cubic-bezier(1,0.0,.5,2)
+}
+
+.pop-enter-from,
+.pop-leave-to{
+  transform: translateY(5rem);
+  /* position: fixed; */
+  /* top: 0; */
+}

@@ -71,7 +71,7 @@ import {useOtherStore} from '@/store/otherStore'
 import {getUserAvatarUrl} from '@/funcs/commonFuncs';
 
 
-const {showError} = useOtherStore()
+const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 
 const router=useRouter()
@@ -104,6 +104,7 @@ const bio =ref(authData.value?.bio)
 
 
 async function upload_(){
+    showProgressBar()
     try{
 
     }catch{showError('uploading avatar failed.')}
@@ -111,17 +112,20 @@ async function upload_(){
     formData.append('avatar', fileInput.value.files[0]);
     await pb.collection('users').update(authData.value.id, formData);
     updateAuthData()
+    hideProgressBar()
 
 }
 
 
 
 async function change(){
+    showProgressBar()
     try{
 
     }catch{showError('changing name and bio failed.')}
     await pb.collection('users').update(authData.value.id, {'name':name.value, 'bio':bio.value});
     updateAuthData()
+    hideProgressBar()
 }
 
 function cancel(){
