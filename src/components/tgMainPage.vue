@@ -31,19 +31,19 @@
 <v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
 
 <template v-for="messages in allMessagesSorted">
-    <v-list-item @contextmenu.prevent="sheetId=messages.other.id;chatSheet=true;" v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active && messages.other.id != pb.authStore.model.id" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
+    <v-list-item @contextmenu.prevent="shareId=messages.other.id;showChatSheet=true;" v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active && messages.other.id != pb.authStore.model.id" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
     :prepend-avatar="getUserAvatarUrl(messages.other.id, messages.other.avatar)"
     :title="messages.other.name"
     :subtitle="messages.lastMessage.text"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
   
-  <v-list-item @contextmenu.prevent="sheetId=messages.group.id;groupSheet=true;" v-if="messages.lastMessage && messages.messagesType=='group' && messages.active" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
+  <v-list-item @contextmenu.prevent="shareId=messages.group.id;showGroupSheet=true;" v-if="messages.lastMessage && messages.messagesType=='group' && messages.active" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
     :prepend-avatar="getGroupAvatarUrl(messages.group.id, messages.group.avatar)"
     :title="messages.group.name"
     :subtitle="`${allGroupsData.allMessages[messages.lastMessage.group].groupMems[messages.lastMessage.from]?.name} : ${messages.lastMessage.text}`"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
 
-  <v-list-item @contextmenu.prevent="sheetId=messages.channel.id;channelSheet=true;" v-if="messages.lastMessage && messages.messagesType=='channel' && messages.active" class="listItem" @click="$router.push({name:'channel',params:{channelId:messages.channel.id},query:{showChannel:false}})"
+  <v-list-item @contextmenu.prevent="shareId=messages.channel.id;showChannelSearch=true;" v-if="messages.lastMessage && messages.messagesType=='channel' && messages.active" class="listItem" @click="$router.push({name:'channel',params:{channelId:messages.channel.id},query:{showChannel:false}})"
     :prepend-avatar="getChannelAvatarUrl(messages.channel.id, messages.channel.avatar)"
     :title="messages.channel.name"
     :subtitle="`${messages.lastMessage.text}`"
@@ -83,26 +83,31 @@
 
 
 
-  <v-bottom-sheet v-model="chatSheet">
+  <v-bottom-sheet v-model="showChatSheet">
         <div style="width: 100%;">
-          <v-btn @click="block(sheetId);chatSheet=false;" width="100%" height="3rem" color="error" style="border-radius: 0;border-top-left-radius: .25rem;border-top-right-radius: .25rem;display: flex;justify-content: space-between;" prepend-icon="mdi-power-off">block</v-btn>
-        <v-btn style="border-radius: 0;" width="100%" prepend-icon="mdi-close" @click="chatSheet=false">close</v-btn>
+          <v-btn @click="block(shareId);showChatSheet=false;" width="100%" height="3rem" color="error" style="border-radius: 0;border-top-left-radius: .25rem;border-top-right-radius: .25rem;display: flex;justify-content: space-between;" prepend-icon="mdi-power-off">block</v-btn>
+          <v-btn @click="showChatSheet=false;showShareSheet=true;shareType='chat'" width="100%" height="3rem" color="primary" style="display: flex;justify-content: space-between;border-radius: 0;" prepend-icon="mdi-share-all">share</v-btn>
+        <v-btn style="border-radius: 0;" width="100%" prepend-icon="mdi-close" height="3rem" @click="showChatSheet=false">close</v-btn>
         </div>
   </v-bottom-sheet>
 
-  <v-bottom-sheet v-model="groupSheet">
+  <v-bottom-sheet v-model="showGroupSheet">
         <div style="width: 100%;">
-          <v-btn @click="leave(sheetId);groupSheet=false;" width="100%" height="3rem" color="error" style="border-radius: 0;border-top-left-radius: .25rem;border-top-right-radius: .25rem;display: flex;justify-content: space-between;" prepend-icon="mdi-logout">leave</v-btn>
-        <v-btn style="border-radius: 0;" width="100%" prepend-icon="mdi-close" @click="groupSheet=false">close</v-btn>
+          <v-btn @click="leave(shareId);showGroupSheet=false;" width="100%" height="3rem" color="error" style="border-radius: 0;border-top-left-radius: .25rem;border-top-right-radius: .25rem;display: flex;justify-content: space-between;" prepend-icon="mdi-logout">leave</v-btn>
+          <v-btn @click="showGroupSheet=false;showShareSheet=true;shareType='group'" width="100%" height="3rem" color="primary" style="display: flex;justify-content: space-between;border-radius: 0;" prepend-icon="mdi-share-all">share</v-btn>
+        <v-btn style="border-radius: 0;" width="100%" prepend-icon="mdi-close" height="3rem" @click="showGroupSheet=false">close</v-btn>
         </div>
   </v-bottom-sheet>
 
-  <v-bottom-sheet v-model="channelSheet">
+  <v-bottom-sheet v-model="showChannelSearch">
         <div style="width: 100%;">
-          <v-btn @click="unsubscribe(sheetId);channelSheet=false;" width="100%" height="3rem" color="error" style="border-radius: 0;border-top-left-radius: .25rem;border-top-right-radius: .25rem;display: flex;justify-content: space-between;" prepend-icon="mdi-logout">unsubscribe</v-btn>
-        <v-btn style="border-radius: 0;" width="100%" prepend-icon="mdi-close" @click="channelSheet=false">close</v-btn>
+          <v-btn @click="unsubscribe(shareId);showChannelSearch=false;" width="100%" height="3rem" color="error" style="border-radius: 0;border-top-left-radius: .25rem;border-top-right-radius: .25rem;display: flex;justify-content: space-between;" prepend-icon="mdi-logout">unsubscribe</v-btn>
+          <v-btn @click="showChannelSearch=false;showShareSheet=true;shareType='channel'" width="100%" height="3rem" color="primary" style="display: flex;justify-content: space-between;border-radius: 0;" prepend-icon="mdi-share-all">share</v-btn>
+        <v-btn style="border-radius: 0;" width="100%" prepend-icon="mdi-close" height="3rem" @click="showChannelSearch=false">close</v-btn>
         </div>
   </v-bottom-sheet>
+
+
 
   </template>
 
@@ -140,7 +145,7 @@
   import { subscribe, unsubscribe } from '@/funcs/channelFuncs';
   import { block } from '@/funcs/chatFuncs';
 
-  import { ref, inject, watchEffect, onMounted, onBeforeUnmount, onUpdated, onBeforeMount } from 'vue';
+  import { ref, inject, onMounted } from 'vue';
   import tgCreateGroupForm from './tgCreateGroupForm.vue';
   import tgCreateChannelForm from './tgCreateChannelForm.vue'
   import {storeToRefs} from 'pinia'
@@ -151,11 +156,13 @@
   import {getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl} from '@/funcs/commonFuncs';
 
 
-  const chatSheet = ref(false)
-  const groupSheet = ref(false)
-  const channelSheet = ref(false)
+  const showChatSheet = ref(false)
+  const showGroupSheet = ref(false)
+  const showChannelSearch = ref(false)
 
-  const sheetId = ref()
+
+
+  const {showShareSheet, shareId, shareType, shareMessage, shareSelectedList} = storeToRefs(useOtherStore())
 
 
   const {showError, showAlert, showProgressBar, hideProgressBar} = useOtherStore()
@@ -166,7 +173,6 @@
 
 
   const searchMessage=inject('searchMessage')
-  // const searchMessageResults=ref([])
 
   const newGroup=ref({})
   const newChannel=ref({})
@@ -179,16 +185,12 @@ const showChannelCreationForm=ref(false)
 
   var startScrollTop=0
 
-// watchEffect(async ()=>{
-//   if(searchMessage.value){
-//     searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
-//     ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
-//     ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
-//   }
-// })
+
 
 const showActionButton=ref(true)
 const showActionButtonItems=ref(false)
+
+
 
 
 async function createNewGroup(){
@@ -204,7 +206,6 @@ if(newGroup.value.avatar?.[0])formData.append('avatar',newGroup.value.avatar[0])
 
 const record = await pb.collection('groups').create(formData);
 
-// await pb.collection('groupMembers').create({mem:pb.authStore.model.id,group:record.id})
 await join(record.id)
 newGroup.value={}
 showGroupCreationForm.value=false
@@ -238,7 +239,6 @@ hideProgressBar()
 }
 
 
-// const allMessagesSorted=inject('allMessagesSorted')
 
 function changeActionButtonVisibility(e){
   showActionButton.value = startScrollTop > e.target.scrollTop;startScrollTop=e.target.scrollTop;showActionButtonItems.value=false;

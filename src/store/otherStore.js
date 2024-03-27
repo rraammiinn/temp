@@ -22,14 +22,34 @@ export const useOtherStore = defineStore('other',{
          showChannelSearch:'',
 
          searchMessage:'',
-         showMessageSearch:''
+         showMessageSearch:'',
+
+
+
+
+
+        showShareSheet : false,
+
+        shareSelectedList : [],
+        shareType : '',
+        shareMessage : '',
+
+        shareId : ''
         }),
     actions:{
         showError(errorMessage){this.errorMessage=errorMessage;this.errorVisibility=true;},
         showAlert(alertMessage, alertType){this.alertMessage=alertMessage;this.alertType=alertType;this.alertVisibility=true;},
 
         showProgressBar(){this.progressBarVisibility=true},
-        hideProgressBar(){this.progressBarVisibility=false}
+        hideProgressBar(){this.progressBarVisibility=false},
+
+        async share(){
+            this.showProgressBar()
+            try{
+              await Promise.allSettled(this.shareSelectedList.map(i=>pb.collection(`${i.receiverType}Messages`).create({from:pb.authStore.model.id, to:i.id, group:i.id, channel:i.id, text:`${this.shareMessage}\ntg-${this.shareType}-link/${this.shareType}/${this.shareId}?showUser=true&showGroup=true&showChannel=true`})))
+            }catch{}
+            this.hideProgressBar()
+          }
     },
     getters:{
     }

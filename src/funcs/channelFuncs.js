@@ -139,7 +139,7 @@ async function subscribe(channelId){
 
 
   async function unsubscribe(channelId){
-    pb.collection('channelMembers').delete(useDataStore().allChannelsData.allMessages[channelId].channelRelId)
+    await pb.collection('channelMembers').delete(useDataStore().allChannelsData.allMessages[channelId].channelRelId)
     useDataStore().allChannelsData.channelRels = useDataStore().allChannelsData.channelRels.filter(channelRel=>channelRel.channel!=channelId)
     useDataStore().allChannelsData.allMessages[channelId].channelRelId=null
     useDataStore().allChannelsData.allMessages[channelId].active=false

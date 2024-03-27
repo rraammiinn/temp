@@ -170,13 +170,13 @@ async function leave(groupId){
 async function blockMember(groupId,memberId){
   var formData = new FormData();
   formData.append("blocklist+", memberId)
-  pb.collection('groups').update(groupId,formData)
+  await pb.collection('groups').update(groupId,formData)
 }
 
 async function unBlockMember(groupId,memberId){
   var formData = new FormData();
   formData.append("blocklist-", memberId)
-  pb.collection('groups').update(groupId,formData)
+  await pb.collection('groups').update(groupId,formData)
 }
 
 

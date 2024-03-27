@@ -51,6 +51,27 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+
+
+
+    <v-bottom-sheet class="share-sheet" v-model="showShareSheet">
+        <div style="width: 100%;">
+          <v-list max-height="50dvh" style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;">
+
+            <template v-for="sendable in allSendables.filter(i => i.id != shareId)">
+              <v-list-item :prepend-avatar="getAvatarUrl(sendable.id,sendable.subject.avatar,sendable.receiverType)" :title="sendable.subject.name">
+                <template v-slot:append><v-checkbox :value="sendable" v-model="shareSelectedList"></v-checkbox></template>
+              </v-list-item>
+            </template>
+
+          </v-list>
+          <v-textarea v-model="shareMessage" class="share-text" variant="outlined" dir="auto" no-resize bg-color="var(--tgBg)" rows="1" :rounded="false" base-color="var(--tgBrown)" label="message" shaped style="border-radius: 0;background-color: var(--tgBg);"></v-textarea>
+        <v-btn style="border-radius: 0;" width="50%" prepend-icon="mdi-close" color="error" @click="showShareSheet=false;shareSelectedList=[];shareMessage='';">close</v-btn>
+        <v-btn style="border-radius: 0;" width="50%" prepend-icon="mdi-share-all" color="primary" @click="async()=>{showShareSheet=false;await share();shareSelectedList=[];shareMessage='';}">share</v-btn>
+        </div>
+  </v-bottom-sheet>
+
     </v-main>
   </v-app>
 
@@ -74,7 +95,15 @@ import {storeToRefs} from 'pinia'
 import {useSettingsStore} from '@/store/settingsStore'
 import {useOtherStore} from '@/store/otherStore'
 
-const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType} = storeToRefs(useOtherStore())
+import {useDataStore} from '@/store/dataStore'
+
+
+import {getAvatarUrl} from '@/funcs/commonFuncs';
+
+
+const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType, showShareSheet, shareId, shareType, shareMessage, shareSelectedList} = storeToRefs(useOtherStore())
+const {share} = useOtherStore()
+const{allSendables}=storeToRefs(useDataStore())
 
 
 

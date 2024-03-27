@@ -140,12 +140,12 @@ class ChatMessageGenerator{
 
 
   async function block(userId){
-    pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":false})
+    await pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":false})
     useDataStore().allChatsData.allMessages[userId].active=false
   }
 
   async function unblock(userId){
-    pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":true})
+    await pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":true})
     useDataStore().allChatsData.allMessages[userId].active=true
   }
 

@@ -21,6 +21,7 @@ class ChatData{
         this.cacheNewMessages=false
         this.isOnline=this.other.online
         this.active=rel?.active
+        this.backActive=backRel?.active
         this.messagesType='chat'
     }
 
@@ -56,7 +57,7 @@ class AllChatsData{
     async updateUnseenCount(id){await this.allMessages[id].updateUnseenCount()}
     async updateRels(){this.rels=await pb.collection('rels').getFullList({
         expand:'follower,following'
-    });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id && rel.active);}
+    });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id);}
 
     async updateAllMessages(){
         await Promise.allSettled(this.rels.map((rel)=>{

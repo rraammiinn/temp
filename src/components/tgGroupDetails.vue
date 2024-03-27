@@ -3,9 +3,13 @@
     <div style="width: 100vw;height: 100dvh;background-color: var(--tgBg);z-index: 900;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 4.1rem;">
         <div class="main">
             <img style="width: 100%;" :src="getGroupAvatarUrl(props.group.id, props.group.avatar)" alt="">
-            <div style="width: 100%;margin-bottom: 1rem;">
-                <v-btn @click="showGroup=false;showUser=false;" icon="mdi-message" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
+            <div style="width: 100%;margin-bottom: 1rem;display: flex;justify-content: space-between;padding: 1rem;margin-top: -3rem;align-items: center;">
+            <div style="display: flex;justify-content: space-between;gap: 1rem;align-items: center;">
+                <v-btn @click="shareType='group';shareId=props.group.id;showShareSheet=true;" icon="mdi-share-all" style="width: 1.5rem;height: 1.5rem;font-size: .5rem"></v-btn>
+                <v-btn @click="copyLink" :color="copied ? 'success' : 'default'" :icon=" copied ? 'mdi-check' : 'mdi-content-copy'" style="width: 1.5rem;height: 1.5rem;font-size: .5rem"></v-btn>
             </div>
+            <v-btn @click="showGroup=false;showUser=false;" icon="mdi-message"></v-btn>
+        </div>
             <v-col style="padding: 1rem;">
                 <div style="margin-bottom: 1.5rem;">
                     <h3>{{props.group.name}}</h3><h5 style="opacity: .5;">group name</h5>
@@ -100,6 +104,11 @@
     import {getUserAvatarUrl, getGroupAvatarUrl} from '@/funcs/commonFuncs';
 
 
+
+    const {showShareSheet, shareId, shareType} = storeToRefs(useOtherStore())
+
+
+
     const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
     const{contacts}=storeToRefs(useDataStore())
@@ -108,6 +117,17 @@
     const showGroup=inject('showGroup')
     const showUser=inject('showUser')
 
+    const copied = ref(false)
+
+    async function copyLink(){
+          try{
+            await navigator.clipboard.writeText(window.location);
+            copied.value=true;
+            setTimeout(() => {
+              copied.value=false;
+            }, 3000);
+          }catch{}
+        }
     
     
     </script>

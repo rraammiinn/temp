@@ -91,7 +91,18 @@ export const useDataStore = defineStore('data',{
             ...state.allChatsData.allMessages,
             ...state.allGroupsData.allMessages,
             ...state.allChannelsData.allMessages
-        }).sort((a,b)=>new Date(b[1].lastMessage?.created).getTime()-new Date(a[1].lastMessage?.created).getTime()))
+        }).sort((a,b)=>new Date(b[1].lastMessage?.created).getTime()-new Date(a[1].lastMessage?.created).getTime())),
+
+        allSendables(state){
+            const contacts = Object.keys(state.contacts).map(i=>({receiverType:'chat',subject:state.contacts[i] , id:i}))
+            const chats = Object.values(state.allChatsData.allMessages).filter(i=>!Object.keys(state.contacts).includes(i.other.id)).filter(i=>i.backActive).map(i=>({receiverType:'chat',subject:i.other , id:i.other.id}))
+            const groups = Object.values(state.allGroupsData.allMessages).filter(i=>i.active).map(i=>({receiverType:'group',subject:i.group , id:i.group.id}))
+            const channels = Object.values(state.allChannelsData.allMessages).filter(i=>i.channel.owner == pb.authStore.model.id).map(i=>({receiverType:'channel',subject:i.channel , id:i.channel.id}))
+
+            return[...contacts, ...chats, ...groups, ...channels]
+        },
+
+        all:(state)=>({...Object.fromEntries(Object.keys(state.contacts).map(i=>([i,{other:state.contacts[i], about:state.contacts[i].bio}]))), ...Object.fromEntries(Object.keys(state.allChatsData.allMessages).map(i=>([i,{other:state.allChatsData.allMessages[i].other, about:state.allChatsData.allMessages[i].other.bio}]))), ...Object.fromEntries(Object.keys(state.allGroupsData.allMessages).map(i=>([i,{other:state.allGroupsData.allMessages[i].group, about:state.allGroupsData.allMessages[i].group.about}]))), ...Object.fromEntries(Object.keys(state.allChannelsData.allMessages).map(i=>([i,{other:state.allChannelsData.allMessages[i].channel, about:state.allChannelsData.allMessages[i].channel.about}])))})
     }
 }
 )

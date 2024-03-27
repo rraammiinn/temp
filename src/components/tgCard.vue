@@ -40,7 +40,6 @@
         <v-btn v-else @click="goToEditMode" size="1.5rem" variant="text" icon="mdi-pen" rounded></v-btn>
                 </div>
                 <div style="display: flex;gap: 1rem;margin-left: auto;">
-                  <!-- <v-btn style="margin-top: auto;" @click="reply" size="1.5rem" variant="text" icon="mdi-reply" rounded></v-btn>     -->
                   <v-btn @click="copy" size="1.5rem" variant="text" :color="copied ? 'success' : 'default'" :icon=" copied ? 'mdi-check' : 'mdi-content-copy'" rounded></v-btn>    
                 </div>
       </div>
@@ -69,11 +68,41 @@
               color="var(--tgBrown)"
               base-color="var(--tgBrown)"
       ></v-textarea>
-      <div v-if="!editMode && text" :dir="dir" style="width: 100%;">
+      <div v-if="!editMode && text && !(shareChatId || shareGroupId || shareChannelId)" :dir="dir" style="width: 100%;">
         <v-card width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
         <template #text>
           <div :innerHTML="text"></div>
-          <!-- <span dir="auto" style="display: block;min-height: 1rem;" v-for="(line,index) in textLines" :id="`${props.id}-line-${index+1}`">{{ line }}</span> -->
+        </template>
+        </v-card>
+      </div>
+
+
+      <div v-if="!editMode && shareChat" :dir="dir" style="width: 100%;">
+        <v-card :prepend-avatar="getUserAvatarUrl(shareChat.id, shareChat.avatar)" :title="shareChat.name" width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
+        <template #text>
+          <div>{{ shareChat.bio }}</div>
+          <div style="margin-top: 1rem;" v-if="text" :innerHTML="text"></div>
+          <RouterLink class="link" :to="shareChatLink">see user</RouterLink>
+        </template>
+        </v-card>
+      </div>
+
+      <div v-if="!editMode && shareGroup" :dir="dir" style="width: 100%;">
+        <v-card :prepend-avatar="getGroupAvatarUrl(shareGroup.id, shareGroup.avatar)" :title="shareGroup.name" width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
+        <template #text>
+          <div>{{ shareGroup.about }}</div>
+          <div style="margin-top: 1rem;" v-if="text" :innerHTML="text"></div>
+          <RouterLink class="link" :to="shareGroupLink">see group</RouterLink>
+        </template>
+        </v-card>
+      </div>
+
+      <div v-if="!editMode && shareChannel" :dir="dir" style="width: 100%;">
+        <v-card :prepend-avatar="getChannelAvatarUrl(shareChannel.id, shareChannel.avatar)" :title="shareChannel.name" width="max-content" max-width="100%" elevation="10" color="var(--tgBrown)" style="margin-bottom: 1.5rem;border-radius: .35rem;" hover>
+        <template #text>
+          <div>{{ shareChannel.about }}</div>
+          <div style="margin-top: 1rem;" v-if="text" :innerHTML="text"></div>
+          <RouterLink class="link" :to="shareChannelLink">see channel</RouterLink>
         </template>
         </v-card>
       </div>
@@ -99,10 +128,8 @@
           </div>
           <div v-if="props.files.filter(name=>getFileType(name)=='misc').length"  style="display: flex;padding: 0;overflow: auto;white-space: nowrap;margin: auto;width: calc(100% - 1.65rem);">
             <div style="display: flex;flex-direction: column;width: fit-content;margin-left: -.5rem;" v-for="file in props.files.filter(name=>getFileType(name)=='misc')" :key="file" :id="file">
-              <!-- <div style="width: fit-content;"> -->
                 <tg-file-chip :link="`/api/files/${props.messageType}Messages/${props.id}/${file}`" :fileName="file"></tg-file-chip>
                 <v-btn @click="pushDeletingFile(file)" v-if="editMode" variant="text" color="error" icon="mdi-close" size="1.5rem" style="margin-left: 1.125rem;"></v-btn>
-              <!-- </div> -->
             </div>
           </div>
 
@@ -138,6 +165,7 @@
           </div>
 
     </div>
+
 
     </template>
 
@@ -195,6 +223,8 @@
     
     import {useOtherStore} from '@/store/otherStore'
 
+    import { getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl } from '@/funcs/commonFuncs';
+
     const showActions=ref(false)
 
     const {showError, showProgressBar, hideProgressBar} = useOtherStore()
@@ -215,14 +245,43 @@
 
     var links = []
 
+
       var text = props.text;
+
+      const shareChatLink = text.match(new RegExp(/tg-chat-link\/[^\s]+/), text)?.[0]?.replace?.('tg-chat-link','')
+      const shareGroupLink = text.match(new RegExp(/tg-group-link\/[^\s]+/), text)?.[0]?.replace?.('tg-group-link','')
+      const shareChannelLink = text.match(new RegExp(/tg-channel-link\/[^\s]+/), text)?.[0]?.replace?.('tg-channel-link','')
+      
+      const shareChatId = shareChatLink?.split?.('?')?.[0]?.split?.('/')?.at?.(-1)
+      const shareGroupId = shareGroupLink?.split?.('?')?.[0]?.split?.('/')?.at?.(-1)
+      const shareChannelId = shareChannelLink?.split?.('?')?.[0]?.split?.('/')?.at?.(-1)
+
+      const shareChat = (shareChatId ? await pb.collection('users').getOne(shareChatId) : null)
+      const shareGroup = (shareGroupId ? await pb.collection('groups').getOne(shareGroupId) : null)
+      const shareChannel = (shareChannelId ? await pb.collection('channels').getOne(shareChannelId) : null)
+
+
+      text = text.replace('tg-chat-link','')
+      text = text.replace('tg-group-link','')
+      text = text.replace('tg-channel-link','')
+      
+      text = text.replace(shareChatLink,'')
+      text = text.replace(shareGroupLink,'')
+      text = text.replace(shareChannelLink,'')
+
+      text = text.trim()
+
+
+
+
+
+
       Array.from(text.matchAll(new RegExp(/https?:\/\/[^\s]+/,'g'))).forEach(link => text= text.replaceAll(link[0],`<a class="link" href="${link[0]}">${link[0]}</a>`));
       text = text.split('\n').map((line, index)=>`<span id="${props.id}-line-${index+1}" dir="auto" style="display: block;min-height: 1rem;">${line}</span>`).join('');
       if(props.text.replaceAll(new RegExp(/https?:\/\/[^\s]+/,'g'),'').trim() == ''){links=props.text.split('\n').map(link=>link.trim()).filter(link=>link);text=null;}
     const textLines = computed(()=>props.text.split('\n'))
     const dir = ref('auto')
     
-    // onUpdated(()=>{dir.value=getComputedStyle(document.getElementById('line-1')).direction})
 
 
     function removeFile(file){

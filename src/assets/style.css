@@ -80,3 +80,12 @@ html{
   opacity: .8;
   text-shadow: 1px 1px 3px;
 }
+
+
+.share-sheet .v-input__details{
+  display: none
+}
+
+.share-text .v-field.v-field--active{
+  border-radius: 0;
+}

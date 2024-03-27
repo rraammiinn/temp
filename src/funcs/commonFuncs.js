@@ -44,4 +44,12 @@ function getFileType(name){
     return channelAvatar ? `/api/files/channels/${channelId}/${channelAvatar}` : bellImage;
   }
 
-  export{getFileType, getIcon, getFileIcon, getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl}
+  function getAvatarUrl(id, avatar, avatarType){
+    if(avatarType == 'chat')avatarType='user';
+    var fallbackImage = faceImage;
+    if(avatarType == 'group')fallbackImage = groupImage;
+    else if(avatarType == 'channel')fallbackImage = bellImage;
+    return avatar ? `/api/files/${avatarType}s/${id}/${avatar}` : fallbackImage;
+  }
+
+  export{getFileType, getIcon, getFileIcon, getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl, getAvatarUrl}
