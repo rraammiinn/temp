@@ -33,7 +33,7 @@
 
 
     if(!allChannelsData.value.allMessages[channelId]){
-        // var channelRel
+        // let channelRel
         // try{channelRel=await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}catch{channelRel=await pb.collection('channelMembers').getFirstListItem({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}
         // allChannelsData.value.allMessages[channelId]=new ChannelData(channelRel)
 

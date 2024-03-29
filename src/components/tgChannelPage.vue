@@ -177,7 +177,7 @@
   
   
   function addFiles(){
-    for (var i=0;i<fileInput.value.files.length;i++){
+    for (let i=0;i<fileInput.value.files.length;i++){
       files.value.push(fileInput.value.files[i])
     }
     fileInput.value.value=null
@@ -210,7 +210,7 @@
       if(!isOwner.value){
       return;
     }
-      var formData = new FormData();
+      let formData = new FormData();
       formData.append('from', pb.authStore.model.id)
       formData.append('channel', props.channelId)
       formData.append('text', msg.value)
@@ -255,9 +255,9 @@
   
   onUpdated(()=>{if(isTop){scrollable.value.scrollTop=scrollable.value.scrollHeight-previousScrollHeight;previousScrollHeight=scrollable.value.scrollHeight;isTop=false;}else if(isGoToBottom){scrollable.value.scrollTop=scrollable.value.scrollHeight;isGoToBottom=false;showGoToBottom.value=false;}})
   
-  var isTop=false;
-  var isGoToBottom=false
-  var previousScrollHeight;
+  let isTop=false;
+  let isGoToBottom=false
+  let previousScrollHeight;
   
   
   
@@ -265,7 +265,7 @@
   
   
 
-  var startScrollTop=0
+  let startScrollTop=0
   
  
   

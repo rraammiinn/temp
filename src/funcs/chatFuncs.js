@@ -9,24 +9,24 @@ async function getChatMessageById(id){
 }
 
 async function getPreviousChatMessages(otherId,endDate,number=10){
-  return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created < "${endDate}"`, sort: '-created'})).items.reverse()
+  return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created < "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
 async function getNextChatMessages(otherId,startDate=0,number=10){
-  return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created > "${startDate}"`, sort: 'created'})).items
+  return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created > "${startDate}"`, sort: 'created',$autoCancel:false})).items
 }
 
 async function getLastChatMessages(otherId,endDate,number=10){
-  if(endDate){return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created <= "${endDate}"`, sort: '-created'})).items.reverse()}
-  else{return (await pb.collection('chatMessages').getList(1,number,{filter:`from = "${otherId}" || to = "${otherId}"`, sort: '-created'})).items.reverse()}
+  if(endDate){return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()}
+  else{return (await pb.collection('chatMessages').getList(1,number,{filter:`from = "${otherId}" || to = "${otherId}"`, sort: '-created',$autoCancel:false})).items.reverse()}
 }
 
 async function getLastSeenChatMessages(otherId,endDate,number=10){
-  return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created <= "${endDate}"`, sort: '-created'})).items.reverse()
+  return (await pb.collection('chatMessages').getList(1,number,{filter:`(from = "${otherId}" || to = "${otherId}") && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
 async function getChatMessagesBetween(otherId,startDate,endDate){
-  return await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created > "${startDate}" && created < "${endDate}"`, sort: 'created'})
+  return await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created > "${startDate}" && created < "${endDate}"`, sort: 'created',$autoCancel:false})
 }
 
 
@@ -36,7 +36,7 @@ async function getChatMessagesBetween(otherId,startDate,endDate){
 
 
 async function initializeChatMessages(otherId,initMessageId){
-  var messages=[]
+  let messages=[]
 
 
     try{
@@ -102,7 +102,7 @@ class ChatMessageGenerator{
       return true
   }
   async getNextMessages(){
-    var new10Messages=[]
+    let new10Messages=[]
     try{
       new10Messages= await getNextChatMessages(this.otherId,useDataStore().allChatsData.allMessages[this.otherId].messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.otherId);return false;};

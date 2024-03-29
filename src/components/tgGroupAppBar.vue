@@ -48,7 +48,7 @@ const isOwner=inject('isOwner')
 
 // const allGroupsData=inject('allGroupsData')
 
-// var lastseen=0;
+// let lastseen=0;
 // const isOnline=ref(false)
 // pb.collection('groups').subscribe(props.groupId, (e)=>{isOnline.value = true ;lastseen=e.record.lastseen;})
 // setInterval(()=>{isOnline.value = new Date().getTime() - new Date(lastseen).getTime() < 6000},1000)

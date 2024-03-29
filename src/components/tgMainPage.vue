@@ -29,8 +29,8 @@
 
 
 <v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
-
-<template v-for="messages in allMessagesSorted">
+<TransitionGroup name="slide">
+<template v-for="(messages,k,index) in allMessagesSorted" :key="k">
     <v-list-item @contextmenu.prevent="shareId=messages.other.id;showChatSheet=true;" v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active && messages.other.id != pb.authStore.model.id" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
     :prepend-avatar="getUserAvatarUrl(messages.other.id, messages.other.avatar)"
     :title="messages.other.name"
@@ -52,6 +52,7 @@
   
   <v-divider v-if="messages.lastMessage && (messages.messagesType =='channel' || messages.active)"></v-divider>
 </template>
+</TransitionGroup>
 </v-list>
 
 
@@ -137,6 +138,20 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: transform 0.5s ease;
+  }
+  
+  .slide-enter-from{
+    transform: translateX(-100%);
+  }
+  .slide-leave-to {
+    transform: translateX(100%);
+  }
+  
 </style>
 
   <script setup>
@@ -183,7 +198,7 @@ const showGroupCreationForm=ref(false)
 const showChannelCreationForm=ref(false)
 
 
-  var startScrollTop=0
+  let startScrollTop=0
 
 
 
@@ -198,7 +213,7 @@ async function createNewGroup(){
   try{
     if(!newGroup.value.name)return;
 
-var formData = new FormData();
+let formData = new FormData();
 formData.append('owner',pb.authStore.model.id)
 formData.append('name',newGroup.value.name)
 formData.append('about',newGroup.value.about || '')
@@ -221,7 +236,7 @@ async function createNewChannel(){
   try{
     if(!newChannel.value.name)return;
 
-var formData = new FormData();
+let formData = new FormData();
 formData.append('owner',pb.authStore.model.id)
 formData.append('name',newChannel.value.name)
 formData.append('about',newChannel.value.about || '')

@@ -12,24 +12,24 @@ async function getGroupMessageById(id){
 }
 
 async function getPreviousGroupMessages(groupId,endDate,number=10){
-  return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created < "${endDate}"`, sort: '-created'})).items.reverse()
+  return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created < "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
 async function getNextGroupMessages(groupId,startDate=0,number=10){
-  return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created > "${startDate}"`, sort: 'created'})).items
+  return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created > "${startDate}"`, sort: 'created',$autoCancel:false})).items
 }
 
 async function getLastGroupMessages(groupId,endDate,number=10){
-  if(endDate){return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()}
-  else{return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}"`, sort: '-created'})).items.reverse()}
+  if(endDate){return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()}
+  else{return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}"`, sort: '-created',$autoCancel:false})).items.reverse()}
 }
 
 async function getLastSeenGroupMessages(groupId,endDate,number=10){
-  return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()
+  return (await pb.collection('groupMessages').getList(1,number,{filter:`group = "${groupId}" && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
 async function getGroupMessagesBetween(groupId,startDate,endDate){
-  return await pb.collection('groupMessages').getFullList({filter:`group = "${groupId}" && created > "${startDate}" && created < "${endDate}"`, sort: 'created'})
+  return await pb.collection('groupMessages').getFullList({filter:`group = "${groupId}" && created > "${startDate}" && created < "${endDate}"`, sort: 'created',$autoCancel:false})
 }
 
 
@@ -39,7 +39,7 @@ async function getGroupMessagesBetween(groupId,startDate,endDate){
 
 
 async function initializeGroupMessages(groupId,initMessageId){
-  var messages=[]
+  let messages=[]
 
 
     try{
@@ -105,7 +105,7 @@ class GroupMessageGenerator{
       return true
   }
   async getNextMessages(){
-    var new10Messages=[]
+    let new10Messages=[]
     try{
       new10Messages= await getNextGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.groupId);return false};
@@ -168,13 +168,13 @@ async function leave(groupId){
 }
 
 async function blockMember(groupId,memberId){
-  var formData = new FormData();
+  let formData = new FormData();
   formData.append("blocklist+", memberId)
   await pb.collection('groups').update(groupId,formData)
 }
 
 async function unBlockMember(groupId,memberId){
-  var formData = new FormData();
+  let formData = new FormData();
   formData.append("blocklist-", memberId)
   await pb.collection('groups').update(groupId,formData)
 }

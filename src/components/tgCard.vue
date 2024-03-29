@@ -243,10 +243,10 @@
 
     const copied = ref(false)
 
-    var links = []
+    let links = []
 
 
-      var text = props.text;
+      let text = props.text;
 
       const shareChatLink = text.match(new RegExp(/tg-chat-link\/[^\s]+/), text)?.[0]?.replace?.('tg-chat-link','')
       const shareGroupLink = text.match(new RegExp(/tg-group-link\/[^\s]+/), text)?.[0]?.replace?.('tg-group-link','')
@@ -256,9 +256,9 @@
       const shareGroupId = shareGroupLink?.split?.('?')?.[0]?.split?.('/')?.at?.(-1)
       const shareChannelId = shareChannelLink?.split?.('?')?.[0]?.split?.('/')?.at?.(-1)
 
-      const shareChat = (shareChatId ? await pb.collection('users').getOne(shareChatId) : null)
-      const shareGroup = (shareGroupId ? await pb.collection('groups').getOne(shareGroupId) : null)
-      const shareChannel = (shareChannelId ? await pb.collection('channels').getOne(shareChannelId) : null)
+      const shareChat = (shareChatId ? await pb.collection('users').getOne(shareChatId,{$autoCancel:false}) : null)
+      const shareGroup = (shareGroupId ? await pb.collection('groups').getOne(shareGroupId,{$autoCancel:false}) : null)
+      const shareChannel = (shareChannelId ? await pb.collection('channels').getOne(shareChannelId,{$autoCancel:false}) : null)
 
 
       text = text.replace('tg-chat-link','')
@@ -289,7 +289,7 @@
   }
 
     function addFiles(){
-    for (var i=0;i<fileInput.value.files.length;i++){
+    for (let i=0;i<fileInput.value.files.length;i++){
       addingFiles.value.push(fileInput.value.files[i])
     }
     fileInput.value.value=null
@@ -311,7 +311,7 @@
     async function editChatMessage(){
       showProgressBar()
       try{
-        var formData = new FormData();
+        let formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('chatMessages').update(props.id,formData);
       }catch{showError('editing message failed.')}
@@ -329,7 +329,7 @@
     async function editGroupMessage(){
       showProgressBar()
       try{
-        var formData = new FormData();
+        let formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('groupMessages').update(props.id,formData);
       }catch{showError('editing message failed.')}
@@ -347,7 +347,7 @@
     async function editChannelMessage(){
       showProgressBar()
       try{
-        var formData = new FormData();
+        let formData = new FormData();
       fillFormData(formData)
       const record = await pb.collection('channelMessages').update(props.id,formData);
       }catch{showError('editing message failed.')}
@@ -395,6 +395,10 @@
       emit('reply',props.id,props.avatar,props.text)
     }
 
-    onMounted(()=>{emit('insert',props.id);dir.value=getComputedStyle(document.getElementById(`${props.id}-line-1`)).direction;})
+    onMounted(()=>{emit('insert',props.id);
+    try{
+      dir.value=getComputedStyle(document.getElementById(`${props.id}-line-1`)).direction;  
+    }catch{}
+    })
     
     </script>

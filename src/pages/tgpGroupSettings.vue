@@ -30,7 +30,7 @@
 
 
     if(!allGroupsData.value.allMessages[groupId]){
-        // var groupRel
+        // let groupRel
         // try{groupRel=await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}catch{groupRel=await pb.collection('groupMembers').getFirstListItem({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}
         // allGroupsData.value.allMessages[groupId]=new GroupData(groupRel)
 

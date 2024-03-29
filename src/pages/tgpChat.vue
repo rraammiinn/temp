@@ -25,7 +25,7 @@
     const otherId=route.params.otherId
 
     if(!allChatsData.value.allMessages[otherId]){
-        var rel,backRel,user
+        let rel,backRel,user
         try{
             rel=await pb.collection('rels').getFirstListItem(`follower = "${pb.authStore.model.id}" && following = "${otherId}"`,{expand:'follower,following'})
             backRel=await pb.collection('rels').getFirstListItem(`follower = "${otherId}" && following = "${pb.authStore.model.id}"`,{expand:'follower,following'})

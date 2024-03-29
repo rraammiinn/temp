@@ -122,7 +122,8 @@ watchEffect(async()=>{
         const index=(e.record.from==authData.value.id ? e.record.to : e.record.from);
         if(e.action=='create'){
             if(allChatsData.value.allMessages[index].cacheNewMessages)allChatsData.value.allMessages[index].messages.push(e.record);
-            allChatsData.value.allMessages[index].unseenCount++;allChatsData.value.allMessages[index].lastMessage=e.record;}
+            if(e.record.from != authData.value.id)allChatsData.value.allMessages[index].unseenCount++;
+            allChatsData.value.allMessages[index].lastMessage=e.record;}
             else if(e.action=='update' && e.record.created>=allChatsData.value.allMessages[index].messages[0].created && e.record.created<=allChatsData.value.allMessages[index].messages.at(-1).created)allChatsData.value.allMessages[index].messages[allChatsData.value.allMessages[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
             else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(allChatsData.value.allMessages[index].lastSeen)){allChatsData.value.allMessages[index].unseenCount--;};allChatsData.value.allMessages[index].messages=allChatsData.value.allMessages[index].messages.filter(msg=>msg.id != e.record.id)}})
 
@@ -151,7 +152,8 @@ pb.collection('groupMessages').subscribe('*',async(e)=>{
         if(e.action=='create'){
             if(!allGroupsData.value.allMessages[index].groupMems[e.record.from]){await updateGroupMems(e.record.group)}
             if(allGroupsData.value.allMessages[index].cacheNewMessages)allGroupsData.value.allMessages[index].messages.push(e.record);
-            allGroupsData.value.allMessages[index].unseenCount++;allGroupsData.value.allMessages[index].lastMessage=e.record;allGroupsData.value.allMessages[index].lastMessage['expand']={from:allGroupsData.value.allMessages[index].groupMems[e.record.from]}}
+            if(e.record.from != authData.value.id)allGroupsData.value.allMessages[index].unseenCount++;
+            allGroupsData.value.allMessages[index].lastMessage=e.record;allGroupsData.value.allMessages[index].lastMessage['expand']={from:allGroupsData.value.allMessages[index].groupMems[e.record.from]}}
             else if(e.action=='update' && e.record.created>=allGroupsData.value.allMessages[index].messages[0].created && e.record.created<=allGroupsData.value.allMessages[index].messages.at(-1).created)allGroupsData.value.allMessages[index].messages[allGroupsData.value.allMessages[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
             else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(allGroupsData.value.allMessages[index].lastSeen)){allGroupsData.value.allMessages[index].unseenCount--;};allGroupsData.value.allMessages[index].messages=allGroupsData.value.allMessages[index].messages.filter(msg=>msg.id != e.record.id)}})
 
@@ -160,7 +162,8 @@ pb.collection('groupMessages').subscribe('*',async(e)=>{
         const index=e.record.channel;
         if(e.action=='create'){
             if(allChannelsData.value.allMessages[index].cacheNewMessages)allChannelsData.value.allMessages[index].messages.push(e.record);
-            allChannelsData.value.allMessages[index].unseenCount++;allChannelsData.value.allMessages[index].lastMessage=e.record;}
+            if(e.record.from != authData.value.id)allChannelsData.value.allMessages[index].unseenCount++;
+            allChannelsData.value.allMessages[index].lastMessage=e.record;}
             else if(e.action=='update' && e.record.created>=allChannelsData.value.allMessages[index].messages[0].created && e.record.created<=allChannelsData.value.allMessages[index].messages.at(-1).created)allChannelsData.value.allMessages[index].messages[allChannelsData.value.allMessages[index].messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
             else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(allChannelsData.value.allMessages[index].lastSeen)){allChannelsData.value.allMessages[index].unseenCount--;};allChannelsData.value.allMessages[index].messages=allChannelsData.value.allMessages[index].messages.filter(msg=>msg.id != e.record.id)}})
 

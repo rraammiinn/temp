@@ -59,3 +59,14 @@ onRecordBeforeUpdateRequest((e) => {
     }catch{}
 }, "groupMembers")
 
+
+
+
+
+onAfterBootstrap((e) => {
+    const records = $app.dao().findRecordsByFilter(
+        "users",
+        "online = true",
+    )
+    records.forEach(record => {record.set('online', false);$app.dao().saveRecord(record);})
+})

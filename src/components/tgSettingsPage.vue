@@ -108,7 +108,7 @@ async function upload_(){
     try{
 
     }catch{showError('uploading avatar failed.')}
-    var formData = new FormData();
+    let formData = new FormData();
     formData.append('avatar', fileInput.value.files[0]);
     await pb.collection('users').update(authData.value.id, formData);
     updateAuthData()

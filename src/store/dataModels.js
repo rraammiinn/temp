@@ -28,7 +28,7 @@ class ChatData{
     async init(){
 
         try{
-            this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created'})
+            this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created',$autoCancel:false})
         }catch{}
         try{
             await this.updateUnseenCount()
@@ -38,7 +38,7 @@ class ChatData{
 
     }
 
-    async updateUnseenCount(){this.unseenCount=(await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${this.other.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;}
+    async updateUnseenCount(){this.unseenCount=(await pb.collection('chatMessages').getList(1, 1, {filter:`from = "${this.other.id}" && created > "${this.lastSeen}"`, sort:'-created',$autoCancel:false})).totalItems;}
 
 }
 
@@ -61,7 +61,7 @@ class AllChatsData{
 
     async updateAllMessages(){
         await Promise.allSettled(this.rels.map((rel)=>{
-                var index=(rel.follower == useAuthStore().authData.id) ? rel.following : rel.follower
+                let index=(rel.follower == useAuthStore().authData.id) ? rel.following : rel.follower
                 this.allMessages[index] = new ChatData(rel,this.backRels.find(i=>i.follower == rel.following))
                 return this.allMessages[index].init()
         }))
@@ -93,7 +93,7 @@ class GroupData{
 
     async init(){
         try{
-            this.lastMessage = await pb.collection('groupMessages').getFirstListItem(`group = "${this.group.id}"`, {sort:'-created',expand:'from'})
+            this.lastMessage = await pb.collection('groupMessages').getFirstListItem(`group = "${this.group.id}"`, {sort:'-created',expand:'from',$autoCancel:false})
         }catch{}
         try{
             await this.updateUnseenCount()
@@ -130,7 +130,7 @@ class AllGroupsData{
     async updateUnseenCount(groupId){await this.allMessages[groupId].updateUnseenCount()}
     async updateAllMessages(){
   await Promise.allSettled(this.groupRels.map((groupRel)=>{
-        var index=groupRel.group
+        let index=groupRel.group
         this.allMessages[index] = new GroupData(groupRel)
         return this.allMessages[index].init()
 }))
@@ -156,7 +156,7 @@ class ChannelData{
 
     async init(){
         try{
-            this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created'})
+            this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created',$autoCancel:false})
         }catch{}
         try{
             await this.updateUnseenCount()
@@ -168,7 +168,7 @@ class ChannelData{
 
     async updateUnseenCount(){
         if(this.channel.owner == useAuthStore().authData.id){this.unseenCount=0}
-        else{this.unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`channel = "${this.channel.id}" && created > "${this.lastSeen}"`, sort:'-created'})).totalItems;}
+        else{this.unseenCount=(await pb.collection('channelMessages').getList(1, 1, {filter:`channel = "${this.channel.id}" && created > "${this.lastSeen}"`, sort:'-created',$autoCancel:false})).totalItems;}
     }
 
     async updateChannel(){this.channel=await pb.collection('channels').getOne(this.channel.id)}
@@ -191,7 +191,7 @@ class AllChannelsData{
     async updateUnseenCount(channelId){await this.allMessages[channelId].updateUnseenCount()}
     async updateAllMessages(){
         await Promise.allSettled(this.channelRels.map((channelRel)=>{
-              var index=channelRel.channel
+              let index=channelRel.channel
               this.allMessages[index] = new ChannelData(channelRel)
               return this.allMessages[index].init()
       }))

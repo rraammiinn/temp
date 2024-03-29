@@ -73,7 +73,7 @@ const {updateLogInState,updateAuthData}=useAuthStore()
 const passwordLogInLoading=ref(false)
 const googleLogInLoading=ref(false)
 
-var authData;
+let authData;
 
 // const expanded=ref(false)
 const name=ref('')

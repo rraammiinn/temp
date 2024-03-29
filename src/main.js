@@ -23,7 +23,7 @@ import tgpEmailVerification from './pages/tgpEmailVerification.vue';
 
 const pb = new PocketBase('/');
 
-var authData
+let authData
 // if (! pb.authStore.isValid){
 //   authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
 // }

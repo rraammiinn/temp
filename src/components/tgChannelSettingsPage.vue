@@ -113,7 +113,7 @@ const about =ref(allChannelsData.value.allMessages[props.channelId].channel.abou
 async function upload_(){
     showProgressBar()
     try{
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append('avatar', fileInput.value.files[0]);
         await pb.collection('channels').update(props.channelId, formData);
         await allChannelsData.value.allMessages[props.channelId].updateChannel()

@@ -2,7 +2,7 @@
 
         <v-card>
       <v-layout>
-        <v-app-bar prominent style="position: fixed;">
+        <v-app-bar prominent style="position: fixed;padding-right: .5rem;">
           <slot name="appBar"></slot>
           <v-progress-linear
       color="primary"

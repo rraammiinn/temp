@@ -11,20 +11,20 @@ async function getChannelMessageById(id){
 }
 
 async function getPreviousChannelMessages(channelId,endDate,number=10){
-  return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created < "${endDate}"`, sort: '-created'})).items.reverse()
+  return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created < "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
 async function getNextChannelMessages(channelId,startDate=0,number=10){
-  return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created > "${startDate}"`, sort: 'created'})).items
+  return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created > "${startDate}"`, sort: 'created',$autoCancel:false})).items
 }
 
 async function getLastChannelMessages(channelId,endDate,number=10){
-  if(endDate){return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()}
-  else{return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}"`, sort: '-created'})).items.reverse()}
+  if(endDate){return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()}
+  else{return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}"`, sort: '-created',$autoCancel:false})).items.reverse()}
 }
 
 async function getLastSeenChannelMessages(channelId,endDate,number=10){
-  return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created <= "${endDate}"`, sort: '-created'})).items.reverse()
+  return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
 
@@ -34,7 +34,7 @@ async function getLastSeenChannelMessages(channelId,endDate,number=10){
 
 
 async function initializeChannelMessages(channelId,initMessageId){
-  var messages=[]
+  let messages=[]
 
 
     try{
@@ -100,7 +100,7 @@ class ChannelMessageGenerator{
       return true
   }
   async getNextMessages(){
-    var new10Messages=[]
+    let new10Messages=[]
     try{
       new10Messages= await getNextChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.channelId);return false;};

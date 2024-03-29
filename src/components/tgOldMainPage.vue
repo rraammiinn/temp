@@ -177,7 +177,7 @@
   const showChannelCreationForm=ref(false)
   
   
-    var startScrollTop=0
+    let startScrollTop=0
   
   // watchEffect(async ()=>{
   //   if(searchMessage.value){
@@ -196,7 +196,7 @@
     try{
       if(!newGroup.value.name)return;
   
-  var formData = new FormData();
+  let formData = new FormData();
   formData.append('owner',pb.authStore.model.id)
   formData.append('name',newGroup.value.name)
   formData.append('about',newGroup.value.about || '')
@@ -220,7 +220,7 @@
     try{
       if(!newChannel.value.name)return;
   
-  var formData = new FormData();
+  let formData = new FormData();
   formData.append('owner',pb.authStore.model.id)
   formData.append('name',newChannel.value.name)
   formData.append('about',newChannel.value.about || '')

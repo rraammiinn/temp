@@ -113,7 +113,7 @@ const about =ref(allGroupsData.value.allMessages[props.groupId].group.about)
 async function upload_(){
     showProgressBar()
     try{
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append('avatar', fileInput.value.files[0]);
         await pb.collection('groups').update(props.groupId, formData);
         await allGroupsData.value.allMessages[props.groupId].updateGroup()

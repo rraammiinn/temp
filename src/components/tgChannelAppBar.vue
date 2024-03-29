@@ -45,7 +45,7 @@ const isOwner=inject('isOwner')
 
 // const allChannelsData=inject('allChannelsData')
 
-// var lastseen=0;
+// let lastseen=0;
 // const isOnline=ref(false)
 // pb.collection('channels').subscribe(props.channelId, (e)=>{isOnline.value = true ;lastseen=e.record.lastseen;})
 // setInterval(()=>{isOnline.value = new Date().getTime() - new Date(lastseen).getTime() < 6000},1000)

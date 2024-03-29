@@ -36,13 +36,13 @@
 
 
       const scrollable = ref()
-      // var updateCause='both'
-      var startScrollTop=0;
-      var firstUpdate=true;
-      var startEnabled=true;
-      var endEnabled=true;
-      var topCard;
-      var bottomCard;
+      // let updateCause='both'
+      let startScrollTop=0;
+      let firstUpdate=true;
+      let startEnabled=true;
+      let endEnabled=true;
+      let topCard;
+      let bottomCard;
       const showGoToBottom=ref(false)
 
       if(!allMessages.value[props.otherId].cacheNewMessages && !allMessages.value[props.otherId].messages.length){

@@ -175,7 +175,7 @@
   
   
   function addFiles(){
-    for (var i=0;i<fileInput.value.files.length;i++){
+    for (let i=0;i<fileInput.value.files.length;i++){
       files.value.push(fileInput.value.files[i])
     }
     fileInput.value.value=null
@@ -205,11 +205,11 @@
     showProgressBar()
     try{
       if(!isInRel.value){
-      var rel,backRel;
+      let rel,backRel;
       try{rel = await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true},{expand:'follower,following'})}catch{}
       try{backRel = await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{}
     }
-      var formData = new FormData();
+      let formData = new FormData();
       formData.append('from', pb.authStore.model.id)
       formData.append('to', props.otherId)
       formData.append('text', msg.value)
@@ -263,9 +263,9 @@
   
   onUpdated(()=>{if(isTop){scrollable.value.scrollTop=scrollable.value.scrollHeight-previousScrollHeight;previousScrollHeight=scrollable.value.scrollHeight;isTop=false;}else if(isGoToBottom){scrollable.value.scrollTop=scrollable.value.scrollHeight;isGoToBottom=false;showGoToBottom.value=false;}})
   
-  var isTop=false;
-  var isGoToBottom=false
-  var previousScrollHeight;
+  let isTop=false;
+  let isGoToBottom=false
+  let previousScrollHeight;
   
   
   
@@ -274,7 +274,7 @@
   
   
 
-  var startScrollTop=0
+  let startScrollTop=0
   
  
   

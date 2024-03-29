@@ -1,9 +1,11 @@
 <template>
+  <div style="position: fixed;top: 4rem;z-index: 99999;;width: 90vw;">
+    <v-chip v-if="topCardDate" :style="{visibility: (showDateChips ? 'visible' : 'hidden')}" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;opacity: 1;background-color: var(--tgBg);border-bottom: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;border-top-left-radius: 0;border-top-right-radius: 0;" color="var(--tgBrown)">{{ topCardDate }}</v-chip>
+  </div>
 
-
-    <TransitionGroup name="list" tag="div" ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 3rem;padding-bottom: 3rem;display: flex;flex-direction: column;container: scrollable / inline-size;">
+    <TransitionGroup name="list" tag="div" ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 5rem;padding-bottom: 3rem;display: flex;flex-direction: column;container: scrollable / inline-size;">
         <div style="display: flex;flex-direction: column;width: 100%;" v-for="message,i in allMessages[props.otherId].messages" :key="message.id+message.updated">
-              <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
+              <v-chip :id="new Date(message.created).toLocaleDateString()" @vnode-mounted="attachDateChipObserver(new Date(message.created).toLocaleDateString())" :style="{visibility: (showDateChips ? 'visible' : 'hidden')}" class="tg-date-chip" v-if="new Date(message.created).toLocaleDateString() != new Date(allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-bottom: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
         
               <suspense>
                 <tg-card @goToMessage="goToMessage" @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @reply="(messageId,userAvatarUrl,messageText)=>{$emit('reply',messageId,userAvatarUrl,messageText)}" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :replied-message-id="message.replyto" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="getUserAvatarUrl(message.from, allMessages[props.otherId].groupMems?.[message.from]?.avatar)" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
@@ -68,6 +70,10 @@
           import { computed, onUpdated, onMounted, ref, nextTick } from 'vue';
     
           import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+
+          import { useOtherStore } from '@/store/otherStore';
+
+          const {showProgressBar, hideProgressBar} = useOtherStore()
     
     
         
@@ -79,15 +85,19 @@
     
     
           const scrollable = ref()
-          // var updateCause='both'
-          var initialized=false;
-          var startScrollTop=0;
-          var firstUpdate=true;
-          var startEnabled=true;
-          var endEnabled=true;
-          var topCard;
-          var bottomCard;
+          // let updateCause='both'
+          let initialized=false;
+          let startScrollTop=0;
+          let firstUpdate=true;
+          let startEnabled=true;
+          let endEnabled=true;
+          let topCard;
+          let bottomCard;
           const showGoToBottom=ref(false)
+          const showDateChips=ref(false)
+
+          const topCardDate=ref()
+          let timerId;
     
           if(!allMessages.value[props.otherId].cacheNewMessages && !allMessages.value[props.otherId].messages.length){
             await props.messageGenerator.initializeMessages()
@@ -128,6 +138,17 @@
               },
               {root:document.getElementById('scrollable')}
             )
+
+            const dateChipObserver = new IntersectionObserver(
+              (e)=>{
+                try{
+                  const target = e.filter(i=>i.boundingClientRect.top <=10)[0]?.target
+                  topCardDate.value=(new Date(target.getAttribute('created'))).toLocaleDateString()
+                }
+                catch{}
+              },
+              {root:document.getElementById('scrollable')}
+            )
     
             const startObserver = new IntersectionObserver(
               e=>getPreviousMessages(e),
@@ -160,6 +181,17 @@
             function attachDateObserver(){
               Array.from(document.querySelectorAll('.tg-card')).slice(-10).forEach(i=>dateObserver.observe(i))
             }
+
+
+
+            function attachDateChipObserver(){
+              try{
+                dateChipObserver.observe(document.getElementById(id))
+              }catch{}
+            }
+            
+
+            
     
             // function attachAllObservers(){
             //   attachStartObserver()
@@ -177,8 +209,10 @@
         //   enableScroll()
         // }, 10);
         if(e[0].isIntersecting && e[0].target.id == allMessages.value[props.otherId].messages[0].id){
+          showProgressBar()
     
           startEnabled = await props.messageGenerator.getPreviousMessages()
+          hideProgressBar()
           // await nextTick();
           // topCard=e[0].target;
           // startObserver.unobserve(e[0].target);
@@ -195,8 +229,10 @@
         //   enableScroll()
         // }, 10);
         if(e[0].isIntersecting && e[0].target.id == allMessages.value[props.otherId].messages.at(-1).id){
+          showProgressBar()
     
           endEnabled = await props.messageGenerator.getNextMessages()
+          hideProgressBar()
           // await nextTick();
           // bottomCard=e[0].target;
           // endObserver.unobserve(e[0].target);
@@ -215,7 +251,9 @@
     
         async function goToBottom(){
           if(endEnabled){
+            showProgressBar()
             await props.messageGenerator.goToBottom()
+            hideProgressBar()
             // await nextTick()
             // attachStartObserver()
             // attachDateObserver()
@@ -231,6 +269,9 @@
           endObserver.observe(card)
         }
         dateObserver.observe(card)
+
+        const dateChips = document.getElementsByClassName('tg-date-chip')
+        dateChipObserver.observe(card)
       }
     
     
@@ -240,11 +281,12 @@
     
       async function goToMessage(messageId){
         console.log('>--->>>',messageId);
-        var card=document.getElementById(messageId)
+        let card=document.getElementById(messageId)
         if(!card){
-          console.log('???')
+          showProgressBar()
           await props.messageGenerator.getRepliedMessage(messageId)
           await nextTick()
+          hideProgressBar()
           card=document.getElementById(messageId)
           // if(props.messagesType=='chat'){
 
@@ -274,8 +316,12 @@
             // document.getElementById('scrollable')?.scrollIntoView({block:'center'});
             document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center'});
           }
+          
+          document.getElementById('scrollable').addEventListener('scrollend',()=>{timerId = setTimeout(() => {
+            showDateChips.value = false;
+          }, 1000);})
     
-          document.getElementById('scrollable').addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop && (e.target.scrollHeight - (e.target.scrollTop + e.target.clientHeight)) > e.target.clientHeight;startScrollTop=e.target.scrollTop;},{passive:true});
+          document.getElementById('scrollable').addEventListener('scroll',(e)=>{clearTimeout(timerId);showDateChips.value = true;showGoToBottom.value = startScrollTop < e.target.scrollTop && (e.target.scrollHeight - (e.target.scrollTop + e.target.clientHeight)) > e.target.clientHeight;startScrollTop=e.target.scrollTop;},{passive:true});
           if(document.getElementById('scrollable').scrollHeight==document.getElementById('scrollable').clientHeight){updateLastSeen(allMessages.value[props.otherId].messages?.at(-1)?.created)}
 
           initialized=true;
