@@ -47,7 +47,7 @@ async function initializeChannelMessages(channelId,initMessageId){
     else{
 
   
-      messages= await getLastSeenChannelMessages(channelId,useDataStore().allChannelsData.allMessages[channelId].lastSeen)
+      messages= await getLastSeenChannelMessages(channelId,useDataStore().allChannelsData.allDatas[channelId].lastSeen)
   
     }
   }
@@ -65,14 +65,14 @@ async function initializeChannelMessages(channelId,initMessageId){
     subscribeToNewMessages(channelId)}
 
 
-  useDataStore().allChannelsData.allMessages[channelId].messages=messages
+  useDataStore().allChannelsData.allDatas[channelId].messages=messages
   
   }
 
 
   function subscribeToNewMessages(channelId){
    
-    useDataStore().allChannelsData.allMessages[channelId].cacheNewMessages=true
+    useDataStore().allChannelsData.allDatas[channelId].cacheNewMessages=true
   }
 
 
@@ -90,9 +90,9 @@ class ChannelMessageGenerator{
 
   async getPreviousMessages(){
     try{
-      const previous10Messages= await getPreviousChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages[0].created)
+      const previous10Messages= await getPreviousChannelMessages(this.channelId,useDataStore().allChannelsData.allDatas[this.channelId].messages[0].created)
       if(!previous10Messages.length){return false};
-        useDataStore().allChannelsData.allMessages[this.channelId].messages=[...previous10Messages, ...useDataStore().allChannelsData.allMessages[this.channelId].messages]
+        useDataStore().allChannelsData.allDatas[this.channelId].messages=[...previous10Messages, ...useDataStore().allChannelsData.allDatas[this.channelId].messages]
   
   
       }
@@ -102,9 +102,9 @@ class ChannelMessageGenerator{
   async getNextMessages(){
     let new10Messages=[]
     try{
-      new10Messages= await getNextChannelMessages(this.channelId,useDataStore().allChannelsData.allMessages[this.channelId].messages.at(-1).created)
+      new10Messages= await getNextChannelMessages(this.channelId,useDataStore().allChannelsData.allDatas[this.channelId].messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.channelId);return false;};
-      useDataStore().allChannelsData.allMessages[this.channelId].messages=[...useDataStore().allChannelsData.allMessages[this.channelId].messages, ...new10Messages]
+      useDataStore().allChannelsData.allDatas[this.channelId].messages=[...useDataStore().allChannelsData.allDatas[this.channelId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
     }
@@ -117,11 +117,11 @@ class ChannelMessageGenerator{
 
   async goToBottom(){
     const last10Messages=await getLastChannelMessages(this.channelId)
-    useDataStore().allChannelsData.allMessages[this.channelId].messages=last10Messages
+    useDataStore().allChannelsData.allDatas[this.channelId].messages=last10Messages
     const date = last10Messages.at(-1).created
-      if(new Date(useDataStore().allChannelsData.allMessages[this.channelId].lastSeen) < new Date(date)){
-        useDataStore().allChannelsData.allMessages[this.channelId].lastSeen=date;
-      pb.collection('channelMembers').update(useDataStore().allChannelsData.allMessages[this.channelId].channelRelId,{lastseen:date})
+      if(new Date(useDataStore().allChannelsData.allDatas[this.channelId].lastSeen) < new Date(date)){
+        useDataStore().allChannelsData.allDatas[this.channelId].lastSeen=date;
+      pb.collection('channelMembers').update(useDataStore().allChannelsData.allDatas[this.channelId].channelRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.channelId)
   }
@@ -131,18 +131,18 @@ class ChannelMessageGenerator{
 
 async function subscribe(channelId){
   try{const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'});
-  useDataStore().allChannelsData.allMessages[channelId]=new ChannelData(channelRel)
-  await useDataStore().allChannelsData.allMessages[channelId].init()
+  useDataStore().allChannelsData.allDatas[channelId]=new ChannelData(channelRel)
+  await useDataStore().allChannelsData.allDatas[channelId].init()
 }
   catch{}
 }
 
 
   async function unsubscribe(channelId){
-    await pb.collection('channelMembers').delete(useDataStore().allChannelsData.allMessages[channelId].channelRelId)
+    await pb.collection('channelMembers').delete(useDataStore().allChannelsData.allDatas[channelId].channelRelId)
     useDataStore().allChannelsData.channelRels = useDataStore().allChannelsData.channelRels.filter(channelRel=>channelRel.channel!=channelId)
-    useDataStore().allChannelsData.allMessages[channelId].channelRelId=null
-    useDataStore().allChannelsData.allMessages[channelId].active=false
+    useDataStore().allChannelsData.allDatas[channelId].channelRelId=null
+    useDataStore().allChannelsData.allDatas[channelId].active=false
   
   }
   

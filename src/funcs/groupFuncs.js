@@ -52,7 +52,7 @@ async function initializeGroupMessages(groupId,initMessageId){
     else{
 
   
-      messages= await getLastSeenGroupMessages(groupId,useDataStore().allGroupsData.allMessages[groupId].lastSeen)
+      messages= await getLastSeenGroupMessages(groupId,useDataStore().allGroupsData.allDatas[groupId].lastSeen)
   
     }
   }
@@ -70,14 +70,14 @@ async function initializeGroupMessages(groupId,initMessageId){
     subscribeToNewMessages(groupId)}
 
 
-  useDataStore().allGroupsData.allMessages[groupId].messages=messages
+  useDataStore().allGroupsData.allDatas[groupId].messages=messages
   
   }
 
 
   function subscribeToNewMessages(groupId){
    
-    useDataStore().allGroupsData.allMessages[groupId].cacheNewMessages=true
+    useDataStore().allGroupsData.allDatas[groupId].cacheNewMessages=true
   }
 
 
@@ -95,9 +95,9 @@ class GroupMessageGenerator{
 
   async getPreviousMessages(){
     try{
-      const previous10Messages= await getPreviousGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages[0].created)
+      const previous10Messages= await getPreviousGroupMessages(this.groupId,useDataStore().allGroupsData.allDatas[this.groupId].messages[0].created)
       if(!previous10Messages.length){return false};
-        useDataStore().allGroupsData.allMessages[this.groupId].messages=[...previous10Messages, ...useDataStore().allGroupsData.allMessages[this.groupId].messages]
+        useDataStore().allGroupsData.allDatas[this.groupId].messages=[...previous10Messages, ...useDataStore().allGroupsData.allDatas[this.groupId].messages]
   
   
       }
@@ -107,9 +107,9 @@ class GroupMessageGenerator{
   async getNextMessages(){
     let new10Messages=[]
     try{
-      new10Messages= await getNextGroupMessages(this.groupId,useDataStore().allGroupsData.allMessages[this.groupId].messages.at(-1).created)
+      new10Messages= await getNextGroupMessages(this.groupId,useDataStore().allGroupsData.allDatas[this.groupId].messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.groupId);return false};
-      useDataStore().allGroupsData.allMessages[this.groupId].messages=[...useDataStore().allGroupsData.allMessages[this.groupId].messages, ...new10Messages]
+      useDataStore().allGroupsData.allDatas[this.groupId].messages=[...useDataStore().allGroupsData.allDatas[this.groupId].messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
     }
@@ -122,11 +122,11 @@ class GroupMessageGenerator{
 
   async goToBottom(){
     const last10Messages=await getLastGroupMessages(this.groupId)
-    useDataStore().allGroupsData.allMessages[this.groupId].messages=last10Messages
+    useDataStore().allGroupsData.allDatas[this.groupId].messages=last10Messages
     const date = last10Messages.at(-1).created
-      if(new Date(useDataStore().allGroupsData.allMessages[this.groupId].lastSeen) < new Date(date)){
-        useDataStore().allGroupsData.allMessages[this.groupId].lastSeen=date;
-      pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[this.groupId].groupRelId,{lastseen:date})
+      if(new Date(useDataStore().allGroupsData.allDatas[this.groupId].lastSeen) < new Date(date)){
+        useDataStore().allGroupsData.allDatas[this.groupId].lastSeen=date;
+      pb.collection('groupMembers').update(useDataStore().allGroupsData.allDatas[this.groupId].groupRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.groupId)
   }
@@ -134,9 +134,9 @@ class GroupMessageGenerator{
   async getRepliedMessage(repliedMessageId){
     const repliedMessage = await getGroupMessageById(repliedMessageId)
     const startDate = repliedMessage.created
-    const endDate = useDataStore().allChatsData.allMessages[this.groupId].messages[0].created
+    const endDate = useDataStore().allChatsData.allDatas[this.groupId].messages[0].created
     const betweenMessages = await getChatMessagesBetween(this.groupId,startDate,endDate)
-    useDataStore().allChatsData.allMessages[this.groupId].messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allMessages[this.groupId].messages]
+    useDataStore().allChatsData.allDatas[this.groupId].messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allDatas[this.groupId].messages]
   }
 
 }
@@ -145,25 +145,25 @@ class GroupMessageGenerator{
 
 async function join(groupId){
   try{
-    await pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[groupId].groupRelId,{"active":true})
-    useDataStore().allGroupsData.allMessages[groupId].active=true
+    await pb.collection('groupMembers').update(useDataStore().allGroupsData.allDatas[groupId].groupRelId,{"active":true})
+    useDataStore().allGroupsData.allDatas[groupId].active=true
     useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=true
   }catch{}
   try{const groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId, "active":true},{expand:'mem,group'});
-  const messages=useDataStore().allGroupsData.allMessages[groupId].messages
-  const cacheNewMessages=useDataStore().allGroupsData.allMessages[groupId].cacheNewMessages
-  useDataStore().allGroupsData.allMessages[groupId]=new GroupData(groupRel)
+  const messages=useDataStore().allGroupsData.allDatas[groupId].messages
+  const cacheNewMessages=useDataStore().allGroupsData.allDatas[groupId].cacheNewMessages
+  useDataStore().allGroupsData.allDatas[groupId]=new GroupData(groupRel)
   try{
-    await useDataStore().allGroupsData.allMessages[groupId].init()
+    await useDataStore().allGroupsData.allDatas[groupId].init()
   }catch{}
-  useDataStore().allGroupsData.allMessages[groupId].messages=messages
-  useDataStore().allGroupsData.allMessages[groupId].cacheNewMessages=cacheNewMessages
+  useDataStore().allGroupsData.allDatas[groupId].messages=messages
+  useDataStore().allGroupsData.allDatas[groupId].cacheNewMessages=cacheNewMessages
 }
   catch{}}
 
 async function leave(groupId){
-  await pb.collection('groupMembers').update(useDataStore().allGroupsData.allMessages[groupId].groupRelId,{"active":false})
-  useDataStore().allGroupsData.allMessages[groupId].active=false
+  await pb.collection('groupMembers').update(useDataStore().allGroupsData.allDatas[groupId].groupRelId,{"active":false})
+  useDataStore().allGroupsData.allDatas[groupId].active=false
   useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=false
 }
 

@@ -61,7 +61,7 @@ const user = computed(()=>{
     if(showUserSearch && users.value.find(u=>u.id == props.otherId)){
         return users.value.find(u=>u.id == props.otherId)
     }else{
-        return allChatsData.value.allMessages[props.otherId]
+        return allChatsData.value.allDatas[props.otherId]
     }
     })
 

@@ -24,24 +24,24 @@
     const route=useRoute()
     const channelId=route.params.channelId
 
-    if(!allChannelsData.value.allMessages[channelId]){
+    if(!allChannelsData.value.allDatas[channelId]){
         try{
             const channelRel=await pb.collection('channelMembers').getFirstListItem(`channel = "${channelId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,channel'})
-        allChannelsData.value.allMessages[channelId]=new ChannelData(channelRel)
+        allChannelsData.value.allDatas[channelId]=new ChannelData(channelRel)
         }catch{
             const channel=await pb.collection('channels').getOne(channelId)
-        allChannelsData.value.allMessages[channelId]=new ChannelData(null,channel)
+        allChannelsData.value.allDatas[channelId]=new ChannelData(null,channel)
         }
-        await allChannelsData.value.allMessages[channelId].init()
+        await allChannelsData.value.allDatas[channelId].init()
     }
-    const subscribed=computed(()=>!!allChannelsData.value.allMessages[channelId].channelRelId)
-    const isOwner=computed(()=>allChannelsData.value.allMessages[channelId]?.channel?.owner==pb.authStore.model.id)  
+    const subscribed=computed(()=>!!allChannelsData.value.allDatas[channelId].channelRelId)
+    const isOwner=computed(()=>allChannelsData.value.allDatas[channelId]?.channel?.owner==pb.authStore.model.id)  
     const showChannel=ref(route.query.showChannel=='true')
     provide('showChannel', showChannel)
     provide('subscribed',subscribed)
     provide('isOwner',isOwner)
     
-    onBeforeUnmount(()=>{allChannelsData.value.allMessages[channelId].updateUnseenCount()})
+    onBeforeUnmount(()=>{allChannelsData.value.allDatas[channelId].updateUnseenCount()})
 
 
     </script>

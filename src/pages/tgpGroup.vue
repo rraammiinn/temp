@@ -24,19 +24,19 @@
     const route=useRoute()
     const groupId=route.params.groupId
 
-    if(!allGroupsData.value.allMessages[groupId]){
+    if(!allGroupsData.value.allDatas[groupId]){
         try{
             const groupRel=await pb.collection('groupMembers').getFirstListItem(`group = "${groupId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,group'})
-        allGroupsData.value.allMessages[groupId]=new GroupData(groupRel)
+        allGroupsData.value.allDatas[groupId]=new GroupData(groupRel)
         }catch{
             const group=await pb.collection('groups').getOne(groupId)
-        allGroupsData.value.allMessages[groupId]=new GroupData(null,group)
+        allGroupsData.value.allDatas[groupId]=new GroupData(null,group)
         }
-        await allGroupsData.value.allMessages[groupId].init()
+        await allGroupsData.value.allDatas[groupId].init()
 
     }
-    const joined=computed(()=>!!allGroupsData.value.allMessages[groupId]?.active)
-    const isOwner=computed(()=>allGroupsData.value.allMessages[groupId]?.group?.owner==pb.authStore.model.id)  
+    const joined=computed(()=>!!allGroupsData.value.allDatas[groupId]?.active)
+    const isOwner=computed(()=>allGroupsData.value.allDatas[groupId]?.group?.owner==pb.authStore.model.id)  
 
 
     const showGroup=ref(route.query.showGroup=='true')
@@ -47,7 +47,7 @@
     provide('isOwner',isOwner)
 
     
-    onBeforeUnmount(()=>{allGroupsData.value.allMessages[groupId].updateUnseenCount()})
+    onBeforeUnmount(()=>{allGroupsData.value.allDatas[groupId].updateUnseenCount()})
 
 
     </script>

@@ -2,12 +2,12 @@
 
 
 <div ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 3rem;padding-bottom: 3rem;display: flex;flex-direction: column;container: scrollable / inline-size;">
-    <template v-for="message,i in allMessages[props.otherId].messages" :key="message.id">
-          <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allMessages[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
+    <template v-for="message,i in allDatas[props.otherId].messages" :key="message.id">
+          <v-chip v-if="new Date(message.created).toLocaleDateString() != new Date(allDatas[props.otherId].messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-top: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
     
     
     
-          <tg-card @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allMessages[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="getUserAvatarUrl(message.from, allMessages[props.otherId].groupMems?.[message.from]?.avatar)" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allMessages[props.otherId].otherLastSeen).getTime()"></tg-card>
+          <tg-card @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @imageSelect="(selectedImage)=>{$emit('imageSelect',selectedImage)}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allDatas[props.otherId].groupMems?.[message.from])?.name" :text="message.text" :avatar="getUserAvatarUrl(message.from, allDatas[props.otherId].groupMems?.[message.from]?.avatar)" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allDatas[props.otherId].otherLastSeen).getTime()"></tg-card>
     
     
         </template>
@@ -31,7 +31,7 @@
     
       const props = defineProps(['otherId','initMessageId','messageGenerator','messagesType','isOwner'])
       const emit = defineEmits(['reachedStart', 'reachedEnd'])
-      const allMessages=defineModel('allMessages')
+      const allDatas=defineModel('allDatas')
 
 
 
@@ -45,7 +45,7 @@
       let bottomCard;
       const showGoToBottom=ref(false)
 
-      if(!allMessages.value[props.otherId].cacheNewMessages && !allMessages.value[props.otherId].messages.length){
+      if(!allDatas.value[props.otherId].cacheNewMessages && !allDatas.value[props.otherId].messages.length){
         await props.messageGenerator.initializeMessages()
       }
 
@@ -56,14 +56,14 @@
 
 
       async function updateLastSeen(date){
-        if(new Date(allMessages.value[props.otherId].lastSeen) < new Date(date)){
-            allMessages.value[props.otherId].lastSeen=date;
+        if(new Date(allDatas.value[props.otherId].lastSeen) < new Date(date)){
+            allDatas.value[props.otherId].lastSeen=date;
             if(props.messagesType=='chat'){
-              pb.collection('rels').update(allMessages.value[props.otherId].relId,{lastseen:date})
+              pb.collection('rels').update(allDatas.value[props.otherId].relId,{lastseen:date})
             }else if(props.messagesType=='group'){
-              pb.collection('groupMembers').update(allMessages.value[props.otherId].groupRelId,{lastseen:date})
+              pb.collection('groupMembers').update(allDatas.value[props.otherId].groupRelId,{lastseen:date})
             }else if(props.messagesType=='channel'){
-              pb.collection('channelMembers').update(allMessages.value[props.otherId].channelRelId,{lastseen:date})
+              pb.collection('channelMembers').update(allDatas.value[props.otherId].channelRelId,{lastseen:date})
             }
       }
       }
@@ -78,7 +78,7 @@
 
             if(!target)return;
             const date = target.getAttribute('created')
-            // const date = allMessages.value[props.otherId].messages.find(msg=>msg.id==target.id).created
+            // const date = allDatas.value[props.otherId].messages.find(msg=>msg.id==target.id).created
             dateObserver.unobserve(target);
             await updateLastSeen(date);
           },
@@ -171,9 +171,9 @@
 
   function cardInsertHandler(id){
     const card=document.getElementById(id)
-    if(id == allMessages.value[props.otherId].messages[0].id){
+    if(id == allDatas.value[props.otherId].messages[0].id){
       startObserver.observe(card)
-    }else if(id == allMessages.value[props.otherId].messages.at(-1).id){
+    }else if(id == allDatas.value[props.otherId].messages.at(-1).id){
       endObserver.observe(card)
     }
     dateObserver.observe(card)
@@ -192,7 +192,7 @@
 
   async function init(){
     setTimeout(() => {
-            // document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
+            // document.querySelector(`[created="${allDatas.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
  
       // attachAllObservers()
 
@@ -200,11 +200,11 @@
       document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
       }else{
         // scrollable.value?.scrollIntoView({block:'center'});
-        document.querySelector(`[created="${allMessages.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center'});
+        document.querySelector(`[created="${allDatas.value[props.otherId].lastSeen}"]`)?.scrollIntoView({block:'center'});
       }
 
       scrollable.value.addEventListener('scroll',(e)=>{showGoToBottom.value = startScrollTop < e.target.scrollTop;startScrollTop=e.target.scrollTop;},{passive:true});
-      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allMessages.value[props.otherId].messages?.at(-1)?.created)}
+      if(scrollable.value.scrollHeight==scrollable.value.clientHeight){updateLastSeen(allDatas.value[props.otherId].messages?.at(-1)?.created)}
 
 
     }, 100);

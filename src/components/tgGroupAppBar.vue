@@ -1,6 +1,6 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="if(!showGroup && !showUser)$router.back();if(!showUser)showGroup=false;showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-<v-avatar @click="showGroup=true;" :image="getGroupAvatarUrl(props.groupId, allGroupsData.allMessages[props.groupId].group.avatar)"></v-avatar>
+<v-avatar @click="showGroup=true;" :image="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas[props.groupId].group.avatar)"></v-avatar>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
         <template v-slot:activator="{ props }">

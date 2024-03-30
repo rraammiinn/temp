@@ -48,13 +48,13 @@ class ChatData{
 class AllChatsData{
     constructor(){
         this.rels=[]
-        this.allMessages={}
+        this.allDatas={}
         this.backRels=[]
         this.contacts=[]
     }
 
     async updateContacts(){this.contacts=await pb.collection('contacts').getFullList({expand:'following'});}
-    async updateUnseenCount(id){await this.allMessages[id].updateUnseenCount()}
+    async updateUnseenCount(id){await this.allDatas[id].updateUnseenCount()}
     async updateRels(){this.rels=await pb.collection('rels').getFullList({
         expand:'follower,following'
     });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id);}
@@ -62,8 +62,8 @@ class AllChatsData{
     async updateAllMessages(){
         await Promise.allSettled(this.rels.map((rel)=>{
                 let index=(rel.follower == useAuthStore().authData.id) ? rel.following : rel.follower
-                this.allMessages[index] = new ChatData(rel,this.backRels.find(i=>i.follower == rel.following))
-                return this.allMessages[index].init()
+                this.allDatas[index] = new ChatData(rel,this.backRels.find(i=>i.follower == rel.following))
+                return this.allDatas[index].init()
         }))
 
 
@@ -117,22 +117,22 @@ class AllGroupsData{
     constructor(){
         this.groupRels=[]
         // this.groups={}
-        this.allMessages={}
+        this.allDatas={}
     }
 
     // async updateGroups(){(await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})).map(rec=>{this.groups[rec.group]=rec.expand.group;this.groups[rec.group]['lastSeen']=rec.lastseen;this.groups[rec.group]['groupRelId']=rec.id});}
     // async updateGroupRels(){this.groupRels = await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})}
-    async updateMembers(groupId){await this.allMessages[groupId].updateMembers()}
+    async updateMembers(groupId){await this.allDatas[groupId].updateMembers()}
     async updateRels(){
         this.groupRels=await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'});
-        this.groupRels.forEach(groupRel=>{try{this.allMessages[groupRel.group].active=groupRel.active}catch{}})
+        this.groupRels.forEach(groupRel=>{try{this.allDatas[groupRel.group].active=groupRel.active}catch{}})
     }
-    async updateUnseenCount(groupId){await this.allMessages[groupId].updateUnseenCount()}
+    async updateUnseenCount(groupId){await this.allDatas[groupId].updateUnseenCount()}
     async updateAllMessages(){
   await Promise.allSettled(this.groupRels.map((groupRel)=>{
         let index=groupRel.group
-        this.allMessages[index] = new GroupData(groupRel)
-        return this.allMessages[index].init()
+        this.allDatas[index] = new GroupData(groupRel)
+        return this.allDatas[index].init()
 }))
 
     }
@@ -183,17 +183,17 @@ class AllChannelsData{
     constructor(){
         // this.channels={}
         this.channelRels=[]
-        this.allMessages={}
+        this.allDatas={}
     }
 
-    async updateMembers(channelId){await this.allMessages[channelId].updateMembers()}
+    async updateMembers(channelId){await this.allDatas[channelId].updateMembers()}
     async updateRels(){this.channelRels=await pb.collection('channelMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'channel'});}
-    async updateUnseenCount(channelId){await this.allMessages[channelId].updateUnseenCount()}
+    async updateUnseenCount(channelId){await this.allDatas[channelId].updateUnseenCount()}
     async updateAllMessages(){
         await Promise.allSettled(this.channelRels.map((channelRel)=>{
               let index=channelRel.channel
-              this.allMessages[index] = new ChannelData(channelRel)
-              return this.allMessages[index].init()
+              this.allDatas[index] = new ChannelData(channelRel)
+              return this.allDatas[index].init()
       }))
       
           }

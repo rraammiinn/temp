@@ -4,7 +4,7 @@
     <v-list v-if="searchMessage" :items="Object.keys(searchMessageResults)"  item-props  lines="three">
 
 <div v-for="searchMessageResult in searchMessageResults">
-    <v-list-item @click="$router.push({name:'chat',params:{otherId:(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchMessageResult.id,showUser:false}})" v-if="searchMessageResult.to" class="listItem" :class="{online:allMessagesSorted[(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
+    <v-list-item @click="$router.push({name:'chat',params:{otherId:(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchMessageResult.id,showUser:false}})" v-if="searchMessageResult.to" class="listItem" :class="{online:allDatasSorted[(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
     :prepend-avatar="getUserAvatarUrl(searchMessageResult[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'], searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].avatar)"
     :title="searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].name"
     :subtitle="searchMessageResult.text"
@@ -28,29 +28,29 @@
 </v-list>
 
 
-<v-list v-else :items="Object.keys(allMessagesSorted)"  item-props  lines="three">
+<v-list v-else :items="allDatasSorted.keys()"  item-props  lines="three">
 <TransitionGroup name="slide">
-<template v-for="(messages,k,index) in allMessagesSorted" :key="k">
-    <v-list-item @contextmenu.prevent="shareId=messages.other.id;showChatSheet=true;" v-if="messages.lastMessage && messages.messagesType=='chat' && messages.active && messages.other.id != pb.authStore.model.id" class="listItem" :class="{online:messages.isOnline}" @click="$router.push({name:'chat',params:{otherId:messages.other.id},query:{showUser:false}})"
-    :prepend-avatar="getUserAvatarUrl(messages.other.id, messages.other.avatar)"
-    :title="messages.other.name"
-    :subtitle="messages.lastMessage.text"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+<template v-for="[key, datas] in allDatasSorted.entries()" :key="key">
+    <v-list-item @contextmenu.prevent="shareId=datas.other.id;showChatSheet=true;" v-if="datas.lastMessage && datas.messagesType=='chat' && datas.active && datas.other.id != pb.authStore.model.id" class="listItem" :class="{online:datas.isOnline}" @click="$router.push({name:'chat',params:{otherId:datas.other.id},query:{showUser:false}})"
+    :prepend-avatar="getUserAvatarUrl(datas.other.id, datas.other.avatar)"
+    :title="datas.other.name"
+    :subtitle="datas.lastMessage.text"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
   
-  <v-list-item @contextmenu.prevent="shareId=messages.group.id;showGroupSheet=true;" v-if="messages.lastMessage && messages.messagesType=='group' && messages.active" class="listItem" @click="$router.push({name:'group',params:{groupId:messages.group.id},query:{showGroup:false}})"
-    :prepend-avatar="getGroupAvatarUrl(messages.group.id, messages.group.avatar)"
-    :title="messages.group.name"
-    :subtitle="`${allGroupsData.allMessages[messages.lastMessage.group].groupMems[messages.lastMessage.from]?.name} : ${messages.lastMessage.text}`"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+  <v-list-item @contextmenu.prevent="shareId=datas.group.id;showGroupSheet=true;" v-if="datas.lastMessage && datas.messagesType=='group' && datas.active" class="listItem" @click="$router.push({name:'group',params:{groupId:datas.group.id},query:{showGroup:false}})"
+    :prepend-avatar="getGroupAvatarUrl(datas.group.id, datas.group.avatar)"
+    :title="datas.group.name"
+    :subtitle="`${allGroupsData.allDatas[datas.lastMessage.group].groupMems[datas.lastMessage.from]?.name} : ${datas.lastMessage.text}`"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
 
-  <v-list-item @contextmenu.prevent="shareId=messages.channel.id;showChannelSearch=true;" v-if="messages.lastMessage && messages.messagesType=='channel' && messages.active" class="listItem" @click="$router.push({name:'channel',params:{channelId:messages.channel.id},query:{showChannel:false}})"
-    :prepend-avatar="getChannelAvatarUrl(messages.channel.id, messages.channel.avatar)"
-    :title="messages.channel.name"
-    :subtitle="`${messages.lastMessage.text}`"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(messages.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="messages.unseenCount">{{ messages.unseenCount }}</v-chip></div></template></v-list-item>
+  <v-list-item @contextmenu.prevent="shareId=datas.channel.id;showChannelSearch=true;" v-if="datas.lastMessage && datas.messagesType=='channel' && datas.active" class="listItem" @click="$router.push({name:'channel',params:{channelId:datas.channel.id},query:{showChannel:false}})"
+    :prepend-avatar="getChannelAvatarUrl(datas.channel.id, datas.channel.avatar)"
+    :title="datas.channel.name"
+    :subtitle="`${datas.lastMessage.text}`"
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
 
   
-  <v-divider v-if="messages.lastMessage && (messages.messagesType =='channel' || messages.active)"></v-divider>
+  <v-divider v-if="datas.lastMessage && (datas.messagesType =='channel' || datas.active)"></v-divider>
 </template>
 </TransitionGroup>
 </v-list>
@@ -184,7 +184,7 @@
 
 
 
-  const{allGroupsData,allMessagesSorted,searchMessageResults}=storeToRefs(useDataStore())
+  const{allGroupsData,allDatasSorted,searchMessageResults}=storeToRefs(useDataStore())
 
 
   const searchMessage=inject('searchMessage')

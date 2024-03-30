@@ -1,12 +1,12 @@
 <template>
-    <tg-channel-details :subscribed="subscribed" :owner="owner" :channel="allChannelsData.allMessages[props.channelId].channel" v-if="showChannel"></tg-channel-details>
+    <tg-channel-details :subscribed="subscribed" :owner="owner" :channel="allChannelsData.allDatas[props.channelId].channel" v-if="showChannel"></tg-channel-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChannelsData.allMessages" messages-type="channel" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.channelId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allDatas="allChannelsData.allDatas" messages-type="channel" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.channelId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -245,7 +245,7 @@
   
   
   const messageGenerator = new ChannelMessageGenerator(props.channelId,props.initMessageId)
-  const owner=await pb.collection('users').getOne(allChannelsData.value.allMessages[props.channelId].channel?.owner);
+  const owner=await pb.collection('users').getOne(allChannelsData.value.allDatas[props.channelId].channel?.owner);
 
 
   

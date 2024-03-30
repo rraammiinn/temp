@@ -1,14 +1,14 @@
 <template>
     <tg-user-details style="z-index: 888;" :user="user" v-if="showUser"></tg-user-details>
 
-    <tg-group-details @join="async()=>{await allGroupsData.allMessages[props.groupId].init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allMessages[props.groupId].groupMems" :group="allGroupsData.allMessages[props.groupId].group" :block-list="allGroupsData.allMessages[props.groupId].blockList" v-if="showGroup"></tg-group-details>
+    <tg-group-details @join="async()=>{await allGroupsData.allDatas[props.groupId].init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allDatas[props.groupId].groupMems" :group="allGroupsData.allDatas[props.groupId].group" :block-list="allGroupsData.allDatas[props.groupId].blockList" v-if="showGroup"></tg-group-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allMessages[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allMessages="allGroupsData.allMessages" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allDatas[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allDatas="allGroupsData.allDatas" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -111,7 +111,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-if="!joined" color="primary" @click="async()=>{await join(props.groupId);await allGroupsData.allMessages[props.groupId].init();await messageGenerator.initializeMessages()}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
+          <v-btn v-if="!joined" color="primary" @click="async()=>{await join(props.groupId);await allGroupsData.allDatas[props.groupId].init();await messageGenerator.initializeMessages()}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
 
         </div>
   
@@ -219,7 +219,7 @@
   
   const joined=inject('joined')
   const isOwner=inject('isOwner')
-  const blocked=allGroupsData.value.allMessages[props.groupId]?.blocked
+  const blocked=allGroupsData.value.allDatas[props.groupId]?.blocked
   
   const files=ref([]);
   
@@ -273,7 +273,7 @@
   
   
   const messageGenerator = new GroupMessageGenerator(props.groupId,props.initMessageId)
-  const owner=await pb.collection('users').getOne(allGroupsData.value.allMessages[props.groupId].group?.owner);
+  const owner=await pb.collection('users').getOne(allGroupsData.value.allDatas[props.groupId].group?.owner);
 
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{groupsContainer.value?.scrollIntoView({block:'center'});}})

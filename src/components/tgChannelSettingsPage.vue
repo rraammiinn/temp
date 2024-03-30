@@ -2,7 +2,7 @@
 
 
     <div class="main">
-        <img style="width: 100%;" :src="getChannelAvatarUrl(props.channelId, allChannelsData.allMessages[props.channelId].channel.avatar)" alt="">
+        <img style="width: 100%;" :src="getChannelAvatarUrl(props.channelId, allChannelsData.allDatas[props.channelId].channel.avatar)" alt="">
         <div style="width: 100%;margin-bottom: 1rem;">
             <v-btn @click="fileInput?.click()" icon="mdi-upload" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
         </div>
@@ -104,8 +104,8 @@ const props=defineProps(['channelId'])
 
 const fileInput=ref()
 
-const name =ref(allChannelsData.value.allMessages[props.channelId].channel.name)
-const about =ref(allChannelsData.value.allMessages[props.channelId].channel.about)
+const name =ref(allChannelsData.value.allDatas[props.channelId].channel.name)
+const about =ref(allChannelsData.value.allDatas[props.channelId].channel.about)
 
 
 
@@ -116,7 +116,7 @@ async function upload_(){
         let formData = new FormData();
         formData.append('avatar', fileInput.value.files[0]);
         await pb.collection('channels').update(props.channelId, formData);
-        await allChannelsData.value.allMessages[props.channelId].updateChannel()
+        await allChannelsData.value.allDatas[props.channelId].updateChannel()
         showAlert('new avatar uploaded successfully', 'success')
     }catch{showError('uploading avatar failed.')}
     hideProgressBar()
@@ -130,7 +130,7 @@ async function change(){
     showProgressBar()
     try{
         await pb.collection('channels').update(props.channelId, {'name':name.value, 'about':about.value});
-        await allChannelsData.value.allMessages[props.channelId].updateChannel()
+        await allChannelsData.value.allDatas[props.channelId].updateChannel()
         showAlert('changes applied successfully', 'success')
     }catch{showError('changing channel name and about failed.')}
     hideProgressBar()
@@ -138,8 +138,8 @@ async function change(){
 }
 
 function cancel(){
-    name.value=allChannelsData.value.allMessages[props.channelId].channel.name
-    about.value=allChannelsData.value.allMessages[props.channelId].channel.about
+    name.value=allChannelsData.value.allDatas[props.channelId].channel.name
+    about.value=allChannelsData.value.allDatas[props.channelId].channel.about
 }
 
 

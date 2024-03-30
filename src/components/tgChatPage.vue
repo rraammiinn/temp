@@ -1,12 +1,12 @@
 <template>
-    <tg-user-details :is-in-rel="isInRel" :blocked="blocked" style="z-index: 888;" :user="allChatsData.allMessages[props.otherId].other" v-if="showUser"></tg-user-details>
+    <tg-user-details :is-in-rel="isInRel" :blocked="blocked" style="z-index: 888;" :user="allChatsData.allDatas[props.otherId].other" v-if="showUser"></tg-user-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allMessages="allChatsData.allMessages" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allDatas="allChatsData.allDatas" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   

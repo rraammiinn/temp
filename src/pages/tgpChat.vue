@@ -24,7 +24,7 @@
     const route=useRoute()
     const otherId=route.params.otherId
 
-    if(!allChatsData.value.allMessages[otherId]){
+    if(!allChatsData.value.allDatas[otherId]){
         let rel,backRel,user
         try{
             rel=await pb.collection('rels').getFirstListItem(`follower = "${pb.authStore.model.id}" && following = "${otherId}"`,{expand:'follower,following'})
@@ -33,19 +33,19 @@
             user=await pb.collection('users').getOne(otherId)
         }
         finally{
-            allChatsData.value.allMessages[otherId]=new ChatData(rel,backRel,user)
-            await allChatsData.value.allMessages[otherId].init()
+            allChatsData.value.allDatas[otherId]=new ChatData(rel,backRel,user)
+            await allChatsData.value.allDatas[otherId].init()
         }
         
     }
-    const isInRel=computed(()=>!!allChatsData.value.allMessages[otherId].relId && !!allChatsData.value.allMessages[otherId].backRelId)
-    const blocked=computed(()=>!allChatsData.value.allMessages[otherId].active)
+    const isInRel=computed(()=>!!allChatsData.value.allDatas[otherId].relId && !!allChatsData.value.allDatas[otherId].backRelId)
+    const blocked=computed(()=>!allChatsData.value.allDatas[otherId].active)
     const showUser=ref(route.query.showUser=='true')
     provide('showUser', showUser)
     provide('isInRel',isInRel)
     provide('blocked',blocked)
     
-    onBeforeUnmount(()=>{allChatsData.value.allMessages[otherId].updateUnseenCount()})
+    onBeforeUnmount(()=>{allChatsData.value.allDatas[otherId].updateUnseenCount()})
 
 
     </script>

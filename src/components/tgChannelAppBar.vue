@@ -1,6 +1,6 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="if(!showChannel)$router.back();showChannel=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-    <v-avatar @click="showChannel=true;" :image="getChannelAvatarUrl(props.channelId, allChannelsData.allMessages[props.channelId].channel.avatar)"></v-avatar>
+    <v-avatar @click="showChannel=true;" :image="getChannelAvatarUrl(props.channelId, allChannelsData.allDatas[props.channelId].channel.avatar)"></v-avatar>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
         <template v-slot:activator="{ props }">
