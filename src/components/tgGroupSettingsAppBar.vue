@@ -1,6 +1,6 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="$router.back();" variant="text" icon="mdi-arrow-left"></v-btn>
-<v-avatar :image="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas[props.groupId].group.avatar)"></v-avatar>
+<v-avatar :image="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas.get(props.groupId).group.avatar)"></v-avatar>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
         <template v-slot:activator="{ props }">

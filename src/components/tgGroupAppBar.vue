@@ -1,6 +1,6 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="if(!showGroup && !showUser)$router.back();if(!showUser)showGroup=false;showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
-<v-avatar @click="showGroup=true;" :image="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas[props.groupId].group.avatar)"></v-avatar>
+<v-avatar @click="showGroup=true;" :image="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas.get(props.groupId).group.avatar)"></v-avatar>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
         <template v-slot:activator="{ props }">
@@ -9,7 +9,7 @@
         <v-col style="width: fit-content;margin: 0;padding: 0;margin-top: 1rem;">
                 <v-btn @click="$router.push({name:'groupSettings', params:{groupId:props.groupId}})" v-if="isOwner" variant="outlined" style="background-color: var(--tgBg);border-bottom-left-radius: 0;border-bottom-right-radius: 0;" width="100%" append-icon="mdi-tune">settings</v-btn>
                 <v-btn @click="leave(props.groupId)" v-if="joined" color="error" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-logout">leave</v-btn>
-                <v-btn @click="join(props.groupId)" v-else color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-login">join</v-btn>
+                <v-btn @click="async()=>{await join(props.groupId);$router.go()}" v-else color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-login">join</v-btn>
         </v-col>
     </v-menu>
     <!-- <v-btn variant="text" icon="mdi-dots-vertical"></v-btn> -->

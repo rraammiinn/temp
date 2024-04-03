@@ -5,7 +5,8 @@
         <v-app-bar prominent style="position: fixed;padding-right: .5rem;">
           <slot name="appBar"></slot>
           <v-progress-linear
-      color="primary"
+      width="100vw"
+      color="var(--tgBrown)"
       indeterminate
       style="z-index: 99999;position: absolute;top: unset;bottom: 0;"
       v-show="progressBarVisibility"

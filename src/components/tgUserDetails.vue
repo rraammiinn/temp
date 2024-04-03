@@ -17,8 +17,8 @@
             <div style="margin-bottom: 1.5rem;">
                 <h3>{{props.user.username}}</h3><h5 style="opacity: .5;">username</h5>
             </div>
-            <div style="margin-bottom: 1.5rem;">
-                <h3>{{props.user.bio}}</h3><h5 style="opacity: .5;">bio</h5>
+            <div v-if="props.user.bio" style="margin-bottom: 1.5rem;">
+                <h5 v-for="line in props.user.bio.split('\n')">{{line}}</h5><h5 style="opacity: .5;">bio</h5>
             </div>
         </v-col>
     </div>

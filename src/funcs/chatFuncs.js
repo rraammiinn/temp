@@ -49,7 +49,7 @@ async function initializeChatMessages(otherId,initMessageId){
     else{
 
   
-      messages= await getLastSeenChatMessages(otherId,useDataStore().allChatsData.allDatas[otherId].lastSeen)
+      messages= await getLastSeenChatMessages(otherId,useDataStore().allChatsData.allDatas.get(otherId).lastSeen)
   
     }
   }
@@ -67,14 +67,14 @@ async function initializeChatMessages(otherId,initMessageId){
   subscribeToNewMessages(otherId)}
 
 
-  useDataStore().allChatsData.allDatas[otherId].messages=messages
+  useDataStore().allChatsData.allDatas.get(otherId).messages=messages
   
   }
 
 
   function subscribeToNewMessages(otherId){
    
-    useDataStore().allChatsData.allDatas[otherId].cacheNewMessages=true
+    useDataStore().allChatsData.allDatas.get(otherId).cacheNewMessages=true
   }
 
 
@@ -92,9 +92,9 @@ class ChatMessageGenerator{
 
   async getPreviousMessages(){
     try{
-      const previous10Messages= await getPreviousChatMessages(this.otherId,useDataStore().allChatsData.allDatas[this.otherId].messages[0].created)
+      const previous10Messages= await getPreviousChatMessages(this.otherId,useDataStore().allChatsData.allDatas.get(this.otherId).messages[0].created)
       if(!previous10Messages.length){return false};
-        useDataStore().allChatsData.allDatas[this.otherId].messages=[...previous10Messages, ...useDataStore().allChatsData.allDatas[this.otherId].messages]
+        useDataStore().allChatsData.allDatas.get(this.otherId).messages=[...previous10Messages, ...useDataStore().allChatsData.allDatas.get(this.otherId).messages]
   
   
       }
@@ -104,9 +104,9 @@ class ChatMessageGenerator{
   async getNextMessages(){
     let new10Messages=[]
     try{
-      new10Messages= await getNextChatMessages(this.otherId,useDataStore().allChatsData.allDatas[this.otherId].messages.at(-1).created)
+      new10Messages= await getNextChatMessages(this.otherId,useDataStore().allChatsData.allDatas.get(this.otherId).messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.otherId);return false;};
-      useDataStore().allChatsData.allDatas[this.otherId].messages=[...useDataStore().allChatsData.allDatas[this.otherId].messages, ...new10Messages]
+      useDataStore().allChatsData.allDatas.get(this.otherId).messages=[...useDataStore().allChatsData.allDatas.get(this.otherId).messages, ...new10Messages]
 //       if(new10Messages.length<10){
 // subscribeToNewMessages()}
     }
@@ -119,11 +119,11 @@ class ChatMessageGenerator{
 
   async goToBottom(){
     const last10Messages=await getLastChatMessages(this.otherId)
-    useDataStore().allChatsData.allDatas[this.otherId].messages=last10Messages
+    useDataStore().allChatsData.allDatas.get(this.otherId).messages=last10Messages
     const date = last10Messages.at(-1).created
-      if(new Date(useDataStore().allChatsData.allDatas[this.otherId].lastSeen) < new Date(date)){
-        useDataStore().allChatsData.allDatas[this.otherId].lastSeen=date;
-      pb.collection('rels').update(useDataStore().allChatsData.allDatas[this.otherId].relId,{lastseen:date})
+      if(new Date(useDataStore().allChatsData.allDatas.get(this.otherId).lastSeen) < new Date(date)){
+        useDataStore().allChatsData.allDatas.get(this.otherId).lastSeen=date;
+      pb.collection('rels').update(useDataStore().allChatsData.allDatas.get(this.otherId).relId,{lastseen:date})
       }
     subscribeToNewMessages(this.otherId)
   }
@@ -131,9 +131,9 @@ class ChatMessageGenerator{
   async getRepliedMessage(repliedMessageId){
     const repliedMessage = await getChatMessageById(repliedMessageId)
     const startDate = repliedMessage.created
-    const endDate = useDataStore().allChatsData.allDatas[this.otherId].messages[0].created
+    const endDate = useDataStore().allChatsData.allDatas.get(this.otherId).messages[0].created
     const betweenMessages = await getChatMessagesBetween(this.otherId,startDate,endDate)
-    useDataStore().allChatsData.allDatas[this.otherId].messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allDatas[this.otherId].messages]
+    useDataStore().allChatsData.allDatas.get(this.otherId).messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allDatas.get(this.otherId).messages]
   }
 
 }
@@ -141,12 +141,12 @@ class ChatMessageGenerator{
 
   async function block(userId){
     await pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":false})
-    useDataStore().allChatsData.allDatas[userId].active=false
+    useDataStore().allChatsData.allDatas.get(userId).active=false
   }
 
   async function unblock(userId){
     await pb.collection('rels').update(useDataStore().allChatsData.rels.find(rel=>rel.following==userId).id,{"active":true})
-    useDataStore().allChatsData.allDatas[userId].active=true
+    useDataStore().allChatsData.allDatas.get(userId).active=true
   }
 
 

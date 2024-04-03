@@ -40,7 +40,7 @@
   <v-list-item @contextmenu.prevent="shareId=datas.group.id;showGroupSheet=true;" v-if="datas.lastMessage && datas.messagesType=='group' && datas.active" class="listItem" @click="$router.push({name:'group',params:{groupId:datas.group.id},query:{showGroup:false}})"
     :prepend-avatar="getGroupAvatarUrl(datas.group.id, datas.group.avatar)"
     :title="datas.group.name"
-    :subtitle="`${allGroupsData.allDatas[datas.lastMessage.group].groupMems[datas.lastMessage.from]?.name} : ${datas.lastMessage.text}`"
+    :subtitle="`${allGroupsData.allDatas.get(datas.lastMessage.group).groupMems.get(datas.lastMessage.from)?.name} : ${datas.lastMessage.text}`"
   ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
 
   <v-list-item @contextmenu.prevent="shareId=datas.channel.id;showChannelSearch=true;" v-if="datas.lastMessage && datas.messagesType=='channel' && datas.active" class="listItem" @click="$router.push({name:'channel',params:{channelId:datas.channel.id},query:{showChannel:false}})"
@@ -168,8 +168,11 @@
 
   import {useOtherStore} from '@/store/otherStore'
 
+  import {useRouter} from 'vue-router'
+
   import {getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl} from '@/funcs/commonFuncs';
 
+  const router = useRouter()
 
   const showChatSheet = ref(false)
   const showGroupSheet = ref(false)
@@ -224,7 +227,7 @@ const record = await pb.collection('groups').create(formData);
 await join(record.id)
 newGroup.value={}
 showGroupCreationForm.value=false
-showAlert('group created successfully', 'success')
+showAlert('group created successfully', 'success', ()=>{router.push({name:'groupSettings', params:{groupId:record.id}})})
   }catch{showError('group creation failed.')}
 
 hideProgressBar()
@@ -247,7 +250,7 @@ await subscribe(record.id)
 
 newChannel.value={}
 showChannelCreationForm.value=false
-showAlert('channel created successfully', 'success')
+showAlert('channel created successfully', 'success', ()=>{router.push({name:'channelSettings', params:{channelId:record.id}})})
   }catch{showError('channel creation failed.')}
 
 hideProgressBar()

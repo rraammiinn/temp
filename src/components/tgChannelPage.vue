@@ -1,16 +1,16 @@
 <template>
-    <tg-channel-details :subscribed="subscribed" :owner="owner" :channel="allChannelsData.allDatas[props.channelId].channel" v-if="showChannel"></tg-channel-details>
+    <tg-channel-details :subscribed="subscribed" :owner="owner" :channel="allChannelsData.allDatas.get(props.channelId).channel" v-if="showChannel"></tg-channel-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allDatas="allChannelsData.allDatas" messages-type="channel" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.channelId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable :key="scrollableKey" v-model:allDatas="allChannelsData.allDatas" messages-type="channel" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.channelId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
-  
+<!--   
       <v-bottom-sheet v-model="sheet">
         <img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;;max-height: 80dvh;object-fit: contain;" :src="image">
         <div style="width: 100%;">
@@ -19,11 +19,11 @@
         </div>
   
       </v-bottom-sheet>
-  
+   -->
   
         <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
   
-        <div style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
+        <div v-show="!subscribed || isOwner" style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
   
           <v-btn v-if="files.length"
               color="error"
@@ -47,8 +47,9 @@
         </div>
   
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
-          <div v-if="subscribed && isOwner" style="padding-bottom:1rem;display:flex">
-            <v-btn v-if="!isRecording"
+          <div style="padding-bottom:1rem;display:flex;justify-content: space-between;align-items: center">
+            <div v-if="subscribed && isOwner">
+              <v-btn v-if="!isRecording"
               color="primary"
               :icon="mediaType == 'audio' ? 'mdi-microphone' : 'mdi-webcam'"
               variant="text"
@@ -75,6 +76,9 @@
               @click.stop="()=>{recorder.pauseRecording()}"
             ></v-btn>
             </div>
+            </div>
+
+            <div style="margin-left: auto;" id="goToBottomBtn"></div>
           </div>
   
           <v-textarea v-if="subscribed && isOwner"
@@ -95,7 +99,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-if="!subscribed" color="primary" @click="subscribe(props.channelId)" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
+          <v-btn v-if="!subscribed" color="primary" @click="async()=>{await subscribe(props.channelId);$router.go();}" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
 
         </div>
   
@@ -198,6 +202,7 @@
   
   const subscribed=inject('subscribed')
   const isOwner=inject('isOwner')
+  const scrollableKey=inject('scrollableKey')
   
   
   const files=ref([]);
@@ -205,6 +210,7 @@
   
   
   async function send(){
+    if(!msg.value && !files.value.length)return;
     showProgressBar()
     try{
       if(!isOwner.value){
@@ -245,7 +251,7 @@
   
   
   const messageGenerator = new ChannelMessageGenerator(props.channelId,props.initMessageId)
-  const owner=await pb.collection('users').getOne(allChannelsData.value.allDatas[props.channelId].channel?.owner);
+  const owner=await pb.collection('users').getOne(allChannelsData.value.allDatas.get(props.channelId).channel?.owner);
 
 
   

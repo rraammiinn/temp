@@ -20,22 +20,18 @@ import { useRouter } from 'vue-router';
 
 import {useOtherStore} from '@/store/otherStore'
 
+
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 const router=useRouter()
 const {updateLogInState,updateAuthData}=useAuthStore()
 const disabled=ref(false)
-const btnText=ref()
+const btnText=ref('resend')
 
 
 if(pb.authStore?.model?.verified)router.replace('/');
 
-try{
-    await requestVerification()
-}catch{showError('sending verification email failed.\nmake sure your email is valid.')}
-
-
-pb.collection('users').subscribe(useAuthStore().authData.id,async(e)=>{
+pb.collection('users').subscribe(pb.authStore.model.id,async(e)=>{
         await pb.collection('users').authRefresh();
 
 
@@ -47,12 +43,15 @@ pb.collection('users').subscribe(useAuthStore().authData.id,async(e)=>{
         }
     })
 
+try{
+    await requestVerification()
+}catch{showError('sending verification email failed.\nmake sure your email is valid.')}
+
+
     
 async function requestVerification(){
     try{
-
-    }catch{showError('sending verification email failed.\nmake sure your email is valid.')}
-    disabled.value=true
+        disabled.value=true
     await pb.collection('users').requestVerification(useAuthStore().authData.email);
     btnText.value=149
     const counter = setInterval(() => {
@@ -63,6 +62,7 @@ async function requestVerification(){
         clearInterval(counter)
         btnText.value='resend'
     }, 150000);
+    }catch{disabled.value=false;showError('sending verification email failed.\nmake sure your email is valid.')}
     
 }
 </script>

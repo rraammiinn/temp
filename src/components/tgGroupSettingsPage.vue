@@ -2,7 +2,7 @@
 
 
     <div class="main">
-        <img style="width: 100%;" :src="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas[props.groupId].group.avatar)" alt="">
+        <img style="width: 100%;" :src="getGroupAvatarUrl(props.groupId, allGroupsData.allDatas.get(props.groupId).group.avatar)" alt="">
         <div style="width: 100%;margin-bottom: 1rem;">
             <v-btn @click="fileInput?.click()" icon="mdi-upload" style="width: 3rem; height: 3rem;margin-right: 1rem;margin-left: auto;display: block;margin-top: -2rem;border-radius: 50%;"></v-btn>
         </div>
@@ -104,8 +104,8 @@ const dialog=ref(false)
 
 const fileInput=ref()
 
-const name =ref(allGroupsData.value.allDatas[props.groupId].group.name)
-const about =ref(allGroupsData.value.allDatas[props.groupId].group.about)
+const name =ref(allGroupsData.value.allDatas.get(props.groupId).group.name)
+const about =ref(allGroupsData.value.allDatas.get(props.groupId).group.about)
 
 
 
@@ -116,7 +116,7 @@ async function upload_(){
         let formData = new FormData();
         formData.append('avatar', fileInput.value.files[0]);
         await pb.collection('groups').update(props.groupId, formData);
-        await allGroupsData.value.allDatas[props.groupId].updateGroup()
+        await allGroupsData.value.allDatas.get(props.groupId).updateGroup()
         showAlert('new avatar uploaded successfully', 'success')
     }catch{showError('uploading avatar failed.')}
     hideProgressBar()
@@ -129,7 +129,7 @@ async function change(){
     showProgressBar()
     try{
         await pb.collection('groups').update(props.groupId, {'name':name.value, 'about':about.value});
-        await allGroupsData.value.allDatas[props.groupId].updateGroup()
+        await allGroupsData.value.allDatas.get(props.groupId).updateGroup()
         showAlert('changes applied successfully', 'success')
     }catch{showError('changing group name and about failed.')}
     hideProgressBar()
@@ -137,8 +137,8 @@ async function change(){
 }
 
 function cancel(){
-    name.value=allGroupsData.value.allDatas[props.groupId].group.name
-    about.value=allGroupsData.value.allDatas[props.groupId].group.about
+    name.value=allGroupsData.value.allDatas.get(props.groupId).group.name
+    about.value=allGroupsData.value.allDatas.get(props.groupId).group.about
 }
 
 

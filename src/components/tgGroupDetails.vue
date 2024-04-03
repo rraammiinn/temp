@@ -16,13 +16,15 @@
                 </div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex;justify-content: space-between;">
-                        <h3>{{props.owner.name}}</h3>
-                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
+                      <div>
+                          <h3>{{props.owner.name}}</h3>
+                          <h5 style="opacity: .5;">group owner</h5>
+                      </div>                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
                     </div>
                     <h5 style="opacity: .5;">owner</h5>
                 </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <h3>{{props.group.about}}</h3><h5 style="opacity: .5;">about</h5>
+                <div v-if="props.group.about" style="margin-bottom: 1.5rem;">
+                  <h5 v-for="line in props.group.about.split('\n')">{{line}}</h5><h5 style="opacity: .5;">about</h5>
                 </div>
             </v-col>
         </div>
@@ -38,13 +40,13 @@
               :subtitle="member.username"
             >
             <template v-slot:append>
-              <v-btn v-if="props.blockList.includes(member.id)"
+              <v-btn v-if="props.blockList.includes(member.id) && pb.authStore.model.id==props.owner.id"
               color="error"
               icon="mdi-power-off"
               variant="text"
               @click.stop="async()=>{await unBlockMember(props.group.id,member.id);props.blockList=props.blockList.filter(memberId=>memberId != member.id);}"
             ></v-btn>
-            <v-btn v-else
+            <v-btn v-if="!props.blockList.includes(member.id) && pb.authStore.model.id==props.owner.id"
               color="success"
               icon="mdi-power"
               variant="text"
@@ -52,11 +54,11 @@
             ></v-btn>
 
 
-            <v-btn v-if="Object.keys(contacts).includes(member.id)"
+            <v-btn v-if="contacts.has(member.id)"
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteContact(contacts[member.id].contactId)"
+              @click.stop="deleteContact(contacts.get(member.id).contactId)"
             ></v-btn>
             <v-btn v-else
               color="primary"

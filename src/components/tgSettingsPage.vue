@@ -68,6 +68,8 @@ import { useRouter } from 'vue-router';
 
 import {useOtherStore} from '@/store/otherStore'
 
+import { useDataStore } from '@/store/dataStore';
+
 import {getUserAvatarUrl} from '@/funcs/commonFuncs';
 
 
@@ -80,6 +82,8 @@ const router=useRouter()
 const {updateLogInState,updateAuthData} = useAuthStore()
 const {isLoggedIn,authData}=storeToRefs(useAuthStore())
 
+const {unsubscribeAll}=useDataStore()
+
 
 async function logIn(){
     router.push('/login')
@@ -87,9 +91,11 @@ async function logIn(){
 async function logOut(){
     try{
         await pb.collection('users').update(authData.value.id,{online:false})
-    }catch{}
-    pb.authStore.clear();
-    updateLogInState()
+    }finally{
+        unsubscribeAll()
+        pb.authStore.clear();
+        updateLogInState()
+    }
 }
 
 

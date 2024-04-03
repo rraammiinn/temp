@@ -1,18 +1,18 @@
 <template>
     <tg-user-details style="z-index: 888;" :user="user" v-if="showUser"></tg-user-details>
 
-    <tg-group-details @join="async()=>{await allGroupsData.allDatas[props.groupId].init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allDatas[props.groupId].groupMems" :group="allGroupsData.allDatas[props.groupId].group" :block-list="allGroupsData.allDatas[props.groupId].blockList" v-if="showGroup"></tg-group-details>
+    <tg-group-details @join="async()=>{await allGroupsData.allDatas.get(props.groupId).init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allDatas.get(props.groupId).groupMems.values()" :group="allGroupsData.allDatas.get(props.groupId).group" :block-list="allGroupsData.allDatas.get(props.groupId).blockList" v-if="showGroup"></tg-group-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" @userSelect="(selectedUser)=>{user=allGroupsData.allDatas[props.groupId].groupMems[selectedUser];showUser=true;}" v-model:allDatas="allGroupsData.allDatas" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @userSelect="(selectedUser)=>{user=allGroupsData.allDatas.get(props.groupId).groupMems.get(selectedUser);showUser=true;}" v-model:allDatas="allGroupsData.allDatas" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
-  
+<!--   
       <v-bottom-sheet v-model="sheet">
         <img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;;max-height: 80dvh;object-fit: contain;" :src="image">
         <div style="width: 100%;">
@@ -21,11 +21,11 @@
         </div>
   
       </v-bottom-sheet>
-  
+   -->
   
         <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
   
-        <div style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
+        <div v-show="!joined || !blocked" style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
   
           <v-btn v-if="files.length"
               color="error"
@@ -51,8 +51,8 @@
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
     
 
-          <div v-if="joined && !blocked" style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;">
-            <div style="display: flex;flex-shrink: 0;">
+          <div v-if="joined" style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;align-items: center;">
+            <div v-if="!blocked" style="display: flex;flex-shrink: 0;">
               <v-btn v-if="!isRecording"
               color="primary"
               :icon="mediaType == 'audio' ? 'mdi-microphone' : 'mdi-webcam'"
@@ -82,11 +82,13 @@
             </div>
             </div>
             
-            <div v-if="replyTo" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
+            <div v-if="replyTo && !blocked" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
               <img v-if="replyToAvatarUrl" :src="replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;">
             <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
             <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
             </div>
+
+            <div style="margin-left: auto;" v-show="!replyTo" id="goToBottomBtn"></div>
           </div>
 
 
@@ -111,7 +113,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-if="!joined" color="primary" @click="async()=>{await join(props.groupId);await allGroupsData.allDatas[props.groupId].init();await messageGenerator.initializeMessages()}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
+          <v-btn v-if="!joined" color="primary" @click="async()=>{await join(props.groupId);$router.go();}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
 
         </div>
   
@@ -219,13 +221,15 @@
   
   const joined=inject('joined')
   const isOwner=inject('isOwner')
-  const blocked=allGroupsData.value.allDatas[props.groupId]?.blocked
+  // const scrollableKey=inject('scrollableKey')
+  const blocked=allGroupsData.value.allDatas.get(props.groupId)?.blocked
   
   const files=ref([]);
   
   
   
   async function send(){
+    if(!msg.value && !files.value.length)return;
     showProgressBar()
     try{
       let formData = new FormData();
@@ -273,7 +277,7 @@
   
   
   const messageGenerator = new GroupMessageGenerator(props.groupId,props.initMessageId)
-  const owner=await pb.collection('users').getOne(allGroupsData.value.allDatas[props.groupId].group?.owner);
+  const owner=await pb.collection('users').getOne(allGroupsData.value.allDatas.get(props.groupId).group?.owner);
 
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{groupsContainer.value?.scrollIntoView({block:'center'});}})

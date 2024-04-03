@@ -26,20 +26,16 @@
 
  
 
-    const subscribed=computed(()=>!!allChannelsData.value.allDatas[channelId].channelRelId)
+    const subscribed=computed(()=>!!allChannelsData.value.allDatas.get(channelId).channelRelId)
 
     provide('subscribed',subscribed)
 
 
 
-    if(!allChannelsData.value.allDatas[channelId]){
-        // let channelRel
-        // try{channelRel=await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}catch{channelRel=await pb.collection('channelMembers').getFirstListItem({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'})}
-        // allChannelsData.value.allDatas[channelId]=new ChannelData(channelRel)
-
+    if(!allChannelsData.value.allDatas.get(channelId)){
         const channel=await pb.collection('channels').getOne(channelId)
-        allChannelsData.value.allDatas[channelId]=new ChannelData(null,channel)
-        await allChannelsData.value.allDatas[channelId].init()
+        allChannelsData.value.allDatas.set(channelId, new ChannelData(null,channel))
+        await allChannelsData.value.allDatas.get(channelId).init()
     }
     
     </script>

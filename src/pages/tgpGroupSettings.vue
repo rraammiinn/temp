@@ -24,19 +24,16 @@
     const route=useRoute()
     const groupId=route.params.groupId
 
-    const joined=computed(()=>!!allGroupsData.value.allDatas[groupId]?.active)
+    const joined=computed(()=>!!allGroupsData.value.allDatas.get(groupId)?.active)
 
     provide('joined',joined)
 
 
-    if(!allGroupsData.value.allDatas[groupId]){
-        // let groupRel
-        // try{groupRel=await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}catch{groupRel=await pb.collection('groupMembers').getFirstListItem({"mem":pb.authStore.model.id, "group":groupId},{expand:'mem,group'})}
-        // allGroupsData.value.allDatas[groupId]=new GroupData(groupRel)
+    if(!allGroupsData.value.allDatas.get(groupId)){
 
         const group=await pb.collection('groups').getOne(groupId)
-        allGroupsData.value.allDatas[groupId]=new GroupData(null,group)
-        await allGroupsData.value.allDatas[groupId].init()
+        allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
+        await allGroupsData.value.allDatas.get(groupId).init()
     }
     
     </script>

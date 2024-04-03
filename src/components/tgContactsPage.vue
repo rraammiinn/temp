@@ -8,11 +8,11 @@
               :subtitle="user.username"
             >
             <template v-slot:append>
-            <v-btn v-if="Object.keys(contacts).includes(user.id)"
+            <v-btn v-if="contacts.has(user.id)"
               color="error"
               icon="mdi-delete"
               variant="text"
-              @click.stop="deleteContact(contacts[user.id].contactId)"
+              @click.stop="deleteContact(contacts.get(user.id).contactId)"
             ></v-btn>
             <v-btn v-else
               color="primary"
@@ -26,7 +26,7 @@
           </div></div>
     <div v-else>
       <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">contacts</h3>
-            <div v-for="contact in contacts" @click="$router.push({name:'chat', params:{otherId:contact.id},query:{initMessageId:'',showUser:true}})" :key="contact.id">
+            <div v-for="contact in contacts.values()" @click="$router.push({name:'chat', params:{otherId:contact.id},query:{initMessageId:'',showUser:true}})" :key="contact.id">
               <v-list-item class="listItem"
               :prepend-avatar="getUserAvatarUrl(contact.id,contact.avatar)"
               :title="contact.name"
@@ -80,35 +80,5 @@
   // updateContacts()
   
   const userSearch=inject('userSearch')
-  // const users=ref()
-  
-  
-  
-  
-  // async function addContact(contact){
-  //   await pb.collection('contacts').create({follower:pb.authStore.model.id, following:contact})
-  // }
-  // async function deleteContact(contact){
-  //   await pb.collection('contacts').delete(contact);
-  // }
-  // async function getContacts(){
-  //   return await pb.collection('contacts').getFullList({expand:'following'});
-  // }
-  // const contacts=ref(await getContacts())
-  // pb.collection('contacts').subscribe('*', updateContacts)
-  
-  
-  // function getContactFromId(id){
-  //   return contacts.value.find(contact=>contact.following==id)
-  // }
-  
-  
-  // const contactIds=computed(()=>contacts.value.map(contact=>contact.following))
-  
-  // watchEffect(async ()=>{
-  //   if(userSearch.value){
-  //     users.value=await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})
-  //   }
-  // })
-  
+ 
   </script>

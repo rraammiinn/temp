@@ -1,24 +1,24 @@
 <template>
-    <tg-user-details :is-in-rel="isInRel" :blocked="blocked" style="z-index: 888;" :user="allChatsData.allDatas[props.otherId].other" v-if="showUser"></tg-user-details>
+    <tg-user-details :is-in-rel="isInRel" :blocked="blocked" style="z-index: 888;" :user="allChatsData.allDatas.get(props.otherId).other" v-if="showUser"></tg-user-details>
   
   <div class="main">
   
   
   
   
-    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @imageSelect="(selectedImage)=>{sheet = !sheet;image=selectedImage}" v-model:allDatas="allChatsData.allDatas" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" v-model:allDatas="allChatsData.allDatas" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
   
-      <v-bottom-sheet v-model="sheet">
+      <!-- <v-bottom-sheet v-model="sheet">
         <img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;;max-height: 80dvh;object-fit: contain;" :src="image">
         <div style="width: 100%;">
         <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false">close</v-btn>
         <a download style="text-decoration: none;" :href="image"><v-btn style="border-radius: 0;" width="50%" color="primary" prepend-icon="mdi-download" @click="sheet=false">download</v-btn></a>
         </div>
   
-      </v-bottom-sheet>
+      </v-bottom-sheet> -->
   
   
         <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
@@ -47,7 +47,7 @@
         </div>
 
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
-          <div style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;">
+          <div style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;align-items: center;">
             <div style="display: flex;flex-shrink: 0;">
               <v-btn v-if="!isRecording"
               color="primary"
@@ -82,6 +82,8 @@
             <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
             <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
             </div>
+
+            <div v-show="!replyTo" id="goToBottomBtn"></div>
           </div>
   
           <v-textarea
@@ -202,6 +204,7 @@
   
   
   async function send(){
+    if(!msg.value && !files.value.length)return;
     showProgressBar()
     try{
       if(!isInRel.value){

@@ -111,7 +111,7 @@
           <div v-if="props.files.filter(name=>getFileType(name)=='image').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;">
             <div style="display: flex;margin: .5rem;" v-for="file in props.files.filter(name=>getFileType(name)=='image')" :key="file" :id="file">
               <v-btn @click="pushDeletingFile(file)" v-if="editMode" rounded variant="text" color="error" icon="mdi-close" size="1.5rem" style="margin-left: 1rem;"></v-btn>
-              <img @click="$emit('imageSelect',`/api/files/${props.messageType}Messages/${props.id}/${file}`)" style="border-radius: .3rem;height: 8rem;" :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`" onerror="this.style.display='none'">
+              <img @click="$emit('imageSelect',{id:props.id, clickedImage:`/api/files/${props.messageType}Messages/${props.id}/${file}`, images:props.files.filter(name=>getFileType(name)=='image')})" style="border-radius: .3rem;height: 8rem;" :src="`/api/files/${props.messageType}Messages/${props.id}/${file}`" onerror="this.style.display='none'">
             </div>
           </div>
           <div v-if="props.files.filter(name=>getFileType(name)=='video').length" style="display: flex;overflow: auto;white-space: nowrap;height: 10rem;align-items: end;margin-bottom: 1rem;">

@@ -68,7 +68,7 @@ const router=useRouter()
 // if(isLoggedIn){router.push('/emailVerification')}
 
 
-const {updateLogInState,updateAuthData}=useAuthStore()
+const {updateLogInState,updateAuthData,refreshAuthStore}=useAuthStore()
 
 const passwordLogInLoading=ref(false)
 const googleLogInLoading=ref(false)
@@ -96,6 +96,7 @@ const rules=ref({
 })
 
 async function passwordLogIn(){
+    pb.authStore.clear()
     passwordLogInLoading.value=true
 
     try{
@@ -122,7 +123,7 @@ async function passwordLogIn(){
             email.value,
             password.value)
     }
-    if(authData) {updateLogInState();updateAuthData();router.replace('/emailVerification')}
+    if(authData) {refreshAuthStore();router.replace('/emailVerification')}
     }catch{showError('email or password is wrong.')}
     passwordLogInLoading.value=false
 }
@@ -132,9 +133,7 @@ async function googleLogIn(){
     try{
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
     if(authData) {
-        updateLogInState();
-        updateAuthData();
-        // router.back()
+        refreshAuthStore();
         router.replace('/')
     }
     }catch{showError('some thing went wrong.')}

@@ -48,13 +48,13 @@ class ChatData{
 class AllChatsData{
     constructor(){
         this.rels=[]
-        this.allDatas={}
+        this.allDatas=new Map()
         this.backRels=[]
         this.contacts=[]
     }
 
     async updateContacts(){this.contacts=await pb.collection('contacts').getFullList({expand:'following'});}
-    async updateUnseenCount(id){await this.allDatas[id].updateUnseenCount()}
+    async updateUnseenCount(id){await this.allDatas.get(id).updateUnseenCount()}
     async updateRels(){this.rels=await pb.collection('rels').getFullList({
         expand:'follower,following'
     });this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id);}
@@ -62,8 +62,8 @@ class AllChatsData{
     async updateAllMessages(){
         await Promise.allSettled(this.rels.map((rel)=>{
                 let index=(rel.follower == useAuthStore().authData.id) ? rel.following : rel.follower
-                this.allDatas[index] = new ChatData(rel,this.backRels.find(i=>i.follower == rel.following))
-                return this.allDatas[index].init()
+                this.allDatas.set(index, new ChatData(rel,this.backRels.find(i=>i.follower == rel.following)))
+                return this.allDatas.get(index).init()
         }))
 
 
@@ -76,7 +76,7 @@ class AllChatsData{
 
 class GroupData{
     constructor(groupRel,group){
-        this.groupMems={}
+        this.groupMems=new Map()
         this.lastMessage=null
         this.group=groupRel?.expand?.group ?? group
         this.messages=[]
@@ -102,7 +102,7 @@ class GroupData{
 
     }
     
-    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem',$autoCancel:false})).then(res=>{res.forEach(groupRel=>this.groupMems[groupRel.mem]=groupRel.expand.mem);})}
+    async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem',$autoCancel:false})).then(res=>{res.forEach(groupRel=>this.groupMems.set(groupRel.mem, groupRel.expand.mem));})}
 
     async updateUnseenCount(){this.unseenCount=(await pb.collection('groupMessages').getList(1, 1, {filter:`from != "${useAuthStore().authData.id}" && group = "${this.group.id}" && created > "${this.lastSeen}"`, sort:'-created',$autoCancel:false})).totalItems;}
 
@@ -117,22 +117,22 @@ class AllGroupsData{
     constructor(){
         this.groupRels=[]
         // this.groups={}
-        this.allDatas={}
+        this.allDatas=new Map()
     }
 
     // async updateGroups(){(await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})).map(rec=>{this.groups[rec.group]=rec.expand.group;this.groups[rec.group]['lastSeen']=rec.lastseen;this.groups[rec.group]['groupRelId']=rec.id});}
     // async updateGroupRels(){this.groupRels = await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'})}
-    async updateMembers(groupId){await this.allDatas[groupId].updateMembers()}
+    async updateMembers(groupId){await this.allDatas.get(groupId).updateMembers()}
     async updateRels(){
         this.groupRels=await pb.collection('groupMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'group'});
-        this.groupRels.forEach(groupRel=>{try{this.allDatas[groupRel.group].active=groupRel.active}catch{}})
+        this.groupRels.forEach(groupRel=>{try{this.allDatas.get(groupRel.group).active=groupRel.active}catch{}})
     }
-    async updateUnseenCount(groupId){await this.allDatas[groupId].updateUnseenCount()}
+    async updateUnseenCount(groupId){await this.allDatas.get(groupId).updateUnseenCount()}
     async updateAllMessages(){
   await Promise.allSettled(this.groupRels.map((groupRel)=>{
         let index=groupRel.group
-        this.allDatas[index] = new GroupData(groupRel)
-        return this.allDatas[index].init()
+        this.allDatas.set(index, new GroupData(groupRel))
+        return this.allDatas.get(index).init()
 }))
 
     }
@@ -142,7 +142,7 @@ class AllGroupsData{
 
 class ChannelData{
     constructor(channelRel=null,channel=null){
-        this.channelMems={}
+        this.channelMems=new Map()
         this.lastMessage=null
         this.channel=channelRel?.expand?.channel ?? channel
         this.messages=[]
@@ -164,7 +164,7 @@ class ChannelData{
 
     }
 
-    async updateMembers(){this.channelMems=(await pb.collection('channelMembers').getFullList({filter:`channel = "${this.channel.id}"`,expand:'mem'})).map(rec=>{this.channelMems[rec.mem]=rec.expand.mem});}
+    async updateMembers(){this.channelMems=(await pb.collection('channelMembers').getFullList({filter:`channel = "${this.channel.id}"`,expand:'mem'})).map(channelRel=>{this.channelMems.set(channelRel.mem, channelRel.expand.mem)});}
 
     async updateUnseenCount(){
         if(this.channel.owner == useAuthStore().authData.id){this.unseenCount=0}
@@ -183,17 +183,17 @@ class AllChannelsData{
     constructor(){
         // this.channels={}
         this.channelRels=[]
-        this.allDatas={}
+        this.allDatas=new Map()
     }
 
-    async updateMembers(channelId){await this.allDatas[channelId].updateMembers()}
+    async updateMembers(channelId){await this.allDatas.get(channelId).updateMembers()}
     async updateRels(){this.channelRels=await pb.collection('channelMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'channel'});}
-    async updateUnseenCount(channelId){await this.allDatas[channelId].updateUnseenCount()}
+    async updateUnseenCount(channelId){await this.allDatas.get(channelId).updateUnseenCount()}
     async updateAllMessages(){
         await Promise.allSettled(this.channelRels.map((channelRel)=>{
               let index=channelRel.channel
-              this.allDatas[index] = new ChannelData(channelRel)
-              return this.allDatas[index].init()
+              this.allDatas.set(index, new ChannelData(channelRel))
+              return this.allDatas.get(index).init()
       }))
       
           }

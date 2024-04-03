@@ -16,12 +16,15 @@
                 </div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex;justify-content: space-between;">
-                        <h3>{{props.owner.name}}</h3>
+                        <div>
+                            <h3>{{props.owner.name}}</h3>
+                            <h5 style="opacity: .5;">channel owner</h5>
+                        </div>
                         <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
                     </div>
                 </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <h3>{{props.channel.about}}</h3><h5 style="opacity: .5;">about</h5>
+                <div v-if="props.channel.about" style="margin-bottom: 1.5rem;">
+                  <h5 v-for="line in props.channel.about.split('\n')">{{line}}</h5><h5 style="opacity: .5;">about</h5>
                 </div>
             </v-col>
         </div>

@@ -37,7 +37,7 @@
       </template>
     </v-snackbar>
 
-    <v-snackbar v-show="alertVisibility" timeout="3000" :color="alertType" variant="elevated" location="top" width="90vw" style="margin-top: 5rem;"
+    <v-snackbar @click="alertOnClick" v-show="alertVisibility" timeout="3000" :color="alertType" variant="elevated" location="top" width="90vw" style="margin-top: 5rem;"
       v-model="alertVisibility"
     >
       {{ alertMessage }}
@@ -101,7 +101,7 @@ import {useDataStore} from '@/store/dataStore'
 import {getAvatarUrl} from '@/funcs/commonFuncs';
 
 
-const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType, showShareSheet, shareId, shareType, shareMessage, shareSelectedList} = storeToRefs(useOtherStore())
+const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType,alertOnClick, showShareSheet, shareId, shareType, shareMessage, shareSelectedList} = storeToRefs(useOtherStore())
 const {share} = useOtherStore()
 const{allSendables}=storeToRefs(useDataStore())
 

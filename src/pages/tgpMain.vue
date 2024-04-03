@@ -12,6 +12,16 @@ import {useAuthStore} from '@/store/authStore'
 import { storeToRefs } from "pinia";
 import { useOtherStore } from "@/store/otherStore";
 
+import { useDataStore } from '@/store/dataStore';
+
+
+const {init,subscribeAll,isInitialized}=useDataStore()
+
+if(!isInitialized){
+    await init()
+    subscribeAll()
+}
+
 const {searchMessage}=storeToRefs(useOtherStore())
 
 const router=useRouter()
