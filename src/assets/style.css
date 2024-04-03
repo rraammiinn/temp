@@ -28,6 +28,7 @@ html{
   --tgPrimary:#1867C0;
   --tgPrimaryHover:rgba(24, 103, 192, .063);
   --tgBg:white;
+  --tgColor:#212121;
   --tgBrown:#ffca95;
   --tgGreen:#36ff9b;
 }
@@ -36,6 +37,7 @@ html{
   --tgPrimary:#B984F9;
   --tgPrimaryHover:rgba(185, 132, 24, .0639);
   --tgBg:#212121;
+  --tgColor:white;
   --tgBrown:#3f2a15;
 }
 

@@ -66,7 +66,7 @@
             </template>
 
           </v-list>
-          <v-textarea v-model="shareMessage" class="share-text" variant="outlined" dir="auto" no-resize bg-color="var(--tgBg)" rows="1" :rounded="false" base-color="var(--tgBrown)" label="message" shaped style="border-radius: 0;background-color: var(--tgBg);"></v-textarea>
+          <v-textarea v-model="shareMessage" class="share-text" variant="outlined" dir="auto" no-resize bg-color="var(--tgBg)" rows="1" :rounded="false" base-color="var(--tgBrown)" color="var(--tgColor)" label="message" shaped style="border-radius: 0;background-color: var(--tgBg);"></v-textarea>
         <v-btn style="border-radius: 0;" width="50%" prepend-icon="mdi-close" color="error" @click="showShareSheet=false;shareSelectedList=[];shareMessage='';">close</v-btn>
         <v-btn style="border-radius: 0;" width="50%" prepend-icon="mdi-share-all" color="primary" @click="async()=>{showShareSheet=false;await share();shareSelectedList=[];shareMessage='';}">share</v-btn>
         </div>
@@ -108,5 +108,6 @@ const{allSendables}=storeToRefs(useDataStore())
 
 
 const {getTheme}=storeToRefs(useSettingsStore())
+if(getTheme.value == 'dark'){document.body.classList.add('dark')}else{document.body.classList.remove('dark')}
 
 </script>
