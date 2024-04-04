@@ -276,7 +276,7 @@
 
 
 
-      Array.from(text.matchAll(new RegExp(/https?:\/\/[^\s]+/,'g'))).forEach(link => text= text.replaceAll(link[0],`<a class="link" href="${link[0]}">${link[0]}</a>`));
+      Array.from(text.matchAll(new RegExp(/https?:\/\/[^\s]+/,'g'))).forEach(link => text= text.replaceAll(link[0],`<a target="_blank" class="link" href="${link[0]}">${link[0]}</a>`));
       text = text.split('\n').map((line, index)=>`<span id="${props.id}-line-${index+1}" dir="auto" style="display: block;min-height: 1rem;">${line}</span>`).join('');
       if(props.text.replaceAll(new RegExp(/https?:\/\/[^\s]+/,'g'),'').trim() == ''){links=props.text.split('\n').map(link=>link.trim()).filter(link=>link);text=null;}
     const textLines = computed(()=>props.text.split('\n'))

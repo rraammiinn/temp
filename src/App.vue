@@ -66,7 +66,7 @@
             </template>
 
           </v-list>
-          <v-textarea v-model="shareMessage" class="share-text" variant="outlined" dir="auto" no-resize bg-color="var(--tgBg)" rows="1" :rounded="false" base-color="var(--tgBrown)" color="var(--tgColor)" label="message" shaped style="border-radius: 0;background-color: var(--tgBg);"></v-textarea>
+          <v-textarea v-model="shareMessage" class="share-text" variant="outlined" dir="auto" no-resize rows="1" :rounded="false" base-color="var(--tgBrown)" label="message" shaped style="border-radius: 0;background-color: var(--tgBg);"></v-textarea>
         <v-btn style="border-radius: 0;" width="50%" prepend-icon="mdi-close" color="error" @click="showShareSheet=false;shareSelectedList=[];shareMessage='';">close</v-btn>
         <v-btn style="border-radius: 0;" width="50%" prepend-icon="mdi-share-all" color="primary" @click="async()=>{showShareSheet=false;await share();shareSelectedList=[];shareMessage='';}">share</v-btn>
         </div>
@@ -80,7 +80,7 @@
 
 <script setup>
 
-import { ref, provide, onMounted } from 'vue';
+import { ref, provide, onMounted, watchEffect } from 'vue';
 
 import tgWrapper from '@/tgWrapper.vue'
 
@@ -105,9 +105,18 @@ const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType,alert
 const {share} = useOtherStore()
 const{allSendables}=storeToRefs(useDataStore())
 
-
-
 const {getTheme}=storeToRefs(useSettingsStore())
-if(getTheme.value == 'dark'){document.body.classList.add('dark')}else{document.body.classList.remove('dark')}
+
+
+
+watchEffect(()=>{
+  if(getTheme.value == 'dark'){
+    document.body.classList.add('dark')
+    document.body.classList.remove('light')
+  }else{
+    document.body.classList.add('light')
+    document.body.classList.remove('dark')
+  }
+})
 
 </script>
