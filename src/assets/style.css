@@ -35,8 +35,8 @@ html{
 }
 
 .dark *,*.dark{
-  --tgPrimary:#B984F9;
-  --tgPrimaryHover:rgba(185, 132, 24, .0639);
+  /* --tgPrimary:#B984F9; */
+  /* --tgPrimaryHover:rgba(185, 132, 24, .0639); */
   --tgBg:#212121;
   --tgColor:white;
   --tgBrown:#3f2a15;

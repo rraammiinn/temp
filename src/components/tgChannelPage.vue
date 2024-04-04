@@ -78,7 +78,7 @@
             </div>
             </div>
 
-            <div style="margin-left: auto;" id="goToBottomBtn"></div>
+            <div v-show="subscribed" style="margin-left: auto;" id="goToBottomBtn"></div>
           </div>
   
           <v-textarea v-if="subscribed && isOwner"
@@ -99,7 +99,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-if="!subscribed" color="primary" @click="async()=>{await subscribe(props.channelId);$router.go();}" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
+          <v-btn v-if="!subscribed" color="primary" @click="async()=>{await subscribe(props.channelId);scrollableKey=Math.random();}" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
 
         </div>
   
@@ -108,7 +108,7 @@
       <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
   
 
-      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: 50%;"></video>
+      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: 50%;z-index: 99999;"></video>
 
   
   

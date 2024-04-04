@@ -150,23 +150,21 @@ class GroupMessageGenerator{
 
 async function join(groupId){
   try{
-    await pb.collection('groupMembers').update(useDataStore().allGroupsData.allDatas.get(groupId).groupRelId,{"active":true})
-    useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=true
-  }catch{
+    let groupRel;
     try{
-      const groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId, "active":true},{expand:'mem,group'});
-      // const cacheNewMessages=useDataStore().allGroupsData.allDatas.get(groupId).cacheNewMessages
-      // const messages=useDataStore().allGroupsData.allDatas.get(groupId).messages
-      useDataStore().allGroupsData.allDatas.set(groupId, new GroupData(groupRel))
+      groupRel = await pb.collection('groupMembers').update(useDataStore().allGroupsData.allDatas.get(groupId).groupRelId,{"active":true})
+    }catch{
+      groupRel = await pb.collection('groupMembers').create({"mem":pb.authStore.model.id, "group":groupId, "active":true},{expand:'mem,group'});
+    }finally{
+      if(!useDataStore().allGroupsData.allDatas.get(groupId)){
+          useDataStore().allGroupsData.allDatas.set(groupId, new GroupData(groupRel))
+      }
       await useDataStore().allGroupsData.allDatas.get(groupId).init()
-      // useDataStore().allGroupsData.allDatas.get(groupId).messages=messages
-      // useDataStore().allGroupsData.allDatas.get(groupId).cacheNewMessages=cacheNewMessages
-  }
-    catch{}
-  }finally{
-    useDataStore().allGroupsData.allDatas.get(groupId).active=true
-    useDataStore().allGroupsData.allDatas.get(groupId).cacheNewMessages=false
-  }
+      useDataStore().allGroupsData.allDatas.get(groupId).active=true
+      useDataStore().allGroupsData.allDatas.get(groupId).cacheNewMessages=false
+      useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=true
+    }
+  }catch{}
 }
 
 async function leave(groupId){

@@ -291,7 +291,7 @@
     }
       
       async function getNextMessages(e){
-        if(!initialized || !endEnabled)return;
+        if(!initialized || !endEnabled || allDatas.value.get(props.otherId).cacheNewMessages)return;
         // disableScroll()
         // setTimeout(() => {
         //   enableScroll()
@@ -299,7 +299,8 @@
         if(e.filter(i=>i.isIntersecting).at(-1)?.target?.id == allDatas.value.get(props.otherId).messages.at(-1).id){
           showProgressBar()
     
-          endEnabled = await props.messageGenerator.getNextMessages()
+          await props.messageGenerator.getNextMessages()
+          endEnabled=true;
           // if(!endEnabled)props.messageGenerator.subscribeToNewMessages()
           hideProgressBar()
           // await nextTick();

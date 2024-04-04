@@ -9,7 +9,7 @@
         <v-col style="width: fit-content;margin: 0;padding: 0;margin-top: 1rem;">
                 <v-btn @click="$router.push({name:'groupSettings', params:{groupId:props.groupId}})" v-if="isOwner" variant="outlined" style="background-color: var(--tgBg);border-bottom-left-radius: 0;border-bottom-right-radius: 0;" width="100%" append-icon="mdi-tune">settings</v-btn>
                 <v-btn @click="leave(props.groupId)" v-if="joined" color="error" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-logout">leave</v-btn>
-                <v-btn @click="async()=>{await join(props.groupId);$router.go()}" v-else color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-login">join</v-btn>
+                <v-btn @click="async()=>{await join(props.groupId);scrollableKey=Math.random();}" v-else color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-login">join</v-btn>
         </v-col>
     </v-menu>
     <!-- <v-btn variant="text" icon="mdi-dots-vertical"></v-btn> -->
@@ -43,6 +43,8 @@ const showGroup=inject('showGroup')
 const showUser =inject('showUser')
 const joined=inject('joined')
 const isOwner=inject('isOwner')
+
+const scrollableKey=inject('scrollableKey')
 
 
 

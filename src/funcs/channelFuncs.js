@@ -130,14 +130,14 @@ class ChannelMessageGenerator{
 
 
 async function subscribe(channelId){
-  try{
+try{
     const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'});
-    // const messages=useDataStore().allChannelsData.allDatas.get(channelId).messages
     useDataStore().allChannelsData.allDatas.set(channelId, new ChannelData(channelRel))
-    await useDataStore().allChannelsData.allDatas.get(channelId).init()
-    // useDataStore().allChannelsData.allDatas.get(channelId).messages=messages
+}finally{
+  await useDataStore().allChannelsData.allDatas.get(channelId).init()
+  useDataStore().allChannelsData.allDatas.get(channelId).active=true
+  useDataStore().allChannelsData.allDatas.get(channelId).cacheNewMessages=false
 }
-  catch{}
 }
 
 

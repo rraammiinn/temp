@@ -42,8 +42,8 @@
 
     const showGroup=ref(route.query.showGroup=='true')
     const showUser=ref(false)
-    // const scrollableKey=ref(Math.random())
-    // provide('scrollableKey',scrollableKey)
+    const scrollableKey=ref(Math.random())
+    provide('scrollableKey',scrollableKey)
     provide('showGroup', showGroup)
     provide('showUser', showUser)
     provide('joined',joined)

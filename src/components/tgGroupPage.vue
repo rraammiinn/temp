@@ -8,7 +8,7 @@
   
   
   
-    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @userSelect="(selectedUser)=>{user=allGroupsData.allDatas.get(props.groupId).groupMems.get(selectedUser);showUser=true;}" v-model:allDatas="allGroupsData.allDatas" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable :key="scrollableKey" @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" @userSelect="(selectedUser)=>{user=allGroupsData.allDatas.get(props.groupId).groupMems.get(selectedUser);showUser=true;}" v-model:allDatas="allGroupsData.allDatas" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
   
 
   
@@ -51,8 +51,8 @@
         <div :style="{position: 'fixed',bottom: (files.length)? '3.5rem':'.75rem',width: '90%'}">
     
 
-          <div v-if="joined" style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;align-items: center;">
-            <div v-if="!blocked" style="display: flex;flex-shrink: 0;">
+          <div style="padding-bottom:1rem;display:flex;justify-content: space-between;gap: 1rem;align-items: center;">
+            <div v-if="!blocked && joined" style="display: flex;flex-shrink: 0;">
               <v-btn v-if="!isRecording"
               color="primary"
               :icon="mediaType == 'audio' ? 'mdi-microphone' : 'mdi-webcam'"
@@ -82,13 +82,13 @@
             </div>
             </div>
             
-            <div v-if="replyTo && !blocked" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
+            <div v-if="replyTo && !blocked && joined" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
               <img v-if="replyToAvatarUrl" :src="replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;">
             <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
             <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
             </div>
 
-            <div style="margin-left: auto;" v-show="!replyTo" id="goToBottomBtn"></div>
+            <div style="margin-left: auto;" v-show="!replyTo && joined" id="goToBottomBtn"></div>
           </div>
 
 
@@ -113,7 +113,7 @@
           @click:prepend-inner.stop="fileInput?.click()"
           ></v-textarea>
 
-          <v-btn v-if="!joined" color="primary" @click="async()=>{await join(props.groupId);$router.go();}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
+          <v-btn v-if="!joined" color="primary" @click="async()=>{await join(props.groupId);scrollableKey=Math.random();}" style="position: fixed;bottom: .75rem;width: 90%;">join</v-btn>
 
         </div>
   
@@ -122,7 +122,7 @@
       <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
   
 
-      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: 50%;"></video>
+      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: 50%;z-index: 99999;"></video>
 
   
   
@@ -221,7 +221,7 @@
   
   const joined=inject('joined')
   const isOwner=inject('isOwner')
-  // const scrollableKey=inject('scrollableKey')
+  const scrollableKey=inject('scrollableKey')
   const blocked=allGroupsData.value.allDatas.get(props.groupId)?.blocked
   
   const files=ref([]);

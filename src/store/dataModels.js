@@ -98,8 +98,10 @@ class GroupData{
         try{
             await this.updateUnseenCount()
         }catch{}
-        await this.updateMembers()
-
+        finally{
+            await this.updateMembers()
+            console.log('g mems : ',this.groupMems);
+        }
     }
     
     async updateMembers(){await (pb.collection('groupMembers').getFullList({filter:`group = "${this.group.id}"`,expand:'mem',$autoCancel:false})).then(res=>{res.forEach(groupRel=>this.groupMems.set(groupRel.mem, groupRel.expand.mem));})}

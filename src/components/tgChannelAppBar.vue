@@ -9,7 +9,7 @@
         <v-col style="width: fit-content;margin: 0;padding: 0;margin-top: 1rem;">
                 <v-btn @click="$router.push({name:'channelSettings', params:{channelId:props.channelId}})" v-if="isOwner" variant="outlined" style="background-color: var(--tgBg);border-bottom-left-radius: 0;border-bottom-right-radius: 0;" width="100%" append-icon="mdi-tune">settings</v-btn>
                 <v-btn @click="unsubscribe(props.channelId)" v-if="subscribed" color="error" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-logout">unsubscribe</v-btn>
-                <v-btn @click="async()=>{await subscribe(props.channelId);$router.go()}" v-else color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-login">subscribe</v-btn>
+                <v-btn @click="async()=>{await subscribe(props.channelId);scrollableKey=Math.random();}" v-else color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-login">subscribe</v-btn>
         </v-col>
     </v-menu>
     <!-- <v-btn rounded variant="text" icon="mdi-dots-vertical"></v-btn> -->
@@ -42,6 +42,9 @@ const props=defineProps(['channelId'])
 const showChannel=inject('showChannel')
 const subscribed=inject('subscribed')
 const isOwner=inject('isOwner')
+
+const scrollableKey=inject('scrollableKey')
+
 
 // const allChannelsData=inject('allChannelsData')
 
