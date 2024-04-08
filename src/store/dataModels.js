@@ -100,7 +100,6 @@ class GroupData{
         }catch{}
         finally{
             await this.updateMembers()
-            console.log('g mems : ',this.groupMems);
         }
     }
     

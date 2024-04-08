@@ -91,6 +91,8 @@ import {useOtherStore} from '@/store/otherStore'
 
 import {getChannelAvatarUrl} from '@/funcs/commonFuncs';
 
+const {channelSearch}=storeToRefs(useOtherStore())
+
 
 const {showError, showAlert, showProgressBar, hideProgressBar} = useOtherStore()
 
@@ -147,8 +149,12 @@ async function deleteChannel(){
     showProgressBar()
     try{
         await pb.collection('channels').delete(props.channelId)
-        router.go(-(router.options.history.state.position - 1))
         showAlert('channel deleted successfully', 'success')
+        const historyLength = -(router.options.history.state.position - 1);
+        const searchTerm=channelSearch.value;
+        channelSearch.value='';
+        channelSearch.value=searchTerm;
+        router.go(historyLength)
     }catch{showError('deleting channel failed.')}
     hideProgressBar()
 

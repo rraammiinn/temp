@@ -31,14 +31,14 @@
       </v-bottom-sheet> -->
 
 
-      <v-bottom-sheet v-model="sheet">
+      <v-bottom-sheet @vnode-updated="()=>{if(sheet == false)imageObserver.disconnect()}" v-model="sheet">
         <div id="imagesScrollable" style="display: flex;overflow-x: scroll;scroll-snap-type:x mandatory;align-items: flex-end;margin-bottom: -1rem;">
           <div :id="`/api/files/${props.messagesType}Messages/${selectedImages.id}/${selectedImage}`" v-for="selectedImage in selectedImages.images" style="scroll-snap-align: center;width: 100%;min-width: 100%;display: flex;justify-content: center;align-items: end;">
           <v-img @vnode-mounted="attachImageObserver(`/api/files/${props.messagesType}Messages/${selectedImages.id}/${selectedImage}`)" style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;max-height: 80dvh;object-fit: contain;margin: auto;" :src="`/api/files/${props.messagesType}Messages/${selectedImages.id}/${selectedImage}`" :style="{visibility : (imageVisibility ? 'visible' : 'hidden')}"></v-img>
         </div>
         </div>
         <div style="width: 100%;">
-        <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false;imageObserver.disconnect()">close</v-btn>
+        <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false;">close</v-btn>
         <a download style="text-decoration: none;" :href="selectedImageUrl"><v-btn style="border-radius: 0;" width="50%" color="primary" prepend-icon="mdi-download">download</v-btn></a>
         </div>
   
@@ -165,7 +165,6 @@
     
     
     
-    console.log('end enabled : ',endEnabled)
     
     
     

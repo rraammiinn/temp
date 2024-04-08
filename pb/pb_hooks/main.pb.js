@@ -7,7 +7,6 @@ onRealtimeAfterSubscribeRequest((e) => {
         record.set("online", true);
         $app.dao().saveRecord(record);
     }
-    console.log('rec : ',record)
 })
 
 onRealtimeDisconnectRequest((e) => {
@@ -17,7 +16,6 @@ onRealtimeDisconnectRequest((e) => {
         record.set("online", false);
         $app.dao().saveRecord(record);
     }
-    console.log('rec : ',record)
 })
 
 

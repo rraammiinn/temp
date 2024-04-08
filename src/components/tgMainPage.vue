@@ -28,9 +28,9 @@
 </v-list>
 
 
-<v-list v-else :items="allDatasSorted.keys()"  item-props  lines="three">
+<v-list v-else  lines="three">
 <TransitionGroup name="slide">
-<template v-for="[key, datas] in allDatasSorted.entries()" :key="key">
+<template v-for="[key, datas] in allDatasSorted" :key="key">
     <v-list-item @contextmenu.prevent="shareId=datas.other.id;showChatSheet=true;" v-if="datas.lastMessage && datas.messagesType=='chat' && datas.active && datas.other.id != pb.authStore.model.id" class="listItem" :class="{online:datas.isOnline}" @click="$router.push({name:'chat',params:{otherId:datas.other.id},query:{showUser:false}})"
     :prepend-avatar="getUserAvatarUrl(datas.other.id, datas.other.avatar)"
     :title="datas.other.name"

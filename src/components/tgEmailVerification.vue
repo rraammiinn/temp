@@ -24,10 +24,11 @@ import {useOtherStore} from '@/store/otherStore'
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 const router=useRouter()
-const {updateLogInState,updateAuthData}=useAuthStore()
+const {updateLogInState,updateAuthData,refreshAuthStore}=useAuthStore()
 const disabled=ref(false)
 const btnText=ref('resend')
 
+await refreshAuthStore();
 
 if(pb.authStore?.model?.verified)router.replace('/');
 
@@ -37,8 +38,7 @@ pb.collection('users').subscribe(pb.authStore.model.id,async(e)=>{
 
         if(pb.authStore.model.verified){
             pb.collection('users').unsubscribe(useAuthStore().authData.id)
-            updateLogInState()
-            updateAuthData()
+            await refreshAuthStore();
             router.replace('/')
         }
     })

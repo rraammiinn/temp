@@ -20,7 +20,7 @@
                             <h3>{{props.owner.name}}</h3>
                             <h5 style="opacity: .5;">channel owner</h5>
                         </div>
-                        <v-avatar @click="$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
+                        <v-avatar @click="()=>{if(pb.authStore.model.id==props.owner.id)return;$router.push({name:'chat', params:{otherId:props.owner.id},query:{initMessageId:'',showUser:true}})}" :image="getUserAvatarUrl(props.owner.id, props.owner.avatar)"></v-avatar>
                     </div>
                 </div>
                 <div v-if="props.channel.about" style="margin-bottom: 1.5rem;">
@@ -47,6 +47,7 @@
     
     <script setup>
     import { inject, ref } from 'vue';
+    import pb from '@/main';
     import {subscribe,unsubscribe} from '@/funcs/channelFuncs'
 
     import {getChannelAvatarUrl, getUserAvatarUrl} from '@/funcs/commonFuncs';

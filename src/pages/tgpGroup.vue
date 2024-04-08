@@ -49,7 +49,6 @@
     provide('joined',joined)
     provide('isOwner',isOwner)
 
-    // watchEffect(()=>{if(joined.value)console.log();scrollableKey.value=Math.random();console.log(scrollableKey.value)})
     
     onBeforeUnmount(()=>{allGroupsData.value.allDatas.get(groupId).updateUnseenCount()})
 

@@ -48,6 +48,8 @@
 import { ref, computed, watchEffect } from 'vue';
 import pb from '@/main';
 
+import { storeToRefs } from 'pinia';
+
 import {useAuthStore} from '@/store/authStore';
 import { useRouter } from 'vue-router';
 
@@ -57,6 +59,9 @@ import {useOtherStore} from '@/store/otherStore'
 
 import {getUserAvatarUrl} from '@/funcs/commonFuncs';
 
+import { useDataStore } from '@/store/dataStore';
+
+const {isInitialized} = storeToRefs(useDataStore())
 
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
@@ -95,6 +100,8 @@ const rules=ref({
     match: value => (userExists.value || password.value == confirmPassword.value) || "confirm password doesn't match password"
 })
 
+isInitialized.value=false;
+
 async function passwordLogIn(){
     pb.authStore.clear()
     passwordLogInLoading.value=true
@@ -123,8 +130,13 @@ async function passwordLogIn(){
             email.value,
             password.value)
     }
-    if(authData) {refreshAuthStore();router.replace('/emailVerification')}
-    }catch{showError('email or password is wrong.')}
+    if(authData) {router.replace('/emailVerification')}
+    }catch{
+        if(userExists.value){showError('email or password is wrong.')}
+        else{
+            showError('something went wrong.')
+        }
+}
     passwordLogInLoading.value=false
 }
 async function googleLogIn(){
@@ -133,7 +145,7 @@ async function googleLogIn(){
     try{
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
     if(authData) {
-        refreshAuthStore();
+        await refreshAuthStore();
         router.replace('/')
     }
     }catch{showError('some thing went wrong.')}

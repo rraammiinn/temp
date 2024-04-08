@@ -88,6 +88,7 @@ export const useDataStore = defineStore('data',{
             this.updateContacts()
         ])
 
+
         await this.updateAllMessages()
     },
 
@@ -124,11 +125,12 @@ subscribeChatMessages(){
     pb.collection('chatMessages').subscribe('*',(e)=>{
         const index=(e.record.from==useAuthStore().authData.id ? e.record.to : e.record.from);
         if(e.action=='create'){
+            this.allChatsData.allDatas.get(index).lastMessage=e.record;
             if(this.allChatsData.allDatas.get(index).cacheNewMessages)this.allChatsData.allDatas.get(index).messages.push(e.record);
             if(e.record.from != useAuthStore().authData.id)this.allChatsData.allDatas.get(index).unseenCount++;
-            this.allChatsData.allDatas.get(index).lastMessage=e.record;}
-            else if(e.action=='update' && e.record.created>=this.allChatsData.allDatas.get(index).messages[0].created && e.record.created<=this.allChatsData.allDatas.get(index).messages.at(-1).created)this.allChatsData.allDatas.get(index).messages[this.allChatsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-            else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(this.allChatsData.allDatas.get(index).lastSeen)){this.allChatsData.allDatas.get(index).unseenCount--;};this.allChatsData.allDatas.get(index).messages=this.allChatsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
+        }
+        else if(e.action=='update' && e.record.created>=this.allChatsData.allDatas.get(index).messages[0].created && e.record.created<=this.allChatsData.allDatas.get(index).messages.at(-1).created)this.allChatsData.allDatas.get(index).messages[this.allChatsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+        else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(this.allChatsData.allDatas.get(index).lastSeen)){this.allChatsData.allDatas.get(index).unseenCount--;};this.allChatsData.allDatas.get(index).messages=this.allChatsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
 },
 
 
@@ -142,7 +144,7 @@ subscribeGroupMembers(){
                 this.allGroupsData.allDatas.get(e.record.group).groupMems.set(e.record.mem, await pb.collection('users').getFirstListItem(`id = "${e.record.mem}"`))
         }
         else if(e.action=='create' && e.record.mem==useAuthStore().authData.id){
-            await updateGroupRels();
+            await this.updateGroupRels();
         }
 
         })
@@ -155,7 +157,7 @@ subscribeGroupMessages(){
     pb.collection('groupMessages').subscribe('*',async(e)=>{
         const index=e.record.group;
         if(e.action=='create'){
-            if(!this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)){await updateGroupMems(e.record.group)}
+            if(!this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)){await this.updateGroupMems(e.record.group)}
             if(this.allGroupsData.allDatas.get(index).cacheNewMessages)this.allGroupsData.allDatas.get(index).messages.push(e.record);
             if(e.record.from != useAuthStore().authData.id)this.allGroupsData.allDatas.get(index).unseenCount++;
             this.allGroupsData.allDatas.get(index).lastMessage=e.record;this.allGroupsData.allDatas.get(index).lastMessage['expand']={from:this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)}}
@@ -207,10 +209,10 @@ pb.collection('users').unsubscribe()
 
 
 subscribeAll(){
+    this.subscribeChatMessages()
     this.subscribeUsers()
     this.subscribeChannelMessages()
     this.subscribeGroupMessages()
-    this.subscribeChatMessages()
     this.subscribeGroupMembers()
     this.subscribeRels()
     this.subscribeContacts()
@@ -247,7 +249,7 @@ unsubscribeAll(){
             ...state.allChatsData.allDatas,
             ...state.allGroupsData.allDatas,
             ...state.allChannelsData.allDatas
-        ].sort((a,b)=>(new Date(b[1].lastMessage?.created).getTime() > new Date(a[1].lastMessage?.created).getTime() ? 1 : -1))),
+        ].sort((a,b)=>(new Date(b[1].lastMessage?.created ?? null).getTime() > new Date(a[1].lastMessage?.created ?? null).getTime() ? 1 : -1))),
 
 
 

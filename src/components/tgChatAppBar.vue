@@ -10,7 +10,7 @@
             <v-btn rounded v-bind="props" variant="text" icon="mdi-dots-vertical"></v-btn>
         </template>
         <v-col style="width: fit-content;margin: 0;padding: 0;margin-top: 1rem;">
-                <v-btn v-if="!contacts.keys().includes(props.otherId)" @click="addContact(props.otherId)" color="primary" variant="outlined" style="background-color: var(--tgBg);border-bottom-left-radius: 0;border-bottom-right-radius: 0;" width="100%" append-icon="mdi-plus">follow</v-btn>
+                <v-btn v-if="!contacts.has(props.otherId)" @click="addContact(props.otherId)" color="primary" variant="outlined" style="background-color: var(--tgBg);border-bottom-left-radius: 0;border-bottom-right-radius: 0;" width="100%" append-icon="mdi-plus">follow</v-btn>
                 <v-btn v-if="isInRel && !blocked" @click="block(props.otherId)" color="error" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-power-off">block</v-btn>
                 <v-btn v-if="isInRel && blocked" @click="unblock(props.otherId)" color="primary" style="border-top-left-radius: 0;border-top-right-radius: 0;" width="100%" append-icon="mdi-power">unblock</v-btn>
         </v-col>
@@ -60,5 +60,4 @@ const blocked=inject('blocked')
 const user = computed(()=>allChatsData.value.allDatas.get(props.otherId) || users.value.find(u=>u.id == props.otherId));
 
 
-console.log(user)
 </script>

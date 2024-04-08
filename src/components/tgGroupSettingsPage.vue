@@ -89,6 +89,8 @@ import {useOtherStore} from '@/store/otherStore'
 
 import {getGroupAvatarUrl} from '@/funcs/commonFuncs';
 
+const {groupSearch}=storeToRefs(useOtherStore())
+
 
 const {showError, showAlert, showProgressBar, hideProgressBar} = useOtherStore()
 
@@ -146,8 +148,12 @@ async function deleteGroup(){
     showProgressBar()
     try{
         await pb.collection('groups').delete(props.groupId)
-        router.go(-(router.options.history.state.position - 1))
         showAlert('group deleted successfully', 'success')
+        const historyLength = -(router.options.history.state.position - 1);
+        const searchTerm=groupSearch.value;
+        groupSearch.value='';
+        groupSearch.value=searchTerm;
+        router.go(historyLength)
     }catch{showError('deleting group failed.')}
     hideProgressBar()
 }
