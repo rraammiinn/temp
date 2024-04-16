@@ -1,7 +1,7 @@
 <template>
 <v-app-bar-nav-icon style="margin-right: .5rem;" rounded variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 <Transition name="fade-and-move">
-  <v-toolbar-title v-show="(!showSearch && !searchMessage)">tgram</v-toolbar-title>
+  <v-toolbar-title v-show="(!showSearch && !searchMessage)">Tgram</v-toolbar-title>
 </Transition>
 
 <v-spacer></v-spacer>

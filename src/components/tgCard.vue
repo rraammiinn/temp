@@ -2,10 +2,10 @@
     <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
 
 
-    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start') }" style="border: solid;border-radius: .5rem;padding: .5rem;border-color: var(--tgBrown);max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 13rem;display: flex;flex-direction: column;justify-content: space-between;gap: .5rem;" class="main" :class="{'expanded' : showActions && props.messageType=='group', 'collapsed' : !showActions}">
+    <div v-click-outside="()=>{if(!editMode)showActions=false;}" @contextmenu.prevent="showActions=true" @dblclick="showActions=true" :created="props.time" :id="props.id" style="border: solid;border-radius: .5rem;padding: .5rem;max-width: 80%;margin: 1.5rem;margin-top: 1rem;margin-bottom: 3rem;width: min-content;position: relative;min-width: 13rem;display: flex;flex-direction: column;justify-content: space-between;gap: .5rem;" :style="{alignSelf : (props.messageType=='channel') ? 'center' : (props.fromYou ? 'flex-end' : 'flex-start'), borderColor: props.glow ?  'var(--tgPrimary)' : 'var(--tgBrown)', boxShadow: props.glow ? '.5rem .5rem .5rem var(--tgPrimary)' : 'unset' }" class="main" :class="{'expanded' : showActions && props.messageType=='group', 'collapsed' : !showActions}">
     
     
-      <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" @contextmenu.prevent="$emit('userSelect',props.userId)" style="height: 3.2rem;margin-left: -2.1rem;margin-top: -2.1rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-color: var(--tgBrown);border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;">
+      <div v-if="props.messageType=='group'" @click="showName = !showName" @dblclick="$emit('userSelect',props.userId)" @contextmenu.prevent="$emit('userSelect',props.userId)" style="height: 3.2rem;margin-left: -2.1rem;margin-top: -2.1rem;background-color: var(--tgBg);border-radius: .5rem;margin-bottom: 1rem;border-style: solid;border-width: .2rem;width: fit-content;max-width: calc(80cqw - 3rem);display: flex;align-items: center;white-space: nowrap;" :style="{borderColor: props.glow ?  'var(--tgPrimary)' : 'var(--tgBrown)'}">
         <img style="height: 100%;width: 2.8rem;min-width: 2.8rem;object-fit: cover;border-radius: .3rem;" :src="props.avatar" :style="{borderTopRightRadius : (showName ? '0' : '.3rem'), borderBottomRightRadius : (showName ? '0' : '.3rem')}" alt="">
         <Transition name="width">
           <span v-show="showName" style="margin-left: 1rem;font-weight: bolder;margin-right: .5rem;overflow-x: hidden;">{{ props.name }}</span>
@@ -133,7 +133,7 @@
             </div>
           </div>
 
-          <a v-for="link in links" :href="link" style="all:unset;display:block;"><v-btn variant="text" prepend-icon="mdi-link" height="1rem" width="fit-content" style="font-size: .5rem;font-weight: bold;font-style: italic;overflow-x: clip;justify-content: flex-start;max-width: calc(100% - 1rem);">{{ link }}</v-btn></a>
+          <a v-for="link in links" :href="link" target="_blank" style="all:unset;display:block;"><v-btn variant="text" prepend-icon="mdi-link" height="1rem" width="fit-content" style="font-size: .5rem;font-weight: bold;font-style: italic;overflow-x: clip;justify-content: flex-start;max-width: calc(100% - 1rem);">{{ link }}</v-btn></a>
 
 
           <div style="display: flex;align-items: center;justify-content: space-between;white-space: 100%;">
@@ -232,7 +232,7 @@
     
     const showName=ref(false)
 
-    const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner','repliedMessageId'])
+    const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner','repliedMessageId','glow'])
     const emit = defineEmits(['insert','reply'])
 
     const editMode=ref(false)

@@ -1,14 +1,14 @@
 <template>
   <div style="position: fixed;top: 4rem;z-index: 1;width: 90vw;">
-    <v-chip v-if="topCardDate" :style="{visibility: (showDateChips ? 'visible' : 'hidden')}" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;opacity: 1;background-color: var(--tgBg);border-bottom: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;border-top-left-radius: 0;border-top-right-radius: 0;" color="var(--tgBrown)">{{ topCardDate }}</v-chip>
+    <v-chip v-if="topChipDate" :style="{visibility: (showDateChips ? 'visible' : 'hidden')}" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;opacity: 1;background-color: var(--tgBg);border-bottom: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;border-top-left-radius: 0;border-top-right-radius: 0;" color="var(--tgBrown)">{{ topChipDate }}</v-chip>
   </div>
 
-    <TransitionGroup name="list" tag="div" ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 5rem;padding-bottom: 3rem;display: flex;flex-direction: column;container: scrollable / inline-size;">
+    <TransitionGroup name="list" tag="div" ref="scrollable" id="scrollable" style="width: 90vw; height: 100dvh;position: fixed;bottom: 0;overflow-y: scroll;padding-top: 5rem;padding-bottom: 5rem;display: flex;flex-direction: column;container: scrollable / inline-size;">
         <div style="display: flex;flex-direction: column;width: 100%;" v-for="message,i in allDatas.get(props.otherId).messages" :key="message.id+message.updated">
-              <v-chip :id="new Date(message.created).toLocaleDateString()" @vnode-mounted="attachDateChipObserver(new Date(message.created).toLocaleDateString())" :style="{visibility: (showDateChips ? 'visible' : 'hidden')}" class="tg-date-chip" v-if="new Date(message.created).toLocaleDateString() != new Date(allDatas.get(props.otherId).messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-bottom: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ new Date(message.created).toLocaleDateString() }}</v-chip>
+              <v-chip :id="new Date(message.created).toLocaleDateString()" :data-date="formatDate(message.created)" @vnode-mounted="attachDateChipObserver(new Date(message.created).toLocaleDateString())" :style="{visibility: (showDateChips ? 'visible' : 'hidden')}" class="tg-date-chip" v-if="new Date(message.created).toLocaleDateString() != new Date(allDatas.get(props.otherId).messages[i-1]?.created).toLocaleDateString()" style="height: fit-content;width: fit-content;margin: auto;margin-bottom: 1rem;position: sticky;top: 5rem;opacity: 1;z-index: 99999;background-color: var(--tgBg);border-bottom: solid;font-weight: bold;display: block;min-height: 1.5rem;min-width: 9rem;text-align: center;" color="var(--tgBrown)">{{ formatDate(message.created) }}</v-chip>
         
               <suspense>
-                <tg-card @goToMessage="goToMessage" @insert="(id)=>{cardInsertHandler(id)}" class="tg-card" @reply="(messageId,userAvatarUrl,messageText)=>{$emit('reply',messageId,userAvatarUrl,messageText)}" @imageSelect="(selected)=>{sheet = !sheet;selectedImages=selected;clickedImageId=selected.clickedImage;selectedImageUrl=selected.clickedImage}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :replied-message-id="message.replyto" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allDatas.get(props.otherId).groupMems?.get(message.from))?.name" :text="message.text" :avatar="getUserAvatarUrl(message.from, allDatas.get(props.otherId).groupMems?.get(message.from)?.avatar)" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allDatas.get(props.otherId).otherLastSeen).getTime()"></tg-card>
+                <tg-card @goToMessage="goToMessage" @insert="(id)=>{cardInsertHandler(id)}" :glow="message.id == glowingMessageId" class="tg-card" @reply="(messageId,userAvatarUrl,messageText)=>{$emit('reply',messageId,userAvatarUrl,messageText)}" @imageSelect="(selected)=>{sheet = !sheet;selectedImages=selected;clickedImageId=selected.clickedImage;selectedImageUrl=selected.clickedImage}" @userSelect="(selectedUser)=>{$emit('userSelect',selectedUser)}" :replied-message-id="message.replyto" :is-owner="props.isOwner" :message-type="props.messagesType" :from-you="message.from==pb.authStore.model.id" :from-other="message.from!=pb.authStore.model.id" :data-time="message.created" :time="message.created" :id="message.id" :user-id="message.from" :name="(allDatas.get(props.otherId).groupMems?.get(message.from))?.name" :text="message.text" :avatar="getUserAvatarUrl(message.from, allDatas.get(props.otherId).groupMems?.get(message.from)?.avatar)" :images="message.images" :videos="message.videos" :audios="message.audios" :files="message.files" :seen="new Date(message.created).getTime() <= new Date(allDatas.get(props.otherId).otherLastSeen).getTime()"></tg-card>
               </suspense>
         
         
@@ -94,7 +94,7 @@
           import pb from '@/main';
           import { computed, onUpdated, onMounted, ref, nextTick } from 'vue';
     
-          import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+          import {getUserAvatarUrl, formatDate} from '@/funcs/commonFuncs';
 
           import { useOtherStore } from '@/store/otherStore';
 
@@ -148,7 +148,7 @@
           const showGoToBottom=ref(false)
           const showDateChips=ref(false)
 
-          const topCardDate=ref()
+          const topChipDate=ref()
           let timerId;
 
           let jumpEnabled=true;
@@ -158,6 +158,8 @@
           let previousScrollHeight;
           let previousClientHeight;
           let previousScrollTop;
+
+          const glowingMessageId=ref()
     
           if(!allDatas.value.get(props.otherId).cacheNewMessages && !allDatas.value.get(props.otherId).messages.length){
             await props.messageGenerator.initializeMessages()
@@ -202,7 +204,7 @@
               (e)=>{
                 try{
                   const target = e.filter(i=>i.boundingClientRect.top <=10)[0]?.target
-                  topCardDate.value=(new Date(target.getAttribute('created'))).toLocaleDateString()
+                  if(target.dataset.date)topChipDate.value=target.dataset.date
                 }
                 catch{}
               },
@@ -243,7 +245,7 @@
 
 
 
-            function attachDateChipObserver(){
+            function attachDateChipObserver(id){
               try{
                 dateChipObserver.observe(document.getElementById(id))
               }catch{}
@@ -350,6 +352,7 @@
     
     
       async function goToMessage(messageId){
+        glowingMessageId.value=messageId;
         let card=document.getElementById(messageId)
         if(!card){
           showProgressBar()
@@ -372,6 +375,10 @@
             card=document.getElementById(messageId)
             card?.scrollIntoView?.({block:'center',behavior:'smooth'})
           }, 100);
+        }finally{
+          setTimeout(() => {
+            glowingMessageId.value=null;
+          }, 3000);
         }
       }
     
@@ -387,7 +394,11 @@
           // attachAllObservers()
     
           if(props.initMessageId){
+            glowingMessageId.value=props.initMessageId;
           document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
+          setTimeout(() => {
+            glowingMessageId.value=null;
+          }, 5000);
           }else{
             // document.getElementById('scrollable')?.scrollIntoView({block:'center'});
             document.querySelector(`[created="${allDatas.value.get(props.otherId).lastSeen}"]`)?.scrollIntoView({block:'center'});

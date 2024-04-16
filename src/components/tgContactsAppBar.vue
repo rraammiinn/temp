@@ -1,7 +1,7 @@
 <template>
     <v-btn style="margin-right: .5rem;" rounded @click="$router.back()" variant="text" icon="mdi-arrow-left"></v-btn>
     <Transition name="fade-and-move">
-      <v-toolbar-title v-show="(!showSearch && !userSearch)">contacts</v-toolbar-title>
+      <v-toolbar-title v-show="(!showSearch && !userSearch)">Contacts</v-toolbar-title>
     </Transition>
     <v-spacer></v-spacer>
     <Transition name="scale">

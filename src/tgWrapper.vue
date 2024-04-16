@@ -1,7 +1,7 @@
 <template><slot></slot></template>
 
 <script setup>
-import { watchEffect, onBeforeUnmount, onUnmounted, onActivated } from "vue";
+import { watchEffect, onBeforeUnmount, onUnmounted, onActivated, ref, provide } from "vue";
 import {storeToRefs} from 'pinia'
 import {useDataStore} from '@/store/dataStore'
 import {useAuthStore} from '@/store/authStore'
@@ -12,6 +12,11 @@ import { useRouter } from 'vue-router';
 import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
 import {subscribeToNewMessages} from '@/funcs/chatFuncs'
 import { onMounted } from "vue";
+
+const nowDate=ref(new Date())
+provide('nowDate',nowDate)
+
+setInterval(()=>{nowDate.value = new Date()},5000)
 
 const{isLoggedIn,authData,isVerified}=storeToRefs(useAuthStore())
 const{updateChatRels,updateGroupRels,updateChannelRels,updateGroups,updateAllMessages,updateGroupMems,updateContacts,init,subscribeAll}=useDataStore()

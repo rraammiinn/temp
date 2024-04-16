@@ -1,28 +1,28 @@
 <template>
   <div id="tg-main" style="width: 100%;height: 100%;overflow-y: scroll;">
 
-    <v-list v-if="searchMessage" :items="Object.keys(searchMessageResults)"  item-props  lines="three">
+    <v-list v-if="searchMessage" lines="three">
 
-<div v-for="searchMessageResult in searchMessageResults">
+<div v-for="searchMessageResult in searchMessageResults" :key="searchMessageResult.id">
     <v-list-item @click="$router.push({name:'chat',params:{otherId:(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id},query:{initMessageId:searchMessageResult.id,showUser:false}})" v-if="searchMessageResult.to" class="listItem" :class="{online:allDatasSorted[(searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from']).id]?.isOnline}"
     :prepend-avatar="getUserAvatarUrl(searchMessageResult[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'], searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].avatar)"
     :title="searchMessageResult.expand[searchMessageResult.from==pb.authStore.model.id ? 'to' : 'from'].name"
     :subtitle="searchMessageResult.text"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatDate(searchMessageResult.created) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatTime(searchMessageResult.created, nowDate) }}</span></div></template></v-list-item>
 
 
   <v-list-item @click="$router.push({name:'group',params:{groupId:searchMessageResult.group},query:{initMessageId:searchMessageResult.id,showGroup:false}})" v-if="searchMessageResult.group" class="listItem"
     :prepend-avatar="getGroupAvatarUrl(searchMessageResult.group, searchMessageResult.expand.group.avatar)"
     :title="searchMessageResult.expand.group.name"
     :subtitle="`${searchMessageResult.expand.from.name} : ${searchMessageResult.text}`"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatDate(searchMessageResult.created) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatTime(searchMessageResult.created, nowDate) }}</span></div></template></v-list-item>
 
 
   <v-list-item @click="$router.push({name:'channel',params:{channelId:searchMessageResult.channel},query:{initMessageId:searchMessageResult.id,showChannel:false}})" v-if="searchMessageResult.channel" class="listItem"
     :prepend-avatar="getChannelAvatarUrl(searchMessageResult.channel, searchMessageResult.expand.channel.avatar)"
     :title="searchMessageResult.expand.channel.name"
     :subtitle="searchMessageResult.text"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(searchMessageResult.created).toLocaleTimeString([],{ hour12: false }) }}</span></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatDate(searchMessageResult.created) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatTime(searchMessageResult.created, nowDate) }}</span></div></template></v-list-item>
   <v-divider></v-divider>
 </div>
 </v-list>
@@ -35,19 +35,19 @@
     :prepend-avatar="getUserAvatarUrl(datas.other.id, datas.other.avatar)"
     :title="datas.other.name"
     :subtitle="datas.lastMessage.text"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatDate(datas.lastMessage.created) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatTime(datas.lastMessage.created, nowDate) }}</span><v-chip style="margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
   
   <v-list-item @contextmenu.prevent="shareId=datas.group.id;showGroupSheet=true;" v-if="datas.lastMessage && datas.messagesType=='group' && datas.active" class="listItem" @click="$router.push({name:'group',params:{groupId:datas.group.id},query:{showGroup:false}})"
     :prepend-avatar="getGroupAvatarUrl(datas.group.id, datas.group.avatar)"
     :title="datas.group.name"
     :subtitle="`${allGroupsData.allDatas.get(datas.lastMessage.group).groupMems.get(datas.lastMessage.from)?.name} : ${datas.lastMessage.text}`"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatDate(datas.lastMessage.created) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatTime(datas.lastMessage.created, nowDate) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
 
   <v-list-item @contextmenu.prevent="shareId=datas.channel.id;showChannelSearch=true;" v-if="datas.lastMessage && datas.messagesType=='channel' && datas.active" class="listItem" @click="$router.push({name:'channel',params:{channelId:datas.channel.id},query:{showChannel:false}})"
     :prepend-avatar="getChannelAvatarUrl(datas.channel.id, datas.channel.avatar)"
     :title="datas.channel.name"
     :subtitle="`${datas.lastMessage.text}`"
-  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created.slice(0,10)).toLocaleDateString() }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ new Date(datas.lastMessage.created).toLocaleTimeString([],{ hour12: false }) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
+  ><template v-slot:append><div style="display: flex;flex-direction: column;align-items: flex-end;justify-content: space-between;"><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatDate(datas.lastMessage.created) }}</span><span style="padding-right: .1rem;opacity: .5;font-size: .5rem;font-weight: bold;">{{ formatTime(datas.lastMessage.created, nowDate) }}</span><v-chip style="opacity: .65;margin-top: .5rem;font-size: .5rem;font-weight: bold;height: 1rem;padding-left: .25rem;padding-right: .25rem;" v-if="datas.unseenCount">{{ datas.unseenCount }}</v-chip></div></template></v-list-item>
 
   
   <v-divider v-if="datas.lastMessage && (datas.messagesType =='channel' || datas.active)"></v-divider>
@@ -170,7 +170,9 @@
 
   import {useRouter} from 'vue-router'
 
-  import {getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl} from '@/funcs/commonFuncs';
+  import {getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl, formatDate, formatTime} from '@/funcs/commonFuncs';
+
+  const nowDate = inject('nowDate')
 
   const router = useRouter()
 

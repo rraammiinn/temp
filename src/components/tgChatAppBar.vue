@@ -2,7 +2,7 @@
     <v-btn style="margin-right: .5rem;" rounded @click="if(!showUser)$router.back();showUser=false;" variant="text" icon="mdi-arrow-left"></v-btn>
     <v-badge :content="user.isOnline ? 'online' : 'offline'" :color="(user.isOnline ?? user.online) ? 'primary' : null"><v-avatar @click="showUser=true;" :image="getUserAvatarUrl(props.otherId, user.other?.avatar || user.avatar)"></v-avatar></v-badge>
     <div v-show="!user.isOnline" style="font-size: .65rem;font-weight: bold;margin-top: 3rem;margin-left: -.4rem;opacity: .85;">
-        <span v-if="user.updated">last seen : {{ user.updated.slice(0,10) }}</span><span v-if="user.updated" style="margin-left: .5rem;">{{ user.updated.slice(10,16) }}</span>
+        <span v-if="user.updated">last seen : </span><span v-if="user.updated && formatTime(user.updated, nowDate) != 'just now' && !formatTime(user.updated, nowDate).endsWith('min ago')">{{ formatDate(user.updated) }}</span><span v-if="user.updated" style="margin-left: .5rem;">{{ formatTime(user.updated, nowDate) }}</span>
     </div>
     <v-spacer></v-spacer>
     <v-menu transition="slide-x-transition" location="bottom">
@@ -37,8 +37,9 @@ import { block,unblock } from '@/funcs/chatFuncs';
 import { addContact } from '@/funcs/contactFunc';
 import { useOtherStore } from "@/store/otherStore";
 
-import {getUserAvatarUrl} from '@/funcs/commonFuncs';
+import {getUserAvatarUrl, formatDate, formatTime} from '@/funcs/commonFuncs';
 
+const nowDate = inject('nowDate')
 
 const {showUserSearch}=storeToRefs(useOtherStore())
 const {showProgressBar, hideProgressBar}=useOtherStore()
@@ -50,6 +51,7 @@ const props=defineProps(['otherId'])
 const showUser=inject('showUser')
 const isInRel=inject('isInRel')
 const blocked=inject('blocked')
+
 // const allChatsData=inject('allChatsData')
 
 // let lastseen=0;
@@ -58,6 +60,7 @@ const blocked=inject('blocked')
 // setInterval(()=>{isOnline.value = new Date().getTime() - new Date(lastseen).getTime() < 6000},1000)
 
 const user = computed(()=>allChatsData.value.allDatas.get(props.otherId) || users.value.find(u=>u.id == props.otherId));
+
 
 
 </script>

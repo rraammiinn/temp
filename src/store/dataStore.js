@@ -103,6 +103,7 @@ subscribeUsers(){
         try{
             this.allChatsData.allDatas.get(e.record.id).isOnline = e.record.online;
             this.allChatsData.allDatas.get(e.record.id).lastVisited = e.record.updated;
+            this.allChatsData.allDatas.get(e.record.id).updated = e.record.updated;
         }catch{}
     })
 },
@@ -115,6 +116,7 @@ subscribeRels(){
             this.allChatsData.allDatas.set(e.record.following, new ChatData(rel,backRel));
             subscribeToNewMessages(e.record.following)
             await this.allChatsData.allDatas.get(e.record.following).init()
+            this.allChatsData.allDatas.get(e.record.following).cacheNewMessages=true;
         }
     if(e.action=='update' && e.record.following == useAuthStore().authData.id)this.allChatsData.allDatas.get(e.record.follower).otherLastSeen=e.record.lastseen
     
@@ -129,8 +131,15 @@ subscribeChatMessages(){
             if(this.allChatsData.allDatas.get(index).cacheNewMessages)this.allChatsData.allDatas.get(index).messages.push(e.record);
             if(e.record.from != useAuthStore().authData.id)this.allChatsData.allDatas.get(index).unseenCount++;
         }
-        else if(e.action=='update' && e.record.created>=this.allChatsData.allDatas.get(index).messages[0].created && e.record.created<=this.allChatsData.allDatas.get(index).messages.at(-1).created)this.allChatsData.allDatas.get(index).messages[this.allChatsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-        else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(this.allChatsData.allDatas.get(index).lastSeen)){this.allChatsData.allDatas.get(index).unseenCount--;};this.allChatsData.allDatas.get(index).messages=this.allChatsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
+        else if(e.action=='update'){
+            if(this.allChatsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChatsData.allDatas.get(index).lastMessage=e.record}
+            if(new Date(e.record.created) >= new Date(this.allChatsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allChatsData.allDatas.get(index).messages.at(-1)?.created)){
+            this.allChatsData.allDatas.get(index).messages[this.allChatsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+        }
+    }
+        else if(e.record.action='delete'){
+            if(this.allChatsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChatsData.allDatas.get(index).lastMessage.text='deleted message'}
+            if(new Date(e.record.created) > new Date(this.allChatsData.allDatas.get(index).lastSeen)){this.allChatsData.allDatas.get(index).unseenCount--;};this.allChatsData.allDatas.get(index).messages=this.allChatsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
 },
 
 
@@ -161,8 +170,15 @@ subscribeGroupMessages(){
             if(this.allGroupsData.allDatas.get(index).cacheNewMessages)this.allGroupsData.allDatas.get(index).messages.push(e.record);
             if(e.record.from != useAuthStore().authData.id)this.allGroupsData.allDatas.get(index).unseenCount++;
             this.allGroupsData.allDatas.get(index).lastMessage=e.record;this.allGroupsData.allDatas.get(index).lastMessage['expand']={from:this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)}}
-            else if(e.action=='update' && e.record.created>=this.allGroupsData.allDatas.get(index).messages[0].created && e.record.created<=this.allGroupsData.allDatas.get(index).messages.at(-1).created)this.allGroupsData.allDatas.get(index).messages[this.allGroupsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-            else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(this.allGroupsData.allDatas.get(index).lastSeen)){this.allGroupsData.allDatas.get(index).unseenCount--;};this.allGroupsData.allDatas.get(index).messages=this.allGroupsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
+            else if(e.action=='update'){
+                if(this.allGroupsData.allDatas.get(index).lastMessage.id == e.record.id){this.allGroupsData.allDatas.get(index).lastMessage=e.record}
+                if(new Date(e.record.created) >= new Date(this.allGroupsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allGroupsData.allDatas.get(index).messages.at(-1)?.created))this.allGroupsData.allDatas.get(index).messages[this.allGroupsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+            }
+            else if(e.record.action='delete'){
+                if(this.allGroupsData.allDatas.get(index).lastMessage.id == e.record.id){this.allGroupsData.allDatas.get(index).lastMessage.text='deleted message'}
+                if(new Date(e.record.created) > new Date(this.allGroupsData.allDatas.get(index).lastSeen)){this.allGroupsData.allDatas.get(index).unseenCount--;};this.allGroupsData.allDatas.get(index).messages=this.allGroupsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)
+            }
+            })
 },
 
 subscribeChannelMessages(){
@@ -172,8 +188,15 @@ subscribeChannelMessages(){
             if(this.allChannelsData.allDatas.get(index).cacheNewMessages)this.allChannelsData.allDatas.get(index).messages.push(e.record);
             if(e.record.from != useAuthStore().authData.id)this.allChannelsData.allDatas.get(index).unseenCount++;
             this.allChannelsData.allDatas.get(index).lastMessage=e.record;}
-            else if(e.action=='update' && e.record.created>=this.allChannelsData.allDatas.get(index).messages[0].created && e.record.created<=this.allChannelsData.allDatas.get(index).messages.at(-1).created)this.allChannelsData.allDatas.get(index).messages[this.allChannelsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
-            else if(e.record.action='delete'){if(new Date(e.record.created) > new Date(this.allChannelsData.allDatas.get(index).lastSeen)){this.allChannelsData.allDatas.get(index).unseenCount--;};this.allChannelsData.allDatas.get(index).messages=this.allChannelsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
+            else if(e.action=='update'){
+                if(this.allChannelsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChannelsData.allDatas.get(index).lastMessage=e.record}
+                if(new Date(e.record.created) >= new Date(this.allChannelsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allChannelsData.allDatas.get(index).messages.at(-1)?.created))this.allChannelsData.allDatas.get(index).messages[this.allChannelsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+            }
+            else if(e.record.action='delete'){
+                if(this.allChannelsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChannelsData.allDatas.get(index).lastMessage.text='deleted message'}
+                if(new Date(e.record.created) > new Date(this.allChannelsData.allDatas.get(index).lastSeen)){this.allChannelsData.allDatas.get(index).unseenCount--;};this.allChannelsData.allDatas.get(index).messages=this.allChannelsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)
+            }
+        })
 
 },
 

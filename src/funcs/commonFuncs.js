@@ -51,5 +51,27 @@ function getFileType(name){
     else if(avatarType == 'channel')fallbackImage = bellImage;
     return avatar ? `/api/files/${avatarType}s/${id}/${avatar}` : fallbackImage;
   }
+  
+  
+  function formatDate(date){
+    if(!date)return;
+    const d = new Date(date);
+    const now = new Date();
+    if(now.getFullYear() != d.getFullYear())return d.toLocaleDateString()
+    if((now.getMonth() != d.getMonth() || (now.getDate() - d.getDate() > 6)))return Intl.DateTimeFormat(undefined,{month:'long',day:'numeric'}).format(d)
+    if(now.getDate() - d.getDate() == 0)return 'Today'
+    if(now.getDate() - d.getDate() == 1)return 'Yesterday'
+    if(now.getDate() - d.getDate() > 1)return Intl.DateTimeFormat(undefined,{weekday: "long"}).format(d)
+  }
 
-  export{getFileType, getIcon, getFileIcon, getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl, getAvatarUrl}
+  function formatTime(date, now){
+    if(!date)return;
+    const d = new Date(date);
+    const n = new Date(now);
+    const minutes = Math.max(Math.floor((n.getTime() - d.getTime()) / 60000 ), 0)
+    if(minutes / 60 >= 1)return d.toLocaleTimeString()
+    else if(minutes == 0)return 'just now'
+    else return `${minutes} min ago`
+  }
+
+  export{getFileType, getIcon, getFileIcon, getUserAvatarUrl, getGroupAvatarUrl, getChannelAvatarUrl, getAvatarUrl, formatDate, formatTime}
