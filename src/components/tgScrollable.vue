@@ -154,6 +154,8 @@
           let jumpEnabled=true;
           let previousCard;
           let scrollableHeight=0;
+
+          let glowingTimeout;
           
           let previousScrollHeight;
           let previousClientHeight;
@@ -352,6 +354,7 @@
     
     
       async function goToMessage(messageId){
+        clearTimeout(glowingTimeout);
         glowingMessageId.value=messageId;
         let card=document.getElementById(messageId)
         if(!card){
@@ -376,7 +379,7 @@
             card?.scrollIntoView?.({block:'center',behavior:'smooth'})
           }, 100);
         }finally{
-          setTimeout(() => {
+          glowingTimeout = setTimeout(() => {
             glowingMessageId.value=null;
           }, 3000);
         }
@@ -394,9 +397,10 @@
           // attachAllObservers()
     
           if(props.initMessageId){
+            clearTimeout(glowingTimeout);
             glowingMessageId.value=props.initMessageId;
           document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
-          setTimeout(() => {
+          glowingTimeout = setTimeout(() => {
             glowingMessageId.value=null;
           }, 5000);
           }else{

@@ -6,21 +6,13 @@
   
   
   
-    <tg-scrollable @reply="(messageId,userAvatarUrl,messageText)=>{replyTo=messageId;replyToAvatarUrl=userAvatarUrl;replyToText=messageText;messageInput.focus();}" v-model:allDatas="allChatsData.allDatas" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
+    <tg-scrollable @reply="reply" v-model:allDatas="allChatsData.allDatas" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
+
+    <tg-sender sender-type="chat" :other-id="props.otherId" v-model:reply-to="replyTo" v-model:reply-to-text="replyToText" v-model:reply-to-avatar-url="replyToAvatarUrl"></tg-sender>
+<!-- 
   
 
-  
-  
-      <!-- <v-bottom-sheet v-model="sheet">
-        <img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;;max-height: 80dvh;object-fit: contain;" :src="image">
-        <div style="width: 100%;">
-        <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false">close</v-btn>
-        <a download style="text-decoration: none;" :href="image"><v-btn style="border-radius: 0;" width="50%" color="primary" prepend-icon="mdi-download" @click="sheet=false">download</v-btn></a>
-        </div>
-  
-      </v-bottom-sheet> -->
-  
-  
+
         <div v-if="files.length" style="position: fixed;bottom: 0;height: 6.25rem;width: 90%;background-color:var(--tgBg) ;"></div>
   
         <div style="position: fixed;bottom: 0;height: 3.5rem;width: 90%;background-color:var(--tgBg) ;overflow: auto;white-space: nowrap;overflow-y: hidden;">
@@ -106,12 +98,12 @@
           ></v-textarea>
         </div>
   
-  
+   -->
       </div>
-      <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden>
+      <!-- <input multiple accept="*/*" ref="fileInput" @change="addFiles" type="file" hidden> -->
   
   
-      <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: calc(100% - 15rem);z-index: 99999;background-color: black;"></video>
+      <!-- <video autoplay muted ref="videoPreview" style="position: fixed;top: 0;width: 100%;margin-top: 4rem;display: none;max-height: calc(100% - 15rem);z-index: 99999;background-color: black;"></video> -->
   
   </template>
   
@@ -153,104 +145,112 @@
   import {getChatMessages,getChatMessageById,getPreviousChatMessages,getNextChatMessages,getLastChatMessages,ChatMessageGenerator} from '@/funcs/chatFuncs'
   
   
-  import tgCard from './tgCard.vue';
-  import {getFileType, getIcon, getFileIcon} from '@/funcs/commonFuncs'
-  import { ChatData } from '@/store/dataModels';
+  // import tgCard from './tgCard.vue';
+  import tgSender from './tgSender.vue';
+  // import {getFileType, getIcon, getFileIcon} from '@/funcs/commonFuncs'
+  // import { ChatData } from '@/store/dataModels';
 
   import {useOtherStore} from '@/store/otherStore'
 
-  import {VoiceRecorder, VideoRecorder} from '@/funcs/mediaFuncs'
+  // import {VoiceRecorder, VideoRecorder} from '@/funcs/mediaFuncs'
 
-  const videoPreview = ref()
+  // const videoPreview = ref()
 
-  const {showError, showProgressBar, hideProgressBar} = useOtherStore()
+  // const {showError, showProgressBar, hideProgressBar} = useOtherStore()
   
   
-  const{updateUnseenCount}=useDataStore()
+  // const{updateUnseenCount}=useDataStore()
   const{rels,allChatsData}=storeToRefs(useDataStore())
   
   const props=defineProps(['otherId', 'initMessageId'])
   
-  const scrollable=ref();
   
-  const showGoToBottom=ref(false)
+  // const showGoToBottom=ref(false)
   
   
-  function addFiles(){
-    for (let i=0;i<fileInput.value.files.length;i++){
-      files.value.push(fileInput.value.files[i])
-    }
-    fileInput.value.value=null
-  }
-  const fileInput=ref()
-  const messageInput=ref()
+  // function addFiles(){
+  //   for (let i=0;i<fileInput.value.files.length;i++){
+  //     files.value.push(fileInput.value.files[i])
+  //   }
+  //   fileInput.value.value=null
+  // }
+  // const fileInput=ref()
+  // const messageInput=ref()
   
   const showUser=inject('showUser')
   const chatsContainer=ref()
   
   
-  function removeFile(file){
-    files.value = files.value.filter(h => h != file)
-  }
+  // function removeFile(file){
+  //   files.value = files.value.filter(h => h != file)
+  // }
   
-  function removeAllFiles() {
-    files.value=[]
-  }
-  
-  
-  
-  const files=ref([]);
+  // function removeAllFiles() {
+  //   files.value=[]
+  // }
   
   
   
-  async function send(){
-    if(!msg.value && !files.value.length)return;
-    showProgressBar()
-    try{
-      if(!isInRel.value){
-      let rel,backRel;
-      try{rel = await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true},{expand:'follower,following'})}catch{}
-      try{backRel = await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{}
-    }
-      let formData = new FormData();
-      formData.append('from', pb.authStore.model.id)
-      formData.append('to', props.otherId)
-      formData.append('text', msg.value)
+  // const files=ref([]);
+  
+  
+  
+  // async function send(){
+  //   if(!msg.value && !files.value.length)return;
+  //   showProgressBar()
+  //   try{
+  //     if(!isInRel.value){
+  //     let rel,backRel;
+  //     try{rel = await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true},{expand:'follower,following'})}catch{}
+  //     try{backRel = await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{}
+  //   }
+  //     let formData = new FormData();
+  //     formData.append('from', pb.authStore.model.id)
+  //     formData.append('to', props.otherId)
+  //     formData.append('text', msg.value)
 
-      if(replyTo.value){
-        formData.append('replyto', replyTo.value)
-      }
+  //     if(replyTo.value){
+  //       formData.append('replyto', replyTo.value)
+  //     }
   
-      for (const file of files.value){
+  //     for (const file of files.value){
   
-        formData.append('files', file)
-      }
+  //       formData.append('files', file)
+  //     }
   
       
-      const record = await pb.collection('chatMessages').create(formData);
-    }catch{showError('sending message failed.')}
+  //     const record = await pb.collection('chatMessages').create(formData);
+  //   }catch{showError('sending message failed.')}
 
-      msg.value=''
-      replyTo.value=''
-      replyToAvatarUrl.value=''
-      replyToText.value=''
-      files.value=[]
-    hideProgressBar()
-  }
+  //     msg.value=''
+  //     replyTo.value=''
+  //     replyToAvatarUrl.value=''
+  //     replyToText.value=''
+  //     files.value=[]
+  //   hideProgressBar()
+  // }
   
-  const msg=ref('')
+  // const msg=ref('')
   const replyTo=ref('')
   const replyToAvatarUrl=ref('')
   const replyToText=ref('')
+  
+
+  function reply(messageId,userAvatarUrl,messageText){
+    replyTo.value=messageId;
+    replyToAvatarUrl.value=userAvatarUrl;
+    replyToText.value=messageText;
+    document.getElementById('message-input').focus();
+  }
   
   
   
   import tgUserDetails from './tgUserDetails.vue';
   
-  const sheet=ref(false)
-  const image=ref('')
-  const startEnabled=ref(false)
-  const endEnabled=ref(false)
+  // const sheet=ref(false)
+  // const image=ref('')
+  // const startEnabled=ref(false)
+  // const endEnabled=ref(false)
   
   
   
@@ -264,36 +264,18 @@
  
 
   
-  onUpdated(()=>{if(isTop){scrollable.value.scrollTop=scrollable.value.scrollHeight-previousScrollHeight;previousScrollHeight=scrollable.value.scrollHeight;isTop=false;}else if(isGoToBottom){scrollable.value.scrollTop=scrollable.value.scrollHeight;isGoToBottom=false;showGoToBottom.value=false;}})
-  
-  let isTop=false;
-  let isGoToBottom=false
-  let previousScrollHeight;
-  
-  
-  
-  
-  
-  
-  
-
-  let startScrollTop=0
-  
- 
-  
-  
 
   
-  const isRecording=ref(false);
-  const isPaused=ref(false);
+  // const isRecording=ref(false);
+  // const isPaused=ref(false);
   
-  const mediaType=ref('audio');
+  // const mediaType=ref('audio');
   
-  const voiceRecorder = new VoiceRecorder(()=>{isRecording.value=true;isPaused.value=false;},(file)=>{isRecording.value=false;files.value.push(file)},()=>{isPaused.value=false;},()=>{isPaused.value=true;})
+  // const voiceRecorder = new VoiceRecorder(()=>{isRecording.value=true;isPaused.value=false;},(file)=>{isRecording.value=false;files.value.push(file)},()=>{isPaused.value=false;},()=>{isPaused.value=true;})
 
-  const videoRecorder = new VideoRecorder(()=>{isRecording.value=true;isPaused.value=false;videoPreview.value.style.display='block';},(file)=>{isRecording.value=false;videoPreview.value.srcObject=null;videoPreview.value.style.display='none';files.value.push(file)},()=>{isPaused.value=false;videoPreview.value.style.display='block';},()=>{isPaused.value=true;videoPreview.value.style.display='none';})
+  // const videoRecorder = new VideoRecorder(()=>{isRecording.value=true;isPaused.value=false;videoPreview.value.style.display='block';},(file)=>{isRecording.value=false;videoPreview.value.srcObject=null;videoPreview.value.style.display='none';files.value.push(file)},()=>{isPaused.value=false;videoPreview.value.style.display='block';},()=>{isPaused.value=true;videoPreview.value.style.display='none';})
   
-  const recorder = computed(()=>(mediaType.value == 'audio' ? voiceRecorder : videoRecorder))
+  // const recorder = computed(()=>(mediaType.value == 'audio' ? voiceRecorder : videoRecorder))
 
 
   

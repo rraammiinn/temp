@@ -66,7 +66,7 @@ const {isInitialized} = storeToRefs(useDataStore())
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 
-const {isLoggedIn} = useAuthStore()
+const {isLoggedIn, isVerified} = storeToRefs(useAuthStore())
 
 const router=useRouter()
 
@@ -104,6 +104,8 @@ isInitialized.value=false;
 
 async function passwordLogIn(){
     pb.authStore.clear()
+    isLoggedIn.value=false;
+    isVerified.value=false;
     passwordLogInLoading.value=true
 
     try{
