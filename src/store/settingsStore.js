@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 
 export const useSettingsStore = defineStore('settings',{
-    state:()=>({isDark:localStorage.getItem('tgDark') == 'true'}),
-    getters:{
-        getTheme:(state)=>(state.isDark ? 'dark' : 'light')
-    }
+    state:()=>({theme:localStorage.getItem('tgTheme') ?? (window.matchMedia('(prefers-color-scheme : dark)').matches ? 'dark' : 'light')}),
+    // getters:{
+    //     getTheme:(state)=>(state.theme ?? (window.matchMedia('(prefers-color-scheme : dark)').matches ? 'dark' : 'light'))
+    // }
 })

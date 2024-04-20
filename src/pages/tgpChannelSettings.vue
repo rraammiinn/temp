@@ -10,7 +10,7 @@
     import tgMain from '../components/tgMain.vue';
     import tgChannelSettingsAppBar from '../components/tgChannelSettingsAppBar.vue';
     import tgChannelSettingsPage from '../components/tgChannelSettingsPage.vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import pb from '@/main';
     import {storeToRefs} from 'pinia'
 
@@ -22,6 +22,7 @@
 
 
     const route=useRoute()
+    const router=useRouter()
     const channelId=route.params.channelId
 
  
@@ -33,9 +34,13 @@
 
 
     if(!allChannelsData.value.allDatas.get(channelId)){
-        const channel=await pb.collection('channels').getOne(channelId)
-        allChannelsData.value.allDatas.set(channelId, new ChannelData(null,channel))
-        await allChannelsData.value.allDatas.get(channelId).init()
+        try{
+            const channel=await pb.collection('channels').getOne(channelId)
+            allChannelsData.value.allDatas.set(channelId, new ChannelData(null,channel))
+        }finally{
+            if(!allChannelsData.value.allDatas.get(channelId)){router.replace('/')}
+            else{await allChannelsData.value.allDatas.get(channelId).init()}
+        }
     }
     
     </script>

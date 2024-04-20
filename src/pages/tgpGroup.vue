@@ -28,12 +28,14 @@
     if(!allGroupsData.value.allDatas.get(groupId)){
         try{
             const groupRel=await pb.collection('groupMembers').getFirstListItem(`group = "${groupId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,group'})
-        allGroupsData.value.allDatas.set(groupId, new GroupData(groupRel))
+            allGroupsData.value.allDatas.set(groupId, new GroupData(groupRel))
         }catch{
             const group=await pb.collection('groups').getOne(groupId)
-        allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
+            allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
+        }finally{
+            if(!allGroupsData.value.allDatas.get(groupId)){router.replace('/')}
+            else{await allGroupsData.value.allDatas.get(groupId).init()}
         }
-        await allGroupsData.value.allDatas.get(groupId).init()
 
     }
     const joined=computed(()=>!!allGroupsData.value.allDatas.get(groupId)?.active)

@@ -21,6 +21,13 @@ class VoiceRecorder{
             this.mediaRecorder.onstop = (e) => {
               const blob = new Blob(this.chunks, { type: "audio/mp3; codecs=mp3" });
               const file = new File([blob],'voice.mp3',{ type: 'audio/mp3' })
+
+              const tracks = stream.getTracks();
+
+              tracks.forEach((track) => {
+                track.stop();
+              });
+              
               this.onstop(file)
         }
       
@@ -87,6 +94,13 @@ class VideoRecorder{
             this.mediaRecorder.onstop = (e) => {
               const blob = new Blob(this.chunks, { type: "video/mp4; codecs=mp4" });
               const file = new File([blob],'video.mp4',{ type: 'video/mp4' })
+
+              const tracks = stream.getTracks();
+
+              tracks.forEach((track) => {
+                track.stop();
+              });
+
               this.onstop(file)
         }
       

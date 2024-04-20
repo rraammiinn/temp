@@ -13,6 +13,12 @@ import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
 import {subscribeToNewMessages} from '@/funcs/chatFuncs'
 import { onMounted } from "vue";
 
+const router = useRouter()
+
+const historyLengthOffset = router.options.history.state.position || 0;
+
+provide('historyLengthOffset', historyLengthOffset)
+
 const nowDate=ref(new Date())
 provide('nowDate',nowDate)
 

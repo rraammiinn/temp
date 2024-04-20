@@ -18,17 +18,6 @@
     <Teleport v-if="showGoToBottom" to="#goToBottomBtn">
       <v-btn @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;" color="primary" size="3.5rem" elevation="24"></v-btn>
     </Teleport>
-    <!-- <v-btn v-show="showGoToBottom" @click="goToBottom" icon="mdi-arrow-down" style="border-radius: 50%;position: fixed;right: 1.5rem;bottom: 6.9rem;z-index: '555';" color="primary" size="3.5rem" elevation="24"></v-btn> -->
-    
-    
-    <!-- <v-bottom-sheet v-model="sheet">
-        <img style="border-top-left-radius: 1rem;border-top-right-radius: 1rem;max-width: 100vw;;max-height: 80dvh;object-fit: contain;" :src="image">
-        <div style="width: 100%;">
-        <v-btn style="border-radius: 0;" color="error" width="50%" prepend-icon="mdi-close" @click="sheet=false">close</v-btn>
-        <a download style="text-decoration: none;" :href="image"><v-btn style="border-radius: 0;" width="50%" color="primary" prepend-icon="mdi-download" @click="sheet=false">download</v-btn></a>
-        </div>
-  
-      </v-bottom-sheet> -->
 
 
       <v-bottom-sheet @vnode-updated="()=>{if(sheet == false)imageObserver.disconnect()}" v-model="sheet">
@@ -254,63 +243,32 @@
             }
             
 
-            
-    
-            // function attachAllObservers(){
-            //   attachStartObserver()
-            //   attachEndObserver()
-            //   attachDateObserver()
-            // }
-    
-    
-    
+
     
       async function getPreviousMessages(e){
         if(!initialized || !startEnabled)return;
-        // disableScroll()
-        // setTimeout(() => {
-        //   enableScroll()
-        // }, 10);
         if(e[0].isIntersecting && e[0].target.id == allDatas.value.get(props.otherId).messages[0].id){
           showProgressBar()
           if(previousCard === undefined)previousCard = document.getElementById(e[0].target.id)
     
           startEnabled = await props.messageGenerator.getPreviousMessages()
           hideProgressBar()
-          // await nextTick();
-          // topCard=e[0].target;
-          // startObserver.unobserve(e[0].target);
-          // attachStartObserver()
-          // attachDateObserver()
           await nextTick()
-          // const jump=Math.abs(document.getElementById('scrollable').scrollHeight-previousScrollHeight)
-          // if(document.getElementById('scrollable').scrollTop < 1000)document.getElementById('scrollable').scrollBy(0,)
           if(previousCard.getBoundingClientRect().y - 500 > scrollableHeight)previousCard.scrollIntoView({block:'nearest'})
 
           previousCard = null;
-          // jumpEnabled=false;
         }
     
     }
       
       async function getNextMessages(e){
         if(!initialized || !endEnabled || allDatas.value.get(props.otherId).cacheNewMessages)return;
-        // disableScroll()
-        // setTimeout(() => {
-        //   enableScroll()
-        // }, 10);
         if(e.filter(i=>i.isIntersecting).at(-1)?.target?.id == allDatas.value.get(props.otherId).messages.at(-1).id){
           showProgressBar()
     
           await props.messageGenerator.getNextMessages()
           endEnabled=true;
-          // if(!endEnabled)props.messageGenerator.subscribeToNewMessages()
           hideProgressBar()
-          // await nextTick();
-          // bottomCard=e[0].target;
-          // endObserver.unobserve(e[0].target);
-          // attachEndObserver()
-          // attachDateObserver()
         }
     
     }
@@ -363,20 +321,20 @@
           await nextTick()
           hideProgressBar()
           card=document.getElementById(messageId)
-          // if(props.messagesType=='chat'){
-
-          // }else if(props.messagesType=='group'){
-
-          // }else if(props.messagesType=='channel'){
-
-          // }
         }
         try{
           card.scrollIntoView({block:'center',behavior:'smooth'})
         }catch{
           setTimeout(() => {
-            card=document.getElementById(messageId)
-            card?.scrollIntoView?.({block:'center',behavior:'smooth'})
+            try{
+              card=document.getElementById(messageId)
+              card?.scrollIntoView?.({block:'center',behavior:'smooth'})
+            }catch{
+              setTimeout(() => {
+                card=document.getElementById(messageId)
+                card?.scrollIntoView?.({block:'start',behavior:'smooth'})
+              }, 500);
+            }
           }, 100);
         }finally{
           glowingTimeout = setTimeout(() => {
@@ -392,14 +350,20 @@
     
       async function init(){
         setTimeout(() => {
-                // document.querySelector(`[created="${allDatas.value.get(props.otherId).lastSeen}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
-     
-          // attachAllObservers()
-    
           if(props.initMessageId){
             clearTimeout(glowingTimeout);
             glowingMessageId.value=props.initMessageId;
-          document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
+            try{
+              document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});
+            }catch{
+              setTimeout(() => {
+                try{
+                  document.getElementById(props.initMessageId)?.scrollIntoView({block:'start'});
+                }catch{
+                  document.getElementById(props.initMessageId)?.scrollIntoView({block:'end'});
+                }
+              }, 500);
+            }
           glowingTimeout = setTimeout(() => {
             glowingMessageId.value=null;
           }, 5000);
@@ -430,24 +394,8 @@
           }
 
 
-// function preventScroll(e){
-//     e.preventDefault();
-//     e.stopPropagation();
 
-//     return false;
-// }
-
-// function disableScroll(){
-//   // document.querySelector('#scrollable').addEventListener('wheel', preventScroll);
-//     document.querySelector('#scrollable').style.overflowY='hidden'
-// }
-
-// function enableScroll(){
-//     // document.querySelector('#scrollable').removeEventListener('wheel', preventScroll);
-//       document.querySelector('#scrollable').style.overflowY='auto'
-// }
     
     onMounted(init)
-    // onUpdated(()=>{if(firstUpdate)init()})
     
           </script>

@@ -63,6 +63,8 @@ import { useDataStore } from '@/store/dataStore';
 
 const {isInitialized} = storeToRefs(useDataStore())
 
+const {clearAllDatas} = useDataStore()
+
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
 
@@ -102,10 +104,13 @@ const rules=ref({
 
 isInitialized.value=false;
 
+pb.authStore.clear()
+isLoggedIn.value=false;
+isVerified.value=false;
+
+clearAllDatas();
+
 async function passwordLogIn(){
-    pb.authStore.clear()
-    isLoggedIn.value=false;
-    isVerified.value=false;
     passwordLogInLoading.value=true
 
     try{

@@ -1,6 +1,6 @@
 <template>
 
-  <v-app :class="getTheme" :theme="getTheme">
+  <v-app :class="theme" :theme="theme">
     <v-main>
 
 
@@ -105,12 +105,12 @@ const {errorVisibility,errorMessage,alertVisibility,alertMessage,alertType,alert
 const {share} = useOtherStore()
 const{allSendables}=storeToRefs(useDataStore())
 
-const {getTheme}=storeToRefs(useSettingsStore())
+const {theme}=storeToRefs(useSettingsStore())
 
 
 
 watchEffect(()=>{
-  if(getTheme.value == 'dark'){
+  if(theme.value == 'dark'){
     document.body.classList.add('dark')
     document.body.classList.remove('light')
   }else{

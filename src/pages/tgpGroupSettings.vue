@@ -10,7 +10,7 @@
     import tgMain from '../components/tgMain.vue';
     import tgGroupSettingsAppBar from '../components/tgGroupSettingsAppBar.vue';
     import tgGroupSettingsPage from '../components/tgGroupSettingsPage.vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import pb from '@/main';
     import {storeToRefs} from 'pinia'
 
@@ -22,6 +22,7 @@
 
 
     const route=useRoute()
+    const router=useRouter()
     const groupId=route.params.groupId
 
     const joined=computed(()=>!!allGroupsData.value.allDatas.get(groupId)?.active)
@@ -30,10 +31,13 @@
 
 
     if(!allGroupsData.value.allDatas.get(groupId)){
-
-        const group=await pb.collection('groups').getOne(groupId)
-        allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
-        await allGroupsData.value.allDatas.get(groupId).init()
+        try{
+            const group=await pb.collection('groups').getOne(groupId)
+            allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
+        }finally{
+            if(!allGroupsData.value.allDatas.get(groupId)){router.replace('/')}
+            else{await allGroupsData.value.allDatas.get(groupId).init()}
+        }
     }
     
     </script>

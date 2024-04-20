@@ -92,6 +92,12 @@ export const useDataStore = defineStore('data',{
         await this.updateAllMessages()
     },
 
+    clearAllDatas() {
+        this.allChatsData = new AllChatsData();
+        this.allGroupsData = new AllGroupsData();
+        this.allChannelsData = new AllChannelsData();
+    },
+
 subscribeContacts(){
     pb.collection('contacts').subscribe('*', this.updateContacts)
 },

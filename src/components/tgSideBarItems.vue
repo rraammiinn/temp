@@ -9,7 +9,7 @@
         <v-divider/>
         <v-list-item title="" value="">
             <div style="display: flex;align-items:center;align-content: center;">
-                <v-switch v-model="isDark" label="dark mode" color="primary" inset></v-switch>
+                <v-switch false-value="light" true-value="dark" v-model="theme" label="dark mode" color="primary" inset></v-switch>
             </div>
         </v-list-item>
         
@@ -35,7 +35,7 @@ const drawer=inject('drawer')
 
 import {storeToRefs} from 'pinia'
 import {useSettingsStore} from '@/store/settingsStore'
-const {isDark}=storeToRefs(useSettingsStore())
+const {theme}=storeToRefs(useSettingsStore())
 
-watchEffect(()=>{localStorage.setItem('tgDark',isDark.value)})
+watchEffect(()=>{localStorage.setItem('tgTheme',theme.value)})
 </script>

@@ -7,7 +7,7 @@
     
     <script setup>
     import { onBeforeUnmount,onUnmounted, ref, provide, computed, watchEffect } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import pb from '@/main';
     import { storeToRefs } from 'pinia';
 
@@ -22,17 +22,21 @@
     import tgChannelPage from '../components/tgChannelPage.vue';
 
     const route=useRoute()
+    const router=useRouter()
+
     const channelId=route.params.channelId
 
     if(!allChannelsData.value.allDatas.get(channelId)){
         try{
             const channelRel=await pb.collection('channelMembers').getFirstListItem(`channel = "${channelId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,channel'})
-        allChannelsData.value.allDatas.set(channelId, new ChannelData(channelRel))
+            allChannelsData.value.allDatas.set(channelId, new ChannelData(channelRel))
         }catch{
             const channel=await pb.collection('channels').getOne(channelId)
-        allChannelsData.value.allDatas.set(channelId,new ChannelData(null,channel))
+            allChannelsData.value.allDatas.set(channelId,new ChannelData(null,channel))
+        }finally{
+            if(!allChannelsData.value.allDatas.get(channelId)){router.replace('/')}
+            else{await allChannelsData.value.allDatas.get(channelId).init()}
         }
-        await allChannelsData.value.allDatas.get(channelId).init()
     }
     const subscribed=computed(()=>!!allChannelsData.value.allDatas.get(channelId).channelRelId)
     const isOwner=computed(()=>allChannelsData.value.allDatas.get(channelId)?.channel?.owner==pb.authStore.model.id)  

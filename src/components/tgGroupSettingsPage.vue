@@ -109,6 +109,7 @@ const fileInput=ref()
 const name =ref(allGroupsData.value.allDatas.get(props.groupId).group.name)
 const about =ref(allGroupsData.value.allDatas.get(props.groupId).group.about)
 
+const historyLengthOffset = inject('historyLengthOffset')
 
 
 
@@ -149,11 +150,14 @@ async function deleteGroup(){
     try{
         await pb.collection('groups').delete(props.groupId)
         showAlert('group deleted successfully', 'success')
-        const historyLength = -(router.options.history.state.position - 1);
+        const historyLength = -(router.options.history.state.position - historyLengthOffset);
         const searchTerm=groupSearch.value;
         groupSearch.value='';
         groupSearch.value=searchTerm;
         router.go(historyLength)
+        if(navigator.standalone || window.matchMedia('(display-mode: standalone)').matches){
+            router.back();
+        }
     }catch{showError('deleting group failed.')}
     hideProgressBar()
 }

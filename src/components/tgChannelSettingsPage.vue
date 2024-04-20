@@ -109,6 +109,8 @@ const fileInput=ref()
 const name =ref(allChannelsData.value.allDatas.get(props.channelId).channel.name)
 const about =ref(allChannelsData.value.allDatas.get(props.channelId).channel.about)
 
+const historyLengthOffset = inject('historyLengthOffset')
+
 
 
 
@@ -150,11 +152,14 @@ async function deleteChannel(){
     try{
         await pb.collection('channels').delete(props.channelId)
         showAlert('channel deleted successfully', 'success')
-        const historyLength = -(router.options.history.state.position - 1);
+        const historyLength = -(router.options.history.state.position - historyLengthOffset);
         const searchTerm=channelSearch.value;
         channelSearch.value='';
         channelSearch.value=searchTerm;
         router.go(historyLength)
+        if(navigator.standalone || window.matchMedia('(display-mode: standalone)').matches){
+            router.back();
+        }
     }catch{showError('deleting channel failed.')}
     hideProgressBar()
 
