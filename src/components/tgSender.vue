@@ -64,13 +64,13 @@
       </div>
       </div>
       
-      <div v-if="replyTo && props.senderType != 'channel' && (props.senderType=='chat' || (!props.groupBlocked && props.groupJoined))" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
-        <img v-if="props.senderType == 'chat' && replyToAvatarUrl" :src="replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;">
-      <span v-if="replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ replyToText }}</span>
-      <v-btn @click="()=>{replyTo='',replyToAvatarUrl='';replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
+      <div v-if="props.replyTo && props.senderType != 'channel' && (props.senderType=='chat' || (!props.groupBlocked && props.groupJoined))" style="display: flex;gap: .5rem;overflow: hidden;align-items: center;">
+        <img v-if="props.senderType == 'group' && props.replyToAvatarUrl" :src="props.replyToAvatarUrl" style="border-radius: .25rem;width: 2.5rem;height: 2.5rem;object-fit: cover;flex-shrink: 0;">
+      <span v-if="props.replyToText" style="white-space: nowrap;overflow: hidden;background-color: var(--tgBrown);text-overflow: ellipsis;border-radius: .25rem;padding-left: .5rem;padding-right: .5rem">{{ props.replyToText }}</span>
+      <v-btn @click="()=>{props.replyTo='',props.replyToAvatarUrl='';props.replyToText='';messageInput.blur();}" variant="text" size="1.5rem" color="error" icon="mdi-close"></v-btn>
       </div>
 
-      <div style="margin-left: auto;" v-show="!replyTo && (props.senderType == 'chat' || (props.senderType == 'group' && props.groupJoined) || (props.senderType == 'channel' && props.channelSubscribed))" id="goToBottomBtn"></div>
+      <div style="margin-left: auto;" v-show="!props.replyTo && (props.senderType == 'chat' || (props.senderType == 'group' && props.groupJoined) || (props.senderType == 'channel' && props.channelSubscribed))" id="goToBottomBtn"></div>
     </div>
 
 
@@ -153,12 +153,12 @@ import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect }
 
 
   
-  const props=defineProps(['senderType', 'otherId', 'groupId', 'channelId', 'channelSubscribed', 'groupJoined', 'groupBlocked', 'channelIsOwner', 'replyTo', 'replyToText', 'replyToAvatarUrl'])
+  const props=defineProps(['senderType', 'otherId', 'groupId', 'channelId', 'channelSubscribed', 'groupJoined', 'groupBlocked', 'channelIsOwner', 'replyTo', 'replyToText', 'replyToAvatarUrl', 'replyTo', 'replyToText', 'replyToAvatarUrl'])
   
 
-  const replyTo = defineModel('replyTo')
-  const replyToText = defineModel('replyToText')
-  const replyToAvatarUrl = defineModel('replyToAvatarUrl')
+  // const replyTo = defineModel('replyTo')
+  // const replyToText = defineModel('replyToText')
+  // const replyToAvatarUrl = defineModel('replyToAvatarUrl')
 
 
   
@@ -187,11 +187,14 @@ import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect }
   const scrollableKey=inject('scrollableKey')
   
   const files=ref([]);
+
+  const sendEnabled=true;
   
   
   
   async function send(){
-    if(!msg.value && !files.value.length)return;
+    if(!sendEnabled || (!msg.value && !files.value.length))return;
+    sendEnabled=false;
     showProgressBar()
     try{
       let formData = new FormData();
@@ -205,8 +208,8 @@ import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect }
       }
       formData.append('text', msg.value)
 
-      if(replyTo.value){
-        formData.append('replyto', replyTo.value)
+      if(props.replyTo){
+        formData.append('replyto', props.replyTo)
       }
   
       for (const file of files.value){
@@ -219,10 +222,12 @@ import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect }
     }catch{showError('sending message failed.')}
 
       msg.value=''
-      replyTo.value=''
-      replyToAvatarUrl.value=''
-      replyToText.value=''
+      props.replyTo=''
+      props.replyToAvatarUrl=''
+      props.replyToText=''
       files.value=[]
+
+      sendEnabled=true;
     hideProgressBar()
   }
   

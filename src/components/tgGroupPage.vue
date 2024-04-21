@@ -10,7 +10,7 @@
   
     <tg-scrollable :key="scrollableKey" @reply="reply" @userSelect="(selectedUser)=>{if(selectedUser == pb.authStore.model.id)return;user=allGroupsData.allDatas.get(props.groupId).groupMems.get(selectedUser);showUser=true;}" v-model:allDatas="allGroupsData.allDatas" messages-type="group" :is-owner="isOwner" :init-message-id="props.initMessageId" :other-id="props.groupId" :message-generator="messageGenerator"></tg-scrollable>
 
-    <tg-sender sender-type="group" :group-id="props.groupId" :group-joined="joined" :group-blocked="blocked" v-model:reply-to="replyTo" v-model:reply-to-text="replyToText" v-model:reply-to-avatar-url="replyToAvatarUrl"></tg-sender>
+    <tg-sender sender-type="group" :group-id="props.groupId" :group-joined="joined" :group-blocked="blocked" :reply-to="replyTo" :reply-to-text="replyToText" :reply-to-avatar-url="replyToAvatarUrl"></tg-sender>
 
 
       </div>
