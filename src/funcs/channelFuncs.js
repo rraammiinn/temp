@@ -3,6 +3,10 @@ import pb from "@/main";
 
 import {useDataStore} from '@/store/dataStore'
 import { ChannelData } from "@/store/dataModels";
+import {db} from '@/funcs/db'
+
+import {getSingleCacheChannelMessage,getAllCacheChannelMessages,addOrUpdateSingleCacheChannelMessage,addOrUpdateAllCacheChannelMessages,removeSingleCacheChannelMessage,removeAllCacheChannelMessages,replaceAllCacheChannelMessages} from '@/funcs/db'
+
 
 
 
@@ -36,27 +40,38 @@ async function getLastSeenChannelMessages(channelId,endDate,number=10){
 async function initializeChannelMessages(channelId,initMessageId){
   let messages=[]
 
+  messages = await getAllCacheChannelMessages(channelId)
+
+
 
     try{
-    if(initMessageId){
+      if(initMessageId && ! await getSingleCacheChannelMessage(initMessageId)){
   
    
       messages.push(await getChannelMessageById(initMessageId))
       messages=[...(await getPreviousChannelMessages(channelId,messages[0].created)),messages[0]]
+
+      await replaceAllCacheChannelMessages(channelId, messages)
+
     }
     else{
-
-  
-      messages= await getLastSeenChannelMessages(channelId,useDataStore().allChannelsData.allDatas.get(channelId).lastSeen)
-  
+      if(messages.length){
+        await addOrUpdateAllCacheChannelMessages(await getUpdatedChannelMessagesBetween(channelId, messages[0].created), messages.at(-1).created)
+        messages = await getAllCacheChannelMessages(channelId)
+//-------chche masseges need to be updated.
+      }else{
+        messages= await getLastSeenChannelMessages(channelId,useDataStore().allChannelsData.allDatas.get(channelId).lastSeen)
+        await addOrUpdateAllCacheChannelMessages(messages)
+      }  
     }
   }
   catch{
   }
   if(messages.length<10){
     try{
-      const extraChannels= await getNextChannelMessages(channelId,messages.at(-1)?.created ?? 0)
-      messages=[...messages, ...extraChannels]
+      const extraMessages= await getNextChannelMessages(channelId,messages.at(-1)?.created ?? 0)
+      messages=[...messages, ...extraMessages]
+      await addOrUpdateAllCacheChannelMessages(extraMessages)
     }
     catch{}
   }
@@ -93,8 +108,7 @@ class ChannelMessageGenerator{
       const previous10Messages= await getPreviousChannelMessages(this.channelId,useDataStore().allChannelsData.allDatas.get(this.channelId).messages[0].created)
       if(!previous10Messages.length){return false};
         useDataStore().allChannelsData.allDatas.get(this.channelId).messages=[...previous10Messages, ...useDataStore().allChannelsData.allDatas.get(this.channelId).messages]
-  
-  
+        await addOrUpdateAllCacheChannelMessages(previous10Messages)
       }
       catch{}
       return true
@@ -105,8 +119,7 @@ class ChannelMessageGenerator{
       new10Messages= await getNextChannelMessages(this.channelId,useDataStore().allChannelsData.allDatas.get(this.channelId).messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.channelId);return false;};
       useDataStore().allChannelsData.allDatas.get(this.channelId).messages=[...useDataStore().allChannelsData.allDatas.get(this.channelId).messages, ...new10Messages]
-//       if(new10Messages.length<10){
-// subscribeToNewMessages()}
+      await addOrUpdateAllCacheChannelMessages(new10Messages)
     }
     catch{}
 
@@ -124,6 +137,7 @@ class ChannelMessageGenerator{
       pb.collection('channelMembers').update(useDataStore().allChannelsData.allDatas.get(this.channelId).channelRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.channelId)
+    await replaceAllCacheChannelMessages(this.channelId, last10Messages)
   }
 
 }

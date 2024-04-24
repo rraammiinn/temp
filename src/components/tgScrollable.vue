@@ -266,8 +266,8 @@
         if(e.filter(i=>i.isIntersecting).at(-1)?.target?.id == allDatas.value.get(props.otherId).messages.at(-1).id){
           showProgressBar()
     
-          await props.messageGenerator.getNextMessages()
-          endEnabled=true;
+          endEnabled = await props.messageGenerator.getNextMessages()
+          
           hideProgressBar()
         }
     

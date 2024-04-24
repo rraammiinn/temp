@@ -188,7 +188,7 @@ import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect }
   
   const files=ref([]);
 
-  const sendEnabled=true;
+  let sendEnabled=true;
   
   
   

@@ -13,6 +13,8 @@
 
     import {useDataStore} from '@/store/dataStore'
     import {ChannelData} from '@/store/dataModels'
+
+    import {getChannelRel} from '@/funcs/db'
     
 
     const{allChannelsData}=storeToRefs(useDataStore())
@@ -28,15 +30,21 @@
 
     if(!allChannelsData.value.allDatas.get(channelId)){
         try{
+            try{
             const channelRel=await pb.collection('channelMembers').getFirstListItem(`channel = "${channelId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,channel'})
             allChannelsData.value.allDatas.set(channelId, new ChannelData(channelRel))
+            }catch{
+                const channel=await pb.collection('channels').getOne(channelId)
+                allChannelsData.value.allDatas.set(channelId,new ChannelData(null,channel))
+            }
         }catch{
-            const channel=await pb.collection('channels').getOne(channelId)
-            allChannelsData.value.allDatas.set(channelId,new ChannelData(null,channel))
-        }finally{
-            if(!allChannelsData.value.allDatas.get(channelId)){router.replace('/')}
-            else{await allChannelsData.value.allDatas.get(channelId).init()}
+            const channelRel = await getChannelRel(channelId)
+            allChannelsData.value.allDatas.set(channelId, new ChannelData(channelRel))
         }
+        finally{
+                if(!allChannelsData.value.allDatas.get(channelId)){router.replace('/')}
+                else{await allChannelsData.value.allDatas.get(channelId).init()}
+            }
     }
     const subscribed=computed(()=>!!allChannelsData.value.allDatas.get(channelId).channelRelId)
     const isOwner=computed(()=>allChannelsData.value.allDatas.get(channelId)?.channel?.owner==pb.authStore.model.id)  

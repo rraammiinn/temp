@@ -3,6 +3,55 @@ import pb from '@/main'
 import {useAuthStore} from '@/store/authStore'
 import {subscribeToNewMessages} from '@/funcs/chatFuncs'
 
+import {
+    getSingleCacheChatMessage,
+    getAllCacheChatMessages,
+    addOrUpdateSingleCacheChatMessage,
+    addOrUpdateAllCacheChatMessages,
+    removeSingleCacheChatMessage,
+    removeAllCacheChatMessages,
+    replaceAllCacheChatMessages,
+
+
+    getSingleCacheGroupMessage,
+    getAllCacheGroupMessages,
+    addOrUpdateSingleCacheGroupMessage,
+    addOrUpdateAllCacheGroupMessages,
+    removeSingleCacheGroupMessage,
+    removeAllCacheGroupMessages,
+    replaceAllCacheGroupMessages,
+
+
+    getSingleCacheChannelMessage,
+    getAllCacheChannelMessages,
+    addOrUpdateSingleCacheChannelMessage,
+    addOrUpdateAllCacheChannelMessages,
+    removeSingleCacheChannelMessage,
+    removeAllCacheChannelMessages,
+    replaceAllCacheChannelMessages,
+
+
+    getRels,
+    getBackRels,
+    addOrUpdateRel,
+    addOrUpdateBackRel,
+    getGroupRels,
+    getChannelRels,
+    replaceRels,
+    replaceBackRels,
+    replaceGroupRels,
+    replaceChannelRels,
+    getContacts,
+    replaceContacts,
+
+
+    getLastEntry,
+    updateLastEntry,
+
+    getGroupMembers,
+    replaceGroupMembers
+
+} from '@/funcs/db'
 
 import {
     AllChatsData,
@@ -50,7 +99,14 @@ export const useDataStore = defineStore('data',{
     }),
     actions:{
         // async updateGroups(){await allGroupsData.updateGroups()},
-        async updateContacts(){await pb.collection('contacts').getFullList({expand:'following'}).then(res=>{this.contacts.clear();res.forEach(contact=>this.contacts.set(contact.following, {...contact.expand.following,contactId:contact.id}))})},
+        async updateContacts(){
+            try{
+                await pb.collection('contacts').getFullList({expand:'following'}).then(res=>{this.contacts.clear();res.forEach(contact=>this.contacts.set(contact.following, {...contact.expand.following,contactId:contact.id}))})
+                await replaceContacts(JSON.parse(JSON.stringify(this.contacts)))
+            }catch{
+                // this.contacts = await getContacts()
+            }
+        },
 
 
         async updateGroupMems(groupId){await this.allGroupsData.updateMembers(groupId)},
@@ -123,6 +179,8 @@ subscribeRels(){
             subscribeToNewMessages(e.record.following)
             await this.allChatsData.allDatas.get(e.record.following).init()
             this.allChatsData.allDatas.get(e.record.following).cacheNewMessages=true;
+            await addOrUpdateRel(JSON.parse(JSON.stringify(rel)))
+            await addOrUpdateBackRel(JSON.parse(JSON.stringify(backRel)))
         }
     if(e.action=='update' && e.record.following == useAuthStore().authData.id)this.allChatsData.allDatas.get(e.record.follower).otherLastSeen=e.record.lastseen
     
@@ -130,22 +188,23 @@ subscribeRels(){
     })
 },
 subscribeChatMessages(){
-    pb.collection('chatMessages').subscribe('*',(e)=>{
+    pb.collection('chatMessages').subscribe('*',async(e)=>{
         const index=(e.record.from==useAuthStore().authData.id ? e.record.to : e.record.from);
         if(e.action=='create'){
             this.allChatsData.allDatas.get(index).lastMessage=e.record;
-            if(this.allChatsData.allDatas.get(index).cacheNewMessages)this.allChatsData.allDatas.get(index).messages.push(e.record);
-            if(e.record.from != useAuthStore().authData.id)this.allChatsData.allDatas.get(index).unseenCount++;
+            if(this.allChatsData.allDatas.get(index).cacheNewMessages){this.allChatsData.allDatas.get(index).messages.push(e.record);await addOrUpdateSingleCacheChatMessage(e.record)}
+            if(e.record.from != useAuthStore().authData.id){this.allChatsData.allDatas.get(index).unseenCount++;await updateLastEntry({id:index, unseenCount:this.allChatsData.allDatas.get(index).unseenCount})}
         }
         else if(e.action=='update'){
-            if(this.allChatsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChatsData.allDatas.get(index).lastMessage=e.record}
+            if(this.allChatsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChatsData.allDatas.get(index).lastMessage=e.record; await updateLastEntry({id:index, message:JSON.parse(JSON.stringify(e.record))})}
             if(new Date(e.record.created) >= new Date(this.allChatsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allChatsData.allDatas.get(index).messages.at(-1)?.created)){
             this.allChatsData.allDatas.get(index).messages[this.allChatsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+            await addOrUpdateSingleCacheChatMessage(e.record)
         }
     }
         else if(e.record.action='delete'){
-            if(this.allChatsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChatsData.allDatas.get(index).lastMessage.text='deleted message'}
-            if(new Date(e.record.created) > new Date(this.allChatsData.allDatas.get(index).lastSeen)){this.allChatsData.allDatas.get(index).unseenCount--;};this.allChatsData.allDatas.get(index).messages=this.allChatsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)}})
+            if(this.allChatsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChatsData.allDatas.get(index).lastMessage.text='deleted message';await updateLastEntry({id:index, message:JSON.parse(JSON.stringify(this.allChatsData.allDatas.get(index).lastMessage))})}
+            if(new Date(e.record.created) > new Date(this.allChatsData.allDatas.get(index).lastSeen)){this.allChatsData.allDatas.get(index).unseenCount--;await updateLastEntry({id:index, unseenCount:this.allChatsData.allDatas.get(index).unseenCount})};this.allChatsData.allDatas.get(index).messages=this.allChatsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id);await removeSingleCacheChatMessage(record.id)}})
 },
 
 
@@ -157,6 +216,7 @@ subscribeGroupMembers(){
 
         if(this.allGroupsData.groupRels.find(groupRel=>{groupRel.group==e.record.group}) && e.action=='create'){
                 this.allGroupsData.allDatas.get(e.record.group).groupMems.set(e.record.mem, await pb.collection('users').getFirstListItem(`id = "${e.record.mem}"`))
+                await replaceGroupMembers({id:e.record.group, members:JSON.parse(JSON.stringify(Object.fromEntries(this.allGroupsData.allDatas.get(e.record.group).groupMems)))})
         }
         else if(e.action=='create' && e.record.mem==useAuthStore().authData.id){
             await this.updateGroupRels();
@@ -173,34 +233,42 @@ subscribeGroupMessages(){
         const index=e.record.group;
         if(e.action=='create'){
             if(!this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)){await this.updateGroupMems(e.record.group)}
-            if(this.allGroupsData.allDatas.get(index).cacheNewMessages)this.allGroupsData.allDatas.get(index).messages.push(e.record);
-            if(e.record.from != useAuthStore().authData.id)this.allGroupsData.allDatas.get(index).unseenCount++;
-            this.allGroupsData.allDatas.get(index).lastMessage=e.record;this.allGroupsData.allDatas.get(index).lastMessage['expand']={from:this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)}}
+            if(this.allGroupsData.allDatas.get(index).cacheNewMessages){this.allGroupsData.allDatas.get(index).messages.push(e.record);await addOrUpdateSingleCacheGroupMessage(e.record)}
+            if(e.record.from != useAuthStore().authData.id){this.allGroupsData.allDatas.get(index).unseenCount++;await updateLastEntry({id:index,unseenCount:this.allGroupsData.allDatas.get(index).unseenCount})}
+            this.allGroupsData.allDatas.get(index).lastMessage=e.record;this.allGroupsData.allDatas.get(index).lastMessage['expand']={from:this.allGroupsData.allDatas.get(index).groupMems.get(e.record.from)}
+            await updateLastEntry({id:index, message:JSON.parse(JSON.stringify(this.allGroupsData.allDatas.get(index).lastMessage))})
+        }
             else if(e.action=='update'){
-                if(this.allGroupsData.allDatas.get(index).lastMessage.id == e.record.id){this.allGroupsData.allDatas.get(index).lastMessage=e.record}
-                if(new Date(e.record.created) >= new Date(this.allGroupsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allGroupsData.allDatas.get(index).messages.at(-1)?.created))this.allGroupsData.allDatas.get(index).messages[this.allGroupsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+                if(this.allGroupsData.allDatas.get(index).lastMessage.id == e.record.id){this.allGroupsData.allDatas.get(index).lastMessage=e.record;await updateLastEntry({id:index, message:JSON.parse(JSON.stringify(e.record))})}
+                if(new Date(e.record.created) >= new Date(this.allGroupsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allGroupsData.allDatas.get(index).messages.at(-1)?.created)){this.allGroupsData.allDatas.get(index).messages[this.allGroupsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;await addOrUpdateSingleCacheGroupMessage(e.record)}
             }
             else if(e.record.action='delete'){
-                if(this.allGroupsData.allDatas.get(index).lastMessage.id == e.record.id){this.allGroupsData.allDatas.get(index).lastMessage.text='deleted message'}
-                if(new Date(e.record.created) > new Date(this.allGroupsData.allDatas.get(index).lastSeen)){this.allGroupsData.allDatas.get(index).unseenCount--;};this.allGroupsData.allDatas.get(index).messages=this.allGroupsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)
+                if(this.allGroupsData.allDatas.get(index).lastMessage.id == e.record.id){this.allGroupsData.allDatas.get(index).lastMessage.text='deleted message';await updateLastEntry({id:index, message:this.allGroupsData.allDatas.get(index).lastMessage})}
+                if(new Date(e.record.created) > new Date(this.allGroupsData.allDatas.get(index).lastSeen)){this.allGroupsData.allDatas.get(index).unseenCount--;await updateLastEntry({id:index, unseenCount:this.allGroupsData.allDatas.get(index).unseenCount})}
+                this.allGroupsData.allDatas.get(index).messages=this.allGroupsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)
+                await removeSingleCacheGroupMessage(e.record.id)
             }
             })
 },
 
 subscribeChannelMessages(){
-    pb.collection('channelMessages').subscribe('*',(e)=>{
+    pb.collection('channelMessages').subscribe('*',async(e)=>{
         const index=e.record.channel;
         if(e.action=='create'){
-            if(this.allChannelsData.allDatas.get(index).cacheNewMessages)this.allChannelsData.allDatas.get(index).messages.push(e.record);
-            if(e.record.from != useAuthStore().authData.id)this.allChannelsData.allDatas.get(index).unseenCount++;
-            this.allChannelsData.allDatas.get(index).lastMessage=e.record;}
+            if(this.allChannelsData.allDatas.get(index).cacheNewMessages){this.allChannelsData.allDatas.get(index).messages.push(e.record);await addOrUpdateSingleCacheChannelMessage(e.record)}
+            this.allChannelsData.allDatas.get(index).unseenCount++;
+            this.allChannelsData.allDatas.get(index).lastMessage=e.record;
+            await updateLastEntry({id:index, unseenCount:this.allChannelsData.allDatas.get(index).unseenCount, message:JSON.parse(JSON.stringify(e.record))})
+        }
             else if(e.action=='update'){
-                if(this.allChannelsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChannelsData.allDatas.get(index).lastMessage=e.record}
-                if(new Date(e.record.created) >= new Date(this.allChannelsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allChannelsData.allDatas.get(index).messages.at(-1)?.created))this.allChannelsData.allDatas.get(index).messages[this.allChannelsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;
+                if(this.allChannelsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChannelsData.allDatas.get(index).lastMessage=e.record;await updateLastEntry({id:index, message:e.record})}
+                if(new Date(e.record.created) >= new Date(this.allChannelsData.allDatas.get(index).messages?.[0]?.created) && new Date(e.record.created) <= new Date(this.allChannelsData.allDatas.get(index).messages.at(-1)?.created)){this.allChannelsData.allDatas.get(index).messages[this.allChannelsData.allDatas.get(index).messages.findIndex(msg=>msg.id==e.record.id)]=e.record;await addOrUpdateSingleCacheChannelMessage(e.record)}
             }
             else if(e.record.action='delete'){
-                if(this.allChannelsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChannelsData.allDatas.get(index).lastMessage.text='deleted message'}
-                if(new Date(e.record.created) > new Date(this.allChannelsData.allDatas.get(index).lastSeen)){this.allChannelsData.allDatas.get(index).unseenCount--;};this.allChannelsData.allDatas.get(index).messages=this.allChannelsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)
+                if(this.allChannelsData.allDatas.get(index).lastMessage.id == e.record.id){this.allChannelsData.allDatas.get(index).lastMessage.text='deleted message';await updateLastEntry({id:index, message:JSON.parse(JSON.stringify(this.allChannelsData.allDatas.get(index).lastMessage))})}
+                if(new Date(e.record.created) > new Date(this.allChannelsData.allDatas.get(index).lastSeen)){this.allChannelsData.allDatas.get(index).unseenCount--;await updateLastEntry({id:index, unseenCount:this.allChannelsData.allDatas.get(index).unseenCount})}
+                this.allChannelsData.allDatas.get(index).messages=this.allChannelsData.allDatas.get(index).messages.filter(msg=>msg.id != e.record.id)
+                await removeSingleCacheChannelMessage(e.record.id)
             }
         })
 

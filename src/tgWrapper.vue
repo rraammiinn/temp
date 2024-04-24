@@ -13,6 +13,8 @@ import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
 import {subscribeToNewMessages} from '@/funcs/chatFuncs'
 import { onMounted } from "vue";
 
+import {searchUsers,searchGroups,searchChannels,saveUsers,saveGroups,saveChannels,searchMessages} from '@/funcs/db'
+
 const router = useRouter()
 
 const historyLengthOffset = router.options.history.state.position || 0;
@@ -50,28 +52,47 @@ if(!isInitialized.value && isLoggedIn.value, isVerified.value){await init();subs
 
 watchEffect(async ()=>{
     if(userSearch.value){
-      users.value=(await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})).filter(user=>user.id != authData.value.id)
+      try{
+        users.value=(await pb.collection('users').getFullList({filter:`name ~ "${userSearch.value}" || username ~ "${userSearch.value}" || email ~ "${userSearch.value}"`})).filter(user=>user.id != authData.value.id)
+        await saveUsers(JSON.parse(JSON.stringify(users.value)))
+      }catch{
+        users.value = await searchUsers(userSearch.value)
+      }
     }
 })
 
 watchEffect(async ()=>{
     if(groupSearch.value){
-      searchedGroups.value=await pb.collection('groups').getFullList({filter:`name ~ "${groupSearch.value}"`})
+      try{
+        searchedGroups.value=await pb.collection('groups').getFullList({filter:`name ~ "${groupSearch.value}"`})
+        await saveGroups(JSON.parse(JSON.stringify(searchedGroups.value)))
+      }catch{
+        searchedGroups.value = await searchGroups(groupSearch.value)
+      }
     }
 })
 
 watchEffect(async ()=>{
     if(channelSearch.value){
-      searchedChannels.value=await pb.collection('channels').getFullList({filter:`name ~ "${channelSearch.value}"`})
+      try{
+        searchedChannels.value=await pb.collection('channels').getFullList({filter:`name ~ "${channelSearch.value}"`})
+        await saveChannels(JSON.parse(JSON.stringify(searchedChannels.value)))
+      }catch{
+        searchedChannels.value = await searchChannels(channelSearch.value)
+      }
     }
 })
 
 
 watchEffect(async ()=>{
   if(searchMessage.value){
-    searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
-    ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
-    ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
+    try{
+      searchMessageResults.value=[...await pb.collection('chatMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,to'}),
+      ...await pb.collection('groupMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'from,group'}),
+      ...await pb.collection('channelMessages').getFullList({filter:`text ~ "${searchMessage.value}"`,expand:'channel'})].sort((a,b)=>new Date(b.created).getTime()-new Date(a.created).getTime())
+    }catch{
+      searchMessageResults.value = await searchMessages(searchMessage.value)
+    }
   }
 })
 

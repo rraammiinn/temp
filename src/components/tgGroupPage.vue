@@ -91,8 +91,10 @@
   
   
   const messageGenerator = new GroupMessageGenerator(props.groupId,props.initMessageId)
-  const owner=await pb.collection('users').getOne(allGroupsData.value.allDatas.get(props.groupId).group?.owner);
-
+  let owner;
+  try{
+    owner=await pb.collection('users').getOne(allGroupsData.value.allDatas.get(props.groupId).group?.owner);
+  }catch{}
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{groupsContainer.value?.scrollIntoView({block:'center'});}})
  

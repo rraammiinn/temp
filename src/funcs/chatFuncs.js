@@ -3,6 +3,8 @@ import pb from "@/main";
 
 import {useDataStore} from '@/store/dataStore'
 
+import {getSingleCacheChatMessage,getAllCacheChatMessages,addOrUpdateSingleCacheChatMessage,addOrUpdateAllCacheChatMessages,removeSingleCacheChatMessage,removeAllCacheChatMessages,replaceAllCacheChatMessages} from '@/funcs/db'
+
 
 async function getChatMessageById(id){
   return await pb.collection('chatMessages').getOne(id);
@@ -29,6 +31,10 @@ async function getChatMessagesBetween(otherId,startDate,endDate){
   return await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created > "${startDate}" && created < "${endDate}"`, sort: 'created',$autoCancel:false})
 }
 
+async function getUpdatedChatMessagesBetween(otherId, startDate, endDate){
+  return await pb.collection('chatMessages').getFullList({filter:`(from = "${otherId}" || to = "${otherId}") && created >= "${startDate}" && created <= "${endDate}" && updated > "${endDate}"`, sort: 'created',$autoCancel:false})
+}
+
 
 
 
@@ -38,27 +44,37 @@ async function getChatMessagesBetween(otherId,startDate,endDate){
 async function initializeChatMessages(otherId,initMessageId){
   let messages=[]
 
+  messages = await getAllCacheChatMessages(otherId)
+
 
     try{
-    if(initMessageId){
+    if(initMessageId && ! await getSingleCacheChatMessage(initMessageId)){
+      messages = []
   
    
       messages.push(await getChatMessageById(initMessageId))
       messages=[...(await getPreviousChatMessages(otherId,messages[0].created)),messages[0]]
+
+      await replaceAllCacheChatMessages(otherId, messages)
     }
     else{
-
-  
-      messages= await getLastSeenChatMessages(otherId,useDataStore().allChatsData.allDatas.get(otherId).lastSeen)
-  
+      if(messages.length){
+        await addOrUpdateAllCacheChatMessages(await getUpdatedChatMessagesBetween(otherId, messages[0].created), messages.at(-1).created)
+        messages = await getAllCacheChatMessages(otherId)
+//-------chche masseges need to be updated.
+      }else{
+        messages= await getLastSeenChatMessages(otherId,useDataStore().allChatsData.allDatas.get(otherId).lastSeen)
+        await addOrUpdateAllCacheChatMessages(messages)
+      }  
     }
   }
   catch{
   }
   if(messages.length<10){
     try{
-      const extraChats= await getNextChatMessages(otherId,messages.at(-1)?.created ?? 0)
-      messages=[...messages, ...extraChats]
+      const extraMessages= await getNextChatMessages(otherId,messages.at(-1)?.created ?? 0)
+      messages=[...messages, ...extraMessages]
+      await addOrUpdateAllCacheChatMessages(extraMessages)
     }
     catch{}
   }
@@ -95,8 +111,7 @@ class ChatMessageGenerator{
       const previous10Messages= await getPreviousChatMessages(this.otherId,useDataStore().allChatsData.allDatas.get(this.otherId).messages[0].created)
       if(!previous10Messages.length){return false};
         useDataStore().allChatsData.allDatas.get(this.otherId).messages=[...previous10Messages, ...useDataStore().allChatsData.allDatas.get(this.otherId).messages]
-  
-  
+        await addOrUpdateAllCacheChatMessages(previous10Messages)
       }
       catch{}
       return true
@@ -107,8 +122,7 @@ class ChatMessageGenerator{
       new10Messages= await getNextChatMessages(this.otherId,useDataStore().allChatsData.allDatas.get(this.otherId).messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.otherId);return false;};
       useDataStore().allChatsData.allDatas.get(this.otherId).messages=[...useDataStore().allChatsData.allDatas.get(this.otherId).messages, ...new10Messages]
-//       if(new10Messages.length<10){
-// subscribeToNewMessages()}
+      await addOrUpdateAllCacheChatMessages(new10Messages)
     }
     catch{}
 
@@ -126,6 +140,7 @@ class ChatMessageGenerator{
       pb.collection('rels').update(useDataStore().allChatsData.allDatas.get(this.otherId).relId,{lastseen:date})
       }
     subscribeToNewMessages(this.otherId)
+    await replaceAllCacheChatMessages(this.otherId, last10Messages)
   }
 
   async getRepliedMessage(repliedMessageId){
@@ -134,6 +149,7 @@ class ChatMessageGenerator{
     const endDate = useDataStore().allChatsData.allDatas.get(this.otherId).messages[0].created
     const betweenMessages = await getChatMessagesBetween(this.otherId,startDate,endDate)
     useDataStore().allChatsData.allDatas.get(this.otherId).messages = [repliedMessage, ...betweenMessages, ...useDataStore().allChatsData.allDatas.get(this.otherId).messages]
+    await addOrUpdateAllCacheChatMessages([repliedMessage, ...betweenMessages])
   }
 
 }

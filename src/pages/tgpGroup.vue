@@ -13,6 +13,8 @@
 
     import {useDataStore} from '@/store/dataStore'
     import {GroupData} from '@/store/dataModels'
+
+    import {getGrouplRel} from '@/funcs/db'
     
 
     const{allGroupsData}=storeToRefs(useDataStore())
@@ -27,12 +29,18 @@
 
     if(!allGroupsData.value.allDatas.get(groupId)){
         try{
+            try{
             const groupRel=await pb.collection('groupMembers').getFirstListItem(`group = "${groupId}" && mem = "${pb.authStore.model.id}"`,{expand:'mem,group'})
             allGroupsData.value.allDatas.set(groupId, new GroupData(groupRel))
+            }catch{
+                const group=await pb.collection('groups').getOne(groupId)
+                allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
+            }
         }catch{
-            const group=await pb.collection('groups').getOne(groupId)
-            allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
-        }finally{
+            const groupRel=await getGrouplRel(groupId)
+            allGroupsData.value.allDatas.set(groupId, new GroupData(groupRel))
+        }
+        finally{
             if(!allGroupsData.value.allDatas.get(groupId)){router.replace('/')}
             else{await allGroupsData.value.allDatas.get(groupId).init()}
         }

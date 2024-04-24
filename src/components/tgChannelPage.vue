@@ -70,8 +70,10 @@
   
   
   const messageGenerator = new ChannelMessageGenerator(props.channelId,props.initMessageId)
-  const owner=await pb.collection('users').getOne(allChannelsData.value.allDatas.get(props.channelId).channel?.owner);
-
+  let owner;
+  try{
+    owner=await pb.collection('users').getOne(allChannelsData.value.allDatas.get(props.channelId).channel?.owner);
+  }catch{}
 
   
   onMounted(()=>{if(props.initMessageId){document.getElementById(props.initMessageId)?.scrollIntoView({block:'center'});}else{channelsContainer.value?.scrollIntoView({block:'center'});}})

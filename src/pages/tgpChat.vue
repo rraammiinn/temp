@@ -13,6 +13,8 @@
 
     import {useDataStore} from '@/store/dataStore'
     import {ChatData} from '@/store/dataModels'
+
+    import {getRel,getBackRel} from '@/funcs/db'
     
 
     const{allChatsData}=storeToRefs(useDataStore())
@@ -27,10 +29,15 @@
     if(!allChatsData.value.allDatas.get(otherId)){
         let rel,backRel,user
         try{
+            try{
             rel=await pb.collection('rels').getFirstListItem(`follower = "${pb.authStore.model.id}" && following = "${otherId}"`,{expand:'follower,following'})
             backRel=await pb.collection('rels').getFirstListItem(`follower = "${otherId}" && following = "${pb.authStore.model.id}"`,{expand:'follower,following'})
+            }catch{
+                user=await pb.collection('users').getOne(otherId)
+            }
         }catch{
-            user=await pb.collection('users').getOne(otherId)
+            rel = await getRel(otherId)
+            backRel = await getBackRel(otherId)
         }
         finally{
             allChatsData.value.allDatas.set(otherId, new ChatData(rel,backRel,user))

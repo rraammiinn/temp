@@ -3,6 +3,10 @@ import pb from "@/main";
 
 import {useDataStore} from '@/store/dataStore'
 import { GroupData } from "@/store/dataModels";
+import {db} from '@/funcs/db'
+
+import {getSingleCacheGroupMessage,getAllCacheGroupMessages,addOrUpdateSingleCacheGroupMessage,addOrUpdateAllCacheGroupMessages,removeSingleCacheGroupMessage,removeAllCacheGroupMessages,replaceAllCacheGroupMessages} from '@/funcs/db'
+
 
 
 
@@ -42,27 +46,38 @@ async function getGroupMessagesBetween(groupId,startDate,endDate){
 async function initializeGroupMessages(groupId,initMessageId){
   let messages=[]
 
+  messages = await getAllCacheGroupMessages(groupId)
+
+
 
     try{
-    if(initMessageId){
+      if(initMessageId && ! await getSingleCacheGroupMessage(initMessageId)){
   
    
       messages.push(await getGroupMessageById(initMessageId))
       messages=[...(await getPreviousGroupMessages(groupId,messages[0].created)),messages[0]]
+
+      await replaceAllCacheGroupMessages(groupId, messages)
+
     }
     else{
-
-  
-      messages= await getLastSeenGroupMessages(groupId,useDataStore().allGroupsData.allDatas.get(groupId).lastSeen)
-  
+      if(messages.length){
+        await addOrUpdateAllCacheGroupMessages(await getUpdatedGroupMessagesBetween(groupId, messages[0].created), messages.at(-1).created)
+        messages = await getAllCacheGroupMessages(groupId)
+//-------chche masseges need to be updated.
+      }else{
+        messages= await getLastSeenGroupMessages(groupId,useDataStore().allGroupsData.allDatas.get(groupId).lastSeen)
+        await addOrUpdateAllCacheGroupMessages(messages)
+      }  
     }
   }
   catch{
   }
   if(messages.length<10){
     try{
-      const extraGroups= await getNextGroupMessages(groupId,messages.at(-1)?.created ?? 0)
-      messages=[...messages, ...extraGroups]
+      const extraMessages= await getNextGroupMessages(groupId,messages.at(-1)?.created ?? 0)
+      messages=[...messages, ...extraMessages]
+      await addOrUpdateAllCacheGroupMessages(extraMessages)
     }
     catch{}
   }
@@ -103,8 +118,7 @@ class GroupMessageGenerator{
       const previous10Messages= await getPreviousGroupMessages(this.groupId,useDataStore().allGroupsData.allDatas.get(this.groupId).messages[0].created)
       if(!previous10Messages.length){return false};
         useDataStore().allGroupsData.allDatas.get(this.groupId).messages=[...previous10Messages, ...useDataStore().allGroupsData.allDatas.get(this.groupId).messages]
-  
-  
+        await addOrUpdateAllCacheGroupMessages(previous10Messages)
       }
       catch{}
       return true
@@ -115,8 +129,7 @@ class GroupMessageGenerator{
       new10Messages= await getNextGroupMessages(this.groupId,useDataStore().allGroupsData.allDatas.get(this.groupId).messages.at(-1).created)
       if(!new10Messages.length){subscribeToNewMessages(this.groupId);return false};
       useDataStore().allGroupsData.allDatas.get(this.groupId).messages=[...useDataStore().allGroupsData.allDatas.get(this.groupId).messages, ...new10Messages]
-//       if(new10Messages.length<10){
-// subscribeToNewMessages()}
+      await addOrUpdateAllCacheGroupMessages(new10Messages)
     }
     catch{}
 
@@ -134,6 +147,7 @@ class GroupMessageGenerator{
       pb.collection('groupMembers').update(useDataStore().allGroupsData.allDatas.get(this.groupId).groupRelId,{lastseen:date})
       }
     subscribeToNewMessages(this.groupId)
+    await replaceAllCacheGroupMessages(this.groupId, last10Messages)
   }
 
   async getRepliedMessage(repliedMessageId){
@@ -142,6 +156,7 @@ class GroupMessageGenerator{
     const endDate = useDataStore().allGroupsData.allDatas.get(this.groupId).messages[0].created
     const betweenMessages = await getGroupMessagesBetween(this.groupId,startDate,endDate)
     useDataStore().allGroupsData.allDatas.get(this.groupId).messages = [repliedMessage, ...betweenMessages, ...useDataStore().allGroupsData.allDatas.get(this.groupId).messages]
+    await addOrUpdateAllCacheGroupMessages([repliedMessage, ...betweenMessages])
   }
 
 }

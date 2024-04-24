@@ -1,9 +1,13 @@
 import { getType } from "mime";
 
-import faceImage from '@/assets/images/face.svg'
-import groupImage from '@/assets/images/group.svg'
-import bellImage from '@/assets/images/bell.svg'
+// import faceImage from '@/assets/images/face.svg'
+// import groupImage from '@/assets/images/group.svg'
+// import bellImage from '@/assets/images/bell.svg'
 
+
+import userAvatarAlt from '@/assets/images/user-avatar-alt.svg'
+import groupAvatarAlt from '@/assets/images/group-avatar-alt.svg'
+import channelAvatarAlt from '@/assets/images/channel-avatar-alt.svg'
 
 function getFileType(name){
     const fileType=getType(name) ?? 'misc'
@@ -33,22 +37,22 @@ function getFileType(name){
 
 
   function getUserAvatarUrl(userId, userAvatar){
-    return userAvatar ? `/api/files/users/${userId}/${userAvatar}` : faceImage;
+    return userAvatar ? `/api/files/users/${userId}/${userAvatar}` : userAvatarAlt;
   }
 
   function getGroupAvatarUrl(groupId, groupAvatar){
-    return groupAvatar ? `/api/files/groups/${groupId}/${groupAvatar}` : groupImage;
+    return groupAvatar ? `/api/files/groups/${groupId}/${groupAvatar}` : groupAvatarAlt;
   }
 
   function getChannelAvatarUrl(channelId, channelAvatar){
-    return channelAvatar ? `/api/files/channels/${channelId}/${channelAvatar}` : bellImage;
+    return channelAvatar ? `/api/files/channels/${channelId}/${channelAvatar}` : channelAvatarAlt;
   }
 
   function getAvatarUrl(id, avatar, avatarType){
     if(avatarType == 'chat')avatarType='user';
-    let fallbackImage = faceImage;
-    if(avatarType == 'group')fallbackImage = groupImage;
-    else if(avatarType == 'channel')fallbackImage = bellImage;
+    let fallbackImage = userAvatarAlt;
+    if(avatarType == 'group')fallbackImage = groupAvatarAlt;
+    else if(avatarType == 'channel')fallbackImage = channelAvatarAlt;
     return avatar ? `/api/files/${avatarType}s/${id}/${avatar}` : fallbackImage;
   }
   

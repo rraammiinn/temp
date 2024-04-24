@@ -74,7 +74,7 @@ const routes = [
 
 
 
-  // {name:'catchAll', path: '/:pathMatch(.*)*', redirect: '/' },
+  {name:'catchAll', path: '/:pathMatch(.*)*', redirect: '/' },
 
 ]
 
