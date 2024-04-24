@@ -1,7 +1,7 @@
 import pb from '@/main'
 import {useAuthStore} from '@/store/authStore'
 
-import {getRels,getBackRels,getGroupRels,getChannelRels,replaceRels,replaceBackRels,replaceGroupRels,replaceChannelRels, getLastEntry,updateLastEntry, getGroupMembers,replaceGroupMembers,saveGroups,saveChannels} from '@/funcs/db'
+import {getRels,getBackRels,getGroupRels,getChannelRels,replaceRels,replaceBackRels,replaceGroupRels,replaceChannelRels, getLastEntry,updateLastEntry, getGroupMembers,replaceGroupMembers,saveGroups,saveChannels,saveUsers} from '@/funcs/db'
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -72,6 +72,7 @@ class AllChatsData{
             // console.log('rels :', this.rels.map(rel => ({...rel})).map(rel => ({...rel, expand:{...(rel.expand.map(expand => ({follower:expand.follower, following:expand.following})))}})));
             await replaceRels(JSON.parse(JSON.stringify(this.rels)))
             await replaceBackRels(JSON.parse(JSON.stringify(this.rels)))
+            await saveUsers(JSON.parse(JSON.stringify(this.rels.map(rel => rel.expand.following))))
         }catch{
             this.rels = await getRels()
             this.backRels = await getBackRels()
@@ -236,7 +237,7 @@ class AllChannelsData{
         try{
             this.channelRels=await pb.collection('channelMembers').getFullList({filter:`mem = "${useAuthStore().authData.id}"`,expand:'channel'});
             await replaceChannelRels(JSON.parse(JSON.stringify(this.channelRels)))
-            await saveChannels(JSON.parse(JSON.stringify(this.channelRels.map(channelRel => channelRel.expand.group))))
+            await saveChannels(JSON.parse(JSON.stringify(this.channelRels.map(channelRel => channelRel.expand.channel))))
         }catch{
             this.channelRels = await getChannelRels()
         }
