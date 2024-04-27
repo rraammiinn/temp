@@ -6,7 +6,7 @@
     </template>
     
     <script setup>
-    import pb from '@/main';
+    import {pb} from '@/funcs/pb';
     import { onBeforeUnmount,onUnmounted, ref, provide, computed } from 'vue';
     import { useRoute } from 'vue-router';
     import { storeToRefs } from 'pinia';

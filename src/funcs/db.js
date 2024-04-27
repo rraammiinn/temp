@@ -1,59 +1,80 @@
 import Dexie from "dexie";
-import pb from '@/main'
+import {pb} from '@/funcs/pb'
 
-const db = new Dexie("tg-db");
-db.version(1).stores({
-    chatMessages : "id, text, from, to, created",
-    groupMessages : "id, text, group, created",
-    channelMessages : "id, text, channel, created",
-    rels : "id, [follower+following], [following+follower]",
-    backRels : "id",
-    groupRels : "id, group",
-    channelRels : "id, channel",
-    contacts : "id",
+let db;
 
-    lastEntries : "id",
-    groupMembers : "id",
+function createDB(){
+    try{
+        db = new Dexie(`tg-${pb.authStore.model.username}-db`);
+        db.version(1).stores({
+            chatMessages : "id, text, from, to, created",
+            groupMessages : "id, text, group, created",
+            channelMessages : "id, text, channel, created",
+            rels : "id, [follower+following]",
+            backRels : "id, [following+follower]",
+            groupRels : "id, group",
+            channelRels : "id, channel",
+            contacts : "id",
+        
+            lastEntries : "id",
+            groupMembers : "id",
+        
+            users: "id",
+            groups: "id",
+            channels: "id"
+        });
+    }catch{}
+}
 
-    users: "id",
-    groups: "id",
-    channels: "id"
-});
 
 
 
 async function replaceAllCacheChatMessages(otherId, messages){
-    await removeAllCacheChatMessages(otherId)
-    await addOrUpdateAllCacheChatMessages(messages)
+    try{
+        await removeAllCacheChatMessages(otherId)
+        await addOrUpdateAllCacheChatMessages(messages)
+    }catch{}
 }
 
 async function addOrUpdateAllCacheChatMessages(messages){
-    await db.chatMessages.bulkPut(messages)
+    try{
+        await db.chatMessages.bulkPut(messages)
+    }catch{}
 }
 
 async function removeAllCacheChatMessages(otherId){
-    if(otherId){
-        await db.chatMessages.where({from : otherId}).or('to').equals(otherId).delete()
-    }else{
-        await db.chatMessages.clear()
-    }
+    try{
+        if(otherId){
+            await db.chatMessages.where({from : otherId}).or('to').equals(otherId).delete()
+        }else{
+            await db.chatMessages.clear()
+        }
+    }catch{}
 }
 
 async function getAllCacheChatMessages(otherId){
+    try{
         return await db.chatMessages.where({from : otherId}).or('to').equals(otherId).sortBy('created')
+    }catch{}
 }
 
 
 async function addOrUpdateSingleCacheChatMessage(message){
-    await db.chatMessages.put(message)
+    try{
+        await db.chatMessages.put(message)
+    }catch{}
 }
 
 async function removeSingleCacheChatMessage(messageId){
-    await db.chatMessages.delete(messageId)
+    try{
+        await db.chatMessages.delete(messageId)
+    }catch{}
 }
 
 async function getSingleCacheChatMessage(messageId){
-    return await db.chatMessages.get(messageId)
+    try{
+        return await db.chatMessages.get(messageId)
+    }catch{}
 }
 
 
@@ -62,37 +83,51 @@ async function getSingleCacheChatMessage(messageId){
 
 
 async function replaceAllCacheGroupMessages(groupId, messages){
-    await removeAllCacheGroupMessages(groupId)
-    await addOrUpdateAllCacheGroupMessages(messages)
+    try{
+        await removeAllCacheGroupMessages(groupId)
+        await addOrUpdateAllCacheGroupMessages(messages)
+    }catch{}
 }
 
 async function addOrUpdateAllCacheGroupMessages(messages){
-    await db.groupMessages.bulkPut(messages)
+    try{
+        await db.groupMessages.bulkPut(messages)
+    }catch{}
 }
 
 async function removeAllCacheGroupMessages(groupId){
-    if(groupId){
-        await db.groupMessages.where({group : groupId}).delete()
-    }else{
-        await db.groupMessages.clear()
-    }
+    try{
+        if(groupId){
+            await db.groupMessages.where({group : groupId}).delete()
+        }else{
+            await db.groupMessages.clear()
+        }
+    }catch{}
 }
 
 async function getAllCacheGroupMessages(groupId){
+    try{
         return await db.groupMessages.where({group : groupId}).sortBy('created')
+    }catch{}
 }
 
 
 async function addOrUpdateSingleCacheGroupMessage(message){
-    await db.groupMessages.put(message)
+    try{
+        await db.groupMessages.put(message)
+    }catch{}
 }
 
 async function removeSingleCacheGroupMessage(messageId){
-    await db.groupMessages.delete(messageId)
+    try{
+        await db.groupMessages.delete(messageId)
+    }catch{}
 }
 
 async function getSingleCacheGroupMessage(messageId){
-    return await db.groupMessages.get(messageId)
+    try{
+        return await db.groupMessages.get(messageId)
+    }catch{}
 }
 
 
@@ -105,37 +140,51 @@ async function getSingleCacheGroupMessage(messageId){
 
 
 async function replaceAllCacheChannelMessages(channelId, messages){
-    await removeAllCacheChannelMessages(channelId)
-    await addOrUpdateAllCacheChannelMessages(messages)
+    try{
+        await removeAllCacheChannelMessages(channelId)
+        await addOrUpdateAllCacheChannelMessages(messages)
+    }catch{}
 }
 
 async function addOrUpdateAllCacheChannelMessages(messages){
-    await db.channelMessages.bulkPut(messages)
+    try{
+        await db.channelMessages.bulkPut(messages)
+    }catch{}
 }
 
 async function removeAllCacheChannelMessages(channelId){
-    if(channelId){
-        await db.channelMessages.where({channel : channelId}).delete()
-    }else{
-        await db.channelMessages.clear()
-    }
+    try{
+        if(channelId){
+            await db.channelMessages.where({channel : channelId}).delete()
+        }else{
+            await db.channelMessages.clear()
+        }
+    }catch{}
 }
 
 async function getAllCacheChannelMessages(channelId){
+    try{
         return await db.channelMessages.where({channel : channelId}).sortBy('created')
+    }catch{}
 }
 
 
 async function addOrUpdateSingleCacheChannelMessage(message){
-    await db.channelMessages.put(message)
+    try{
+        await db.channelMessages.put(message)
+    }catch{}
 }
 
 async function removeSingleCacheChannelMessage(messageId){
-    await db.channelMessages.delete(messageId)
+    try{
+        await db.channelMessages.delete(messageId)
+    }catch{}
 }
 
 async function getSingleCacheChannelMessage(messageId){
-    return await db.channelMessages.get(messageId)
+    try{
+        return await db.channelMessages.get(messageId)
+    }catch{}
 }
 
 
@@ -159,59 +208,92 @@ async function getSingleCacheChannelMessage(messageId){
 
 
 async function getRels(){
-    return await db.rels.toArray()
+    try{
+        return await db.rels.toArray()
+    }catch{}
 }
 async function getBackRels(){
-    return await db.backRels.toArray()
+    try{
+        return await db.backRels.toArray()
+    }catch{}
 }
 async function addOrUpdateRel(rel){
-    return await db.rels.put(rel)
+    try{
+        return await db.rels.put(rel)
+    }catch{}
 }
 async function addOrUpdateBackRel(backRel){
-    return await db.backRels.put(backRel)
+    try{
+        return await db.backRels.put(backRel)
+    }catch{}
 }
 async function getRel(otherId){
-    return await db.rels.get({follower:pb.authStore.model.id, following:otherId})
+    try{
+        return await db.rels.get({follower:pb.authStore.model.id, following:otherId})
+    }catch{}
 }
 async function getBackRel(otherId){
-    return await db.backRels.get({follower:otherId, following:pb.authStore.model.id})
+    try{
+        return await db.backRels.get({follower:otherId, following:pb.authStore.model.id})
+    }catch{}
 }
 async function getGroupRels(){
-    return await db.groupRels.toArray()
+    try{
+        return await db.groupRels.toArray()
+    }catch{}
 }
 async function getChannelRels(){
-    return await db.channelRels.toArray()
+    try{
+        return await db.channelRels.toArray()
+    }catch{}
 }
 async function getChannelRel(channelId){
-    return await db.channelRels.get({channel:channelId})
+    try{
+        return await db.channelRels.get({channel:channelId})
+    }catch{}
 }
 async function getGrouplRel(groupId){
-    return await db.groupRels.get({group:groupId})
+    try{
+        return await db.groupRels.get({group:groupId})
+    }catch{}
 }
 
 async function replaceRels(rels){
-    await db.rels.clear()
-    await db.rels.bulkPut(rels)
+    try{
+        await db.rels.clear()
+        await db.rels.bulkPut(rels)
+    }catch{}
 }
 async function replaceBackRels(backRels){
-    await db.backRels.clear()
-    await db.backRels.bulkPut(backRels)
+    try{
+        await db.backRels.clear()
+        await db.backRels.bulkPut(backRels)
+    }catch{}
 }
 async function replaceGroupRels(groupRels){
-    await db.groupRels.clear()
-    await db.groupRels.bulkPut(groupRels)
+    try{
+        await db.groupRels.clear()
+        await db.groupRels.bulkPut(groupRels)
+    }catch{}
 }
 async function replaceChannelRels(channelRels){
-    await db.channelRels.clear()
-    await db.channelRels.bulkPut(channelRels)
+    try{
+        await db.channelRels.clear()
+        await db.channelRels.bulkPut(channelRels)
+    }catch{}
 }
 
 async function getContacts(){
-    return await db.contacts.toArray()
+    try{
+        return await db.contacts.toArray()
+    }catch{}
 }
 async function replaceContacts(contacts){
-    await db.contacts.clear()
-    await db.contacts.bulkPut(contacts)
+    try{
+        await db.contacts.clear()
+        await db.contacts.bulkPut(contacts)
+    }catch{}
+
 }
 // async function addContact(contact){
 //     await db.contacts.put(contact)
@@ -221,56 +303,78 @@ async function replaceContacts(contacts){
 // }
 
 async function getLastEntry(id){
-    return await db.lastEntries.get(id)
+    try{
+        return await db.lastEntries.get(id)
+    }catch{}
 }
 async function updateLastEntry(entry){
     try{
-        await db.lastEntries.update(id, entry)
-    }catch{
-        await db.lastEntries.put(entry)
-    }
+        try{
+            await db.lastEntries.update(id, entry)
+        }catch{
+            await db.lastEntries.put(entry)
+        }
+    }catch{}
 }
 
 
 async function getGroupMembers(groupId){
-    return (await db.groupMembers.get(groupId)).members
+    try{
+        return (await db.groupMembers.get(groupId)).members
+    }catch{}
 }
 async function replaceGroupMembers(groupMembers){
-    await db.groupMembers.put(groupMembers)
+    try{
+        await db.groupMembers.put(groupMembers)
+    }catch{}
 }
 
 
 
 
 async function searchUsers(searchTerm){
-    return await db.users.filter(user => (user.username.includes(searchTerm) || user.name?.includes?.(searchTerm) || user.email?.includes?.(searchTerm))).toArray()
+    try{
+        return await db.users.filter(user => (user.username.includes(searchTerm) || user.name?.includes?.(searchTerm) || user.email?.includes?.(searchTerm))).toArray()
+    }catch{}
 }
 
 async function searchGroups(searchTerm){
-    return await db.groups.filter(group => (group.name.includes(searchTerm))).toArray()
+    try{
+        return await db.groups.filter(group => (group.name.includes(searchTerm))).toArray()
+    }catch{}
 }
 
 async function searchChannels(searchTerm){
-    return await db.channels.filter(channel => (channel.name.includes(searchTerm))).toArray()
+    try{
+        return await db.channels.filter(channel => (channel.name.includes(searchTerm))).toArray()
+    }catch{}
 }
 
 async function saveUsers(users){
-    await db.users.bulkPut(users)
+    try{
+        await db.users.bulkPut(users)
+    }catch{}
 }
 
 async function saveGroups(groups){
-    await db.groups.bulkPut(groups)
+    try{
+        await db.groups.bulkPut(groups)
+    }catch{}
 }
 
 async function saveChannels(channels){
-    await db.channels.bulkPut(channels)
+    try{
+        await db.channels.bulkPut(channels)
+    }catch{}
 }
 
 async function searchMessages(searchTerm){
-    return (await Promise.allSettled([
-        ...((await db.chatMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{from:(msg.from == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.from)).expand.following), to:(msg.to == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.to)).expand.following)}}))),
-        ...((await db.groupMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{group:(await getGrouplRel(msg.group)).expand.group, from:(msg.from == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.from)).expand.following)}}))),
-        ...((await db.channelMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{channel:(await getChannelRel(msg.channel)).expand.channel}})))])).map(res => res.value)
+    try{
+        return (await Promise.allSettled([
+            ...((await db.chatMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{from:(msg.from == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.from)).expand.following), to:(msg.to == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.to)).expand.following)}}))),
+            ...((await db.groupMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{group:(await getGrouplRel(msg.group)).expand.group, from:(msg.from == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.from)).expand.following)}}))),
+            ...((await db.channelMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{channel:(await getChannelRel(msg.channel)).expand.channel}})))])).map(res => res.value)
+    }catch{}
 }
 
 export {
@@ -343,6 +447,8 @@ export {
     saveGroups,
     saveChannels,
     
-    searchMessages
+    searchMessages,
 
+
+    createDB
 }

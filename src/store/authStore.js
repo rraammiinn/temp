@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
-import pb from '@/main'
-
+import {pb} from '@/funcs/pb';
 export const useAuthStore = defineStore('auth',{
     state:()=>({isLoggedIn:pb.authStore.isValid,isVerified:pb.authStore?.model?.verified, authData:pb.authStore.model}),
     actions:{

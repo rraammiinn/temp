@@ -1,7 +1,7 @@
 {
     "name": "tgram",
     "short_name": "tg",
-    "start_url": "/",
+    "start_url": "https://t-gram.liara.run",
     "display": "standalone",
     "description": "tgram",
     "icons":[{"src":"./icon.svg","type":"image/svg+xml","purpose": "maskable any","sizes":"512x512 any"}]

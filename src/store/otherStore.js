@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
-import pb from '@/main'
-
+import {pb} from '@/funcs/pb';
 export const useOtherStore = defineStore('other',{
     state:()=>({
         errorVisibility:false,

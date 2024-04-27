@@ -24,7 +24,7 @@ self.addEventListener("fetch", handleFetch)
 async function handleFetch(event) {
     const url = event.request.url;
     const request = event.request;
-    if(request.method != 'GET' || !(url.startsWith('/') || url.startsWith(origin) || url.startsWith(origin.split('//').at(-1)) || url.startsWith('https://fonts.')) || url.startsWith(origin + '/_') || url.startsWith('/_')){console.log('mmmiiisssccc',request);return;};
+    if(request.method != 'GET' || !(url.startsWith('/') || url.startsWith(origin) || url.startsWith(origin.split('//').at(-1)) || url.startsWith('https://fonts.')) || url.startsWith(origin + '/_') || url.startsWith('/_')){return;};
     if(url.startsWith('/api/files/') || url.startsWith(origin + '/api/files/')){
         event.respondWith(responseWhithDynamicCache(request))
     }else if(!(url.startsWith('/api/') || url.startsWith(origin + '/api/'))){
@@ -45,10 +45,14 @@ async function responseWhithStaticCache(request){
     const cache = await caches.open(staticCacheName);
     let response = await caches.match(request);
     if(!response){
-        response = await fetch(request)
         try{
-            await cache.put(request, response.clone());
-        }catch{}
+            response = await fetch(request)
+            try{
+                if(response.ok)await cache.put(request, response.clone());
+            }catch{}
+        }catch{
+            if(!request.url.replace(origin, '').includes('.'))response = await caches.match('/');
+        }
     }
     return response
 }
@@ -59,7 +63,7 @@ async function responseWhithDynamicCache(request){
     if(!response){
         response = await fetch(request)
         try{
-            await cache.put(request, response.clone());
+            if(response.ok)await cache.put(request, response.clone());
         }catch{}
     }
     return response

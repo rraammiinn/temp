@@ -1,5 +1,4 @@
-import pb from "@/main";
-
+import {pb} from '@/funcs/pb';
 
 import {useDataStore} from '@/store/dataStore'
 

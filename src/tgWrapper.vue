@@ -7,7 +7,7 @@ import {useDataStore} from '@/store/dataStore'
 import {useAuthStore} from '@/store/authStore'
 import { useOtherStore } from "@/store/otherStore";
 
-import pb from "@/main";
+import {pb} from '@/funcs/pb';
 import { useRouter } from 'vue-router';
 import { AllChannelsData, ChatData, GroupData } from "@/store/dataModels";
 import {subscribeToNewMessages} from '@/funcs/chatFuncs'
@@ -183,6 +183,7 @@ watchEffect(async ()=>{
 // })
 
 
+        window.addEventListener("online", (event) => {router.go()});
 
 
         window.addEventListener("beforeunload", ()=>{pb.collection('users').update(authData.value.id,{online:false})});

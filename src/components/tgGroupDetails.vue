@@ -95,8 +95,7 @@
     import { inject, ref } from 'vue';
     import { storeToRefs } from "pinia";
 
-    import pb from '@/main';
-  
+    import {pb} from '@/funcs/pb';  
     import { useDataStore } from "@/store/dataStore";
     import {addContact,deleteContact} from '@/funcs/contactFunc';
     import { join,leave,blockMember,unBlockMember } from '@/funcs/groupFuncs';

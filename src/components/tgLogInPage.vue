@@ -46,8 +46,7 @@
 
 <script setup>
 import { ref, computed, watchEffect } from 'vue';
-import pb from '@/main';
-
+import {pb} from '@/funcs/pb';
 import { storeToRefs } from 'pinia';
 
 import {useAuthStore} from '@/store/authStore';
@@ -102,16 +101,12 @@ const rules=ref({
     match: value => (userExists.value || password.value == confirmPassword.value) || "confirm password doesn't match password"
 })
 
-isInitialized.value=false;
-
-pb.authStore.clear()
-isLoggedIn.value=false;
-isVerified.value=false;
 
 clearAllDatas();
 
 async function passwordLogIn(){
     passwordLogInLoading.value=true
+    reset()
 
     try{
     if(!email.value || password.value.length < 8) return;
@@ -148,6 +143,7 @@ async function passwordLogIn(){
 }
 async function googleLogIn(){
     googleLogInLoading.value=true
+    reset()
 
     try{
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
@@ -195,6 +191,14 @@ fileReader.onload = function (event) {
 }
 // input.addEventListener("change", previewAvatar);
 
+function reset(){
+    isInitialized.value=false;
+
+    pb.authStore.clear()
+    isLoggedIn.value=false;
+    isVerified.value=false;
+
+}
 
 
 

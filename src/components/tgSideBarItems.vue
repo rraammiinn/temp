@@ -22,7 +22,7 @@
 </style>
 
 <script setup>
-import pb from '@/main';
+import {pb} from '@/funcs/pb';
 import {inject, watchEffect} from 'vue';
 // const dark=inject('dark')
 const drawer=inject('drawer')

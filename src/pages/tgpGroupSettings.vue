@@ -11,7 +11,7 @@
     import tgGroupSettingsAppBar from '../components/tgGroupSettingsAppBar.vue';
     import tgGroupSettingsPage from '../components/tgGroupSettingsPage.vue';
     import { useRoute, useRouter } from 'vue-router';
-    import pb from '@/main';
+    import {pb} from '@/funcs/pb';
     import {storeToRefs} from 'pinia'
 
     import {useDataStore} from '@/store/dataStore'

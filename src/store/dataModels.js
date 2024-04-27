@@ -1,4 +1,4 @@
-import pb from '@/main'
+import {pb} from '@/funcs/pb';
 import {useAuthStore} from '@/store/authStore'
 
 import {getRels,getBackRels,getGroupRels,getChannelRels,replaceRels,replaceBackRels,replaceGroupRels,replaceChannelRels, getLastEntry,updateLastEntry, getGroupMembers,replaceGroupMembers,saveGroups,saveChannels,saveUsers} from '@/funcs/db'

@@ -131,8 +131,8 @@
 
 <script setup>
 
-import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect } from 'vue';
-  import pb from '@/main';
+  import { ref, inject, onMounted, computed, onUpdated, onUnmounted, watchEffect } from 'vue';
+  import {pb} from '@/funcs/pb';
   import {storeToRefs} from 'pinia'
   
   import {getFileType, getIcon, getFileIcon} from '@/funcs/commonFuncs'

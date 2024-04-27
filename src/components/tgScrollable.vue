@@ -80,7 +80,7 @@
           
           <script setup>
           import tgCard from './tgCard.vue';
-          import pb from '@/main';
+          import {pb} from '@/funcs/pb';
           import { computed, onUpdated, onMounted, ref, nextTick } from 'vue';
     
           import {getUserAvatarUrl, formatDate} from '@/funcs/commonFuncs';
@@ -281,16 +281,19 @@
     
     
         async function goToBottom(){
-          if(endEnabled){
+          try{
+            if(endEnabled){
             showProgressBar()
             await props.messageGenerator.goToBottom()
-            hideProgressBar()
             endEnabled=false;
             // await nextTick()
             // attachStartObserver()
             // attachDateObserver()
           }
-          document.getElementById('scrollable').scrollTop=document.getElementById('scrollable').scrollHeight;
+          }finally{
+            document.getElementById('scrollable').scrollTop=document.getElementById('scrollable').scrollHeight;
+            hideProgressBar()
+          }
       }
     
       function cardInsertHandler(id){
@@ -328,14 +331,14 @@
           setTimeout(() => {
             try{
               card=document.getElementById(messageId)
-              card?.scrollIntoView?.({block:'center',behavior:'smooth'})
+              card.scrollIntoView({behavior:'smooth'})
             }catch{
               setTimeout(() => {
                 card=document.getElementById(messageId)
-                card?.scrollIntoView?.({block:'start',behavior:'smooth'})
+                card?.scrollIntoView?.()
               }, 500);
             }
-          }, 100);
+          }, 200);
         }finally{
           glowingTimeout = setTimeout(() => {
             glowingMessageId.value=null;

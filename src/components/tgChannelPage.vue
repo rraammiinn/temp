@@ -34,7 +34,7 @@
   
   <script setup>
   import { ref, inject, onMounted, computed, onUpdated, onUnmounted } from 'vue';
-  import pb from '@/main';
+  import {pb} from '@/funcs/pb';
   import {storeToRefs} from 'pinia'
   import tgScrollable from './tgScrollable.vue';
   

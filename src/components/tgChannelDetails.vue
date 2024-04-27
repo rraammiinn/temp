@@ -47,7 +47,7 @@
     
     <script setup>
     import { inject, ref } from 'vue';
-    import pb from '@/main';
+    import {pb} from '@/funcs/pb';
     import {subscribe,unsubscribe} from '@/funcs/channelFuncs'
 
     import {getChannelAvatarUrl, getUserAvatarUrl} from '@/funcs/commonFuncs';

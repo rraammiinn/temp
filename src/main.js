@@ -1,5 +1,6 @@
-import {createRouter, createWebHashHistory, createWebHistory, onBeforeRouteUpdate, useRouter} from 'vue-router'
 import PocketBase from 'pocketbase';
+
+import {createRouter, createWebHashHistory, createWebHistory, onBeforeRouteUpdate, useRouter} from 'vue-router'
 import { createPinia } from 'pinia'
 
 import {useAuthStore} from '@/store/authStore'
@@ -20,15 +21,16 @@ import tgpGroupSettings from './pages/tgpGroupSettings.vue';
 import tgpChannelSettings from './pages/tgpChannelSettings.vue';
 import tgpEmailVerification from './pages/tgpEmailVerification.vue';
 
+// const pb = new PocketBase('/');
 
-const pb = new PocketBase('/');
+import {pb} from '@/funcs/pb'
 
-let authData
+// let authData
 // if (! pb.authStore.isValid){
 //   authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
 // }
 
-export default pb
+// export default pb
 
 // Components
 import App from './App.vue'

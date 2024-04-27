@@ -74,7 +74,7 @@
   
   <script setup>
   import { ref, inject, computed, watchEffect } from 'vue';
-  import pb from '@/main';
+  import {pb} from '@/funcs/pb';
   import { storeToRefs } from "pinia";
   
   import { useDataStore } from "@/store/dataStore";

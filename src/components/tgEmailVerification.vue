@@ -14,7 +14,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import pb from '@/main';
+import {pb} from '@/funcs/pb';
 import {useAuthStore} from '@/store/authStore';
 import { useRouter } from 'vue-router';
 

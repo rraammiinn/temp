@@ -155,7 +155,7 @@
 </style>
 
   <script setup>
-  import pb from '@/main';
+  import {pb} from '@/funcs/pb';
   import { join, leave } from '@/funcs/groupFuncs';
   import { subscribe, unsubscribe } from '@/funcs/channelFuncs';
   import { block } from '@/funcs/chatFuncs';

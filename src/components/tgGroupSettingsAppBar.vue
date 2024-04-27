@@ -25,7 +25,7 @@
 
 <script setup>
 import {inject,ref} from 'vue';
-import pb from '@/main';
+import {pb} from '@/funcs/pb';
 import {storeToRefs} from 'pinia'
 
 import {useDataStore} from '@/store/dataStore'

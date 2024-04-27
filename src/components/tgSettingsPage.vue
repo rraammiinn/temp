@@ -59,7 +59,7 @@
 </style>
 
 <script setup>
-import pb from '@/main';
+import {pb} from '@/funcs/pb';
 import { inject, ref } from 'vue';
 import {storeToRefs} from 'pinia'
 
