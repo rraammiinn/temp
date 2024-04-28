@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import {pb} from '@/funcs/pb';
 import {useAuthStore} from '@/store/authStore'
-import {subscribeToNewMessages} from '@/funcs/chatFuncs'
+import {subscribeToNewMessages, initializeChatMessages} from '@/funcs/chatFuncs'
 
 import {createDB} from '@/funcs/db'
 
@@ -181,9 +181,10 @@ subscribeRels(){
             const rel= await pb.collection('rels').getFirstListItem(`follower = "${e.record.follower}" && following = "${e.record.following}"`, {expand:'follower,following'})
             const backRel= await pb.collection('rels').getFirstListItem(`follower = "${e.record.following}" && following = "${e.record.follower}"`, {expand:'follower,following'})
             this.allChatsData.allDatas.set(e.record.following, new ChatData(rel,backRel));
-            subscribeToNewMessages(e.record.following)
             await this.allChatsData.allDatas.get(e.record.following).init()
-            this.allChatsData.allDatas.get(e.record.following).cacheNewMessages=true;
+            await initializeChatMessages(e.record.following)
+            // this.allChatsData.allDatas.get(e.record.following).cacheNewMessages=true;
+            subscribeToNewMessages(e.record.following)
             await addOrUpdateRel(JSON.parse(JSON.stringify(rel)))
             await addOrUpdateBackRel(JSON.parse(JSON.stringify(backRel)))
         }

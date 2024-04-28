@@ -168,4 +168,4 @@ class ChatMessageGenerator{
 
 
 
-export {ChatMessageGenerator,block,unblock,subscribeToNewMessages}
+export {ChatMessageGenerator,block,unblock,subscribeToNewMessages,initializeChatMessages}

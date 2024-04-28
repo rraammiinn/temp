@@ -153,7 +153,7 @@
 
 
   
-  const props=defineProps(['senderType', 'otherId', 'groupId', 'channelId', 'channelSubscribed', 'groupJoined', 'groupBlocked', 'channelIsOwner', 'replyTo', 'replyToText', 'replyToAvatarUrl', 'replyTo', 'replyToText', 'replyToAvatarUrl'])
+  const props=defineProps(['senderType', 'otherId', 'groupId', 'channelId', 'channelSubscribed', 'groupJoined', 'groupBlocked', 'channelIsOwner', 'chatIsInRel', 'replyTo', 'replyToText', 'replyToAvatarUrl', 'replyTo', 'replyToText', 'replyToAvatarUrl'])
   
 
   // const replyTo = defineModel('replyTo')
@@ -196,6 +196,13 @@
     if(!sendEnabled || (!msg.value && !files.value.length))return;
     sendEnabled=false;
     showProgressBar()
+    if(props.senderType == 'chat' && !props.chatIsInRel){
+          try{
+            let rel,backRel;
+            try{rel = await pb.collection('rels').create({follower:pb.authStore.model.id, following:props.otherId, active:true},{expand:'follower,following'})}catch{}
+            try{backRel = await pb.collection('rels').create({follower:props.otherId, following:pb.authStore.model.id, active:true},{expand:'follower,following'})}catch{}
+          }catch{}
+        }
     try{
       let formData = new FormData();
       formData.append('from', pb.authStore.model.id)

@@ -31,13 +31,13 @@ class ChatData{
         try{
             this.lastMessage = await pb.collection('chatMessages').getFirstListItem(`from = "${this.other.id}" || to = "${this.other.id}"`, {sort:'-created',$autoCancel:false})
         }catch{
-            this.lastMessage = (await getLastEntry(this.other.id)).message
+            this.lastMessage = (await getLastEntry(this.other.id))?.message
         }
         try{
             await this.updateUnseenCount()
             await updateLastEntry({id:this.other.id, message:JSON.parse(JSON.stringify(this.lastMessage)), unseenCount:this.unseenCount})
         }catch{
-            this.unseenCount = (await getLastEntry(this.other.id)).unseenCount
+            this.unseenCount = (await getLastEntry(this.other.id))?.unseenCount ?? 0
         }
 
 
@@ -115,13 +115,13 @@ class GroupData{
         try{
             this.lastMessage = await pb.collection('groupMessages').getFirstListItem(`group = "${this.group.id}"`, {sort:'-created',expand:'from',$autoCancel:false})
         }catch{
-            this.lastMessage = (await getLastEntry(this.group.id)).message
+            this.lastMessage = (await getLastEntry(this.group.id))?.message
         }
         try{
             await this.updateUnseenCount()
             await updateLastEntry({id:this.group.id, message:JSON.parse(JSON.stringify(this.lastMessage)), unseenCount:this.unseenCount})
         }catch{
-            this.unseenCount = (await getLastEntry(this.group.id)).unseenCount
+            this.unseenCount = (await getLastEntry(this.group.id))?.unseenCount ?? 0
         }
         finally{
             try{
@@ -199,13 +199,13 @@ class ChannelData{
         try{
             this.lastMessage=await pb.collection('channelMessages').getFirstListItem(`channel = "${this.channel.id}"`, {sort:'-created',$autoCancel:false})
         }catch{
-            this.lastMessage = (await getLastEntry(this.channel.id)).message
+            this.lastMessage = (await getLastEntry(this.channel.id))?.message
         }
         try{
             await this.updateUnseenCount()
             await updateLastEntry({id:this.channel.id, message:JSON.parse(JSON.stringify(this.lastMessage)), unseenCount:this.unseenCount})
         }catch{
-            this.unseenCount = (await getLastEntry(this.channel.id)).unseenCount
+            this.unseenCount = (await getLastEntry(this.channel.id))?.unseenCount ?? 0
         }
 
     }

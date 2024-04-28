@@ -8,7 +8,7 @@
   
     <tg-scrollable @reply="reply" v-model:allDatas="allChatsData.allDatas" messages-type="chat" :init-message-id="props.initMessageId" :other-id="props.otherId" :message-generator="messageGenerator"></tg-scrollable>
 
-    <tg-sender sender-type="chat" :other-id="props.otherId" :reply-to="replyTo" :reply-to-text="replyToText" :reply-to-avatar-url="replyToAvatarUrl"></tg-sender>
+    <tg-sender sender-type="chat" :other-id="props.otherId" :chat-is-in-rel="isInRel" :reply-to="replyTo" :reply-to-text="replyToText" :reply-to-avatar-url="replyToAvatarUrl"></tg-sender>
 
       </div>
 

@@ -55,7 +55,7 @@ async function removeAllCacheChatMessages(otherId){
 async function getAllCacheChatMessages(otherId){
     try{
         return await db.chatMessages.where({from : otherId}).or('to').equals(otherId).sortBy('created')
-    }catch{}
+    }catch{return []}
 }
 
 
@@ -108,7 +108,7 @@ async function removeAllCacheGroupMessages(groupId){
 async function getAllCacheGroupMessages(groupId){
     try{
         return await db.groupMessages.where({group : groupId}).sortBy('created')
-    }catch{}
+    }catch{return []}
 }
 
 
@@ -165,7 +165,7 @@ async function removeAllCacheChannelMessages(channelId){
 async function getAllCacheChannelMessages(channelId){
     try{
         return await db.channelMessages.where({channel : channelId}).sortBy('created')
-    }catch{}
+    }catch{return []}
 }
 
 
@@ -210,21 +210,21 @@ async function getSingleCacheChannelMessage(messageId){
 async function getRels(){
     try{
         return await db.rels.toArray()
-    }catch{}
+    }catch{return []}
 }
 async function getBackRels(){
     try{
         return await db.backRels.toArray()
-    }catch{}
+    }catch{return []}
 }
 async function addOrUpdateRel(rel){
     try{
-        return await db.rels.put(rel)
+        await db.rels.put(rel)
     }catch{}
 }
 async function addOrUpdateBackRel(backRel){
     try{
-        return await db.backRels.put(backRel)
+        await db.backRels.put(backRel)
     }catch{}
 }
 async function getRel(otherId){
@@ -240,12 +240,12 @@ async function getBackRel(otherId){
 async function getGroupRels(){
     try{
         return await db.groupRels.toArray()
-    }catch{}
+    }catch{return []}
 }
 async function getChannelRels(){
     try{
         return await db.channelRels.toArray()
-    }catch{}
+    }catch{return []}
 }
 async function getChannelRel(channelId){
     try{
@@ -286,7 +286,7 @@ async function replaceChannelRels(channelRels){
 async function getContacts(){
     try{
         return await db.contacts.toArray()
-    }catch{}
+    }catch{return []}
 }
 async function replaceContacts(contacts){
     try{
@@ -321,7 +321,7 @@ async function updateLastEntry(entry){
 async function getGroupMembers(groupId){
     try{
         return (await db.groupMembers.get(groupId)).members
-    }catch{}
+    }catch{return []}
 }
 async function replaceGroupMembers(groupMembers){
     try{
@@ -335,19 +335,19 @@ async function replaceGroupMembers(groupMembers){
 async function searchUsers(searchTerm){
     try{
         return await db.users.filter(user => (user.username.includes(searchTerm) || user.name?.includes?.(searchTerm) || user.email?.includes?.(searchTerm))).toArray()
-    }catch{}
+    }catch{return []}
 }
 
 async function searchGroups(searchTerm){
     try{
         return await db.groups.filter(group => (group.name.includes(searchTerm))).toArray()
-    }catch{}
+    }catch{return []}
 }
 
 async function searchChannels(searchTerm){
     try{
         return await db.channels.filter(channel => (channel.name.includes(searchTerm))).toArray()
-    }catch{}
+    }catch{return []}
 }
 
 async function saveUsers(users){
@@ -374,7 +374,7 @@ async function searchMessages(searchTerm){
             ...((await db.chatMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{from:(msg.from == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.from)).expand.following), to:(msg.to == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.to)).expand.following)}}))),
             ...((await db.groupMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{group:(await getGrouplRel(msg.group)).expand.group, from:(msg.from == pb.authStore.model.id ? pb.authStore.model : (await getRel(msg.from)).expand.following)}}))),
             ...((await db.channelMessages.filter(msg => msg.text?.includes?.(searchTerm)).toArray()).map(async(msg) => ({...msg, expand:{channel:(await getChannelRel(msg.channel)).expand.channel}})))])).map(res => res.value)
-    }catch{}
+    }catch{return []}
 }
 
 export {
