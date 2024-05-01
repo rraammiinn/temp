@@ -112,12 +112,11 @@ const bio =ref(authData.value?.bio)
 async function upload_(){
     showProgressBar()
     try{
-
+        let formData = new FormData();
+        formData.append('avatar', fileInput.value.files[0]);
+        await pb.collection('users').update(authData.value.id, formData);
+        updateAuthData()
     }catch{showError('uploading avatar failed.')}
-    let formData = new FormData();
-    formData.append('avatar', fileInput.value.files[0]);
-    await pb.collection('users').update(authData.value.id, formData);
-    updateAuthData()
     hideProgressBar()
 
 }
@@ -127,10 +126,9 @@ async function upload_(){
 async function change(){
     showProgressBar()
     try{
-
+        await pb.collection('users').update(authData.value.id, {'name':name.value, 'bio':bio.value});
+        updateAuthData()
     }catch{showError('changing name and bio failed.')}
-    await pb.collection('users').update(authData.value.id, {'name':name.value, 'bio':bio.value});
-    updateAuthData()
     hideProgressBar()
 }
 

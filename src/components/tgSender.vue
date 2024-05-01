@@ -96,8 +96,8 @@
     @click:prepend-inner.stop="fileInput?.click()"
     ></v-textarea>
 
-    <v-btn v-if="props.senderType == 'group' && !props.groupJoined" color="primary" @click="async()=>{await join(props.groupId);scrollableKey=Math.random();}" style="position: absolute;bottom: .75rem;width: 90%;">join</v-btn>
-    <v-btn v-if="props.senderType == 'channel' && !props.channelSubscribed" color="primary" @click="async()=>{await subscribe(props.channelId);scrollableKey=Math.random();}" style="position: fixed;bottom: .75rem;width: 90%;">subscribe</v-btn>
+    <v-btn v-if="props.senderType == 'group' && !props.groupJoined" color="primary" @click="async()=>{await join(props.groupId);scrollableKey=Math.random();}" style="position: absolute;bottom: .75rem;width: 100%;">join</v-btn>
+    <v-btn v-if="props.senderType == 'channel' && !props.channelSubscribed" color="primary" @click="async()=>{await subscribe(props.channelId);scrollableKey=Math.random();}" style="position: fixed;bottom: .75rem;width: 100%;">subscribe</v-btn>
 
   </div>
 

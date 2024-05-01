@@ -143,13 +143,27 @@ async function passwordLogIn(){
 }
 async function googleLogIn(){
     googleLogInLoading.value=true
+    setTimeout(() => {
+        googleLogInLoading.value=false
+    }, 3000);
     reset()
 
     try{
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
     if(authData) {
         await refreshAuthStore();
-        router.replace('/')
+        try{
+            const formData = new FormData();
+            formData.append('name', name.value)
+            formData.append('bio', bio.value)
+            if(avatar.value?.[0]){
+                formData.append('avatar', avatar.value[0])
+            }
+            await pb.collection('users').update(useAuthStore().authData.id, formData);
+            await refreshAuthStore();
+        }catch{}finally{
+            router.replace('/')
+        }
     }
     }catch{showError('some thing went wrong.')}
 

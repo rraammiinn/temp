@@ -10,8 +10,8 @@ function createDB(){
             chatMessages : "id, text, from, to, created",
             groupMessages : "id, text, group, created",
             channelMessages : "id, text, channel, created",
-            rels : "id, [follower+following]",
-            backRels : "id, [following+follower]",
+            rels : "id, following",
+            backRels : "id, follower",
             groupRels : "id, group",
             channelRels : "id, channel",
             contacts : "id",
@@ -229,12 +229,12 @@ async function addOrUpdateBackRel(backRel){
 }
 async function getRel(otherId){
     try{
-        return await db.rels.get({follower:pb.authStore.model.id, following:otherId})
+        return await db.rels.get({following:otherId})
     }catch{}
 }
 async function getBackRel(otherId){
     try{
-        return await db.backRels.get({follower:otherId, following:pb.authStore.model.id})
+        return await db.backRels.get({follower:otherId})
     }catch{}
 }
 async function getGroupRels(){

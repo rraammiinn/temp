@@ -45,7 +45,7 @@ const{allChatsData,
 
 const {userSearch, groupSearch, channelSearch, searchMessage}=storeToRefs(useOtherStore())
 
-if(!isInitialized.value && isLoggedIn.value, isVerified.value){await init();subscribeAll();}
+if(!isInitialized.value && isLoggedIn.value && isVerified.value){await init();subscribeAll();}
 
 
 

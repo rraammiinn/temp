@@ -176,6 +176,7 @@ async function join(groupId){
       await useDataStore().allGroupsData.allDatas.get(groupId).init()
       useDataStore().allGroupsData.allDatas.get(groupId).active=true
       useDataStore().allGroupsData.allDatas.get(groupId).cacheNewMessages=false
+      useDataStore().allGroupsData.allDatas.get(groupId).groupRelId ??= groupRel?.id
       useDataStore().allGroupsData.groupRels.find(groupRel=>groupRel.group==groupId).active=true
     }
   }catch{}
