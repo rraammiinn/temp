@@ -33,7 +33,7 @@
 
 
         <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">members</h3>
-            <template v-for="member in props.members">
+            <template v-for="member in props.members.values()">
               <v-list-item v-if="member.id != pb.authStore.model.id" @click="$router.push({name:'chat', params:{otherId:member.id},query:{initMessageId:'',showUser:true}})" :key="member.id" class="listItem"
               :prepend-avatar="getUserAvatarUrl(member.id, member.avatar)"
               :title="member.name"

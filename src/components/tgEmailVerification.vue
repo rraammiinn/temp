@@ -16,13 +16,18 @@
 import { ref } from 'vue';
 import {pb} from '@/funcs/pb';
 import {useAuthStore} from '@/store/authStore';
-import { useRouter } from 'vue-router';
+import { useDataStore } from '@/store/dataStore';
+import { useRouter, useRoute } from 'vue-router';
 
 import {useOtherStore} from '@/store/otherStore'
 
 
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
+
+const {saveAccount, setAccount} = useDataStore()
+const route=useRoute()
+const activeAccountId=route.query.activeAccountId
 const router=useRouter()
 const {updateLogInState,updateAuthData,refreshAuthStore}=useAuthStore()
 const disabled=ref(false)
@@ -30,15 +35,21 @@ const btnText=ref('resend')
 
 await refreshAuthStore();
 
-if(pb.authStore?.model?.verified)router.replace('/');
+if(pb.authStore?.model?.verified){
+    saveAccount()
+    if(activeAccountId)await setAccount(activeAccountId)
+    router.replace('/')
+};
 
 pb.collection('users').subscribe(pb.authStore.model.id,async(e)=>{
         await pb.collection('users').authRefresh();
 
 
         if(pb.authStore.model.verified){
-            pb.collection('users').unsubscribe(useAuthStore().authData.id)
+            pb.collection('users').unsubscribe(pb.authStore.model.id)
             await refreshAuthStore();
+            saveAccount()
+            if(activeAccountId)await setAccount(activeAccountId)
             router.replace('/')
         }
     })

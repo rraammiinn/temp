@@ -36,6 +36,13 @@ async function getGroupMessagesBetween(groupId,startDate,endDate){
   return await pb.collection('groupMessages').getFullList({filter:`group = "${groupId}" && created > "${startDate}" && created < "${endDate}"`, sort: 'created',$autoCancel:false})
 }
 
+async function getUpdatedGroupMessagesBetween(groupId, startDate, endDate){
+  // console.log('updating.........g...')
+  return await pb.collection('groupMessages').getFullList({filter:`group = "${groupId}" && created >= "${startDate}" && created <= "${endDate}" && updated > "${endDate}"`, sort: 'created',$autoCancel:false})
+  // console.log('updating.........g...',res)
+  // return res
+}
+
 
 
 
@@ -51,17 +58,19 @@ async function initializeGroupMessages(groupId,initMessageId){
 
     try{
       if(initMessageId && ! await getSingleCacheGroupMessage(initMessageId)){
-  
-   
-      messages.push(await getGroupMessageById(initMessageId))
-      messages=[...(await getPreviousGroupMessages(groupId,messages[0].created)),messages[0]]
+        messages = []
+    
+    
+        messages.push(await getGroupMessageById(initMessageId))
+        messages=[...(await getPreviousGroupMessages(groupId,messages[0].created)),messages[0]]
 
-      await replaceAllCacheGroupMessages(groupId, messages)
+        await replaceAllCacheGroupMessages(groupId, messages)
 
     }
     else{
       if(messages.length){
-        await addOrUpdateAllCacheGroupMessages(await getUpdatedGroupMessagesBetween(groupId, messages[0].created), messages.at(-1).created)
+        // console.log('g msgs : ',messages)
+        await addOrUpdateAllCacheGroupMessages(await getUpdatedGroupMessagesBetween(groupId, messages[0].created, messages.at(-1).created))
         messages = await getAllCacheGroupMessages(groupId)
 //-------chche masseges need to be updated.
       }else{

@@ -6,7 +6,7 @@ let db;
 function createDB(){
     try{
         db = new Dexie(`tg-${pb.authStore.model.username}-db`);
-        db.version(1).stores({
+        db.version(2).stores({
             chatMessages : "id, text, from, to, created",
             groupMessages : "id, text, group, created",
             channelMessages : "id, text, channel, created",

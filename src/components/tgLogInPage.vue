@@ -50,7 +50,7 @@ import {pb} from '@/funcs/pb';
 import { storeToRefs } from 'pinia';
 
 import {useAuthStore} from '@/store/authStore';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 import isEmail from 'validator/lib/isEmail'
 
@@ -62,7 +62,7 @@ import { useDataStore } from '@/store/dataStore';
 
 const {isInitialized} = storeToRefs(useDataStore())
 
-const {clearAllDatas} = useDataStore()
+const {clearAllDatas, saveAccount, setAccount, unsubscribeAll} = useDataStore()
 
 const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 
@@ -70,9 +70,14 @@ const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 const {isLoggedIn, isVerified} = storeToRefs(useAuthStore())
 
 const router=useRouter()
+const route=useRoute()
 
 // if(isLoggedIn){router.push('/emailVerification')}
 
+
+
+
+const activeAccountId = route.query.activeAccountId
 
 const {updateLogInState,updateAuthData,refreshAuthStore}=useAuthStore()
 
@@ -102,11 +107,10 @@ const rules=ref({
 })
 
 
-clearAllDatas();
 
 async function passwordLogIn(){
     passwordLogInLoading.value=true
-    reset()
+    await reset()
 
     try{
     if(!email.value || password.value.length < 8) return;
@@ -132,7 +136,7 @@ async function passwordLogIn(){
             email.value,
             password.value)
     }
-    if(authData) {router.replace('/emailVerification')}
+    if(authData) {router.replace({name:'emailVerification', query:{activeAccountId:activeAccountId}})}
     }catch{
         if(userExists.value){showError('email or password is wrong.')}
         else{
@@ -146,7 +150,7 @@ async function googleLogIn(){
     setTimeout(() => {
         googleLogInLoading.value=false
     }, 3000);
-    reset()
+    await reset()
 
     try{
     authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
@@ -162,6 +166,8 @@ async function googleLogIn(){
             await pb.collection('users').update(useAuthStore().authData.id, formData);
             await refreshAuthStore();
         }catch{}finally{
+            saveAccount()
+            if(activeAccountId)await setAccount(activeAccountId)
             router.replace('/')
         }
     }
@@ -205,13 +211,18 @@ fileReader.onload = function (event) {
 }
 // input.addEventListener("change", previewAvatar);
 
-function reset(){
-    isInitialized.value=false;
-
-    pb.authStore.clear()
-    isLoggedIn.value=false;
-    isVerified.value=false;
-
+async function reset(){
+    try{
+        // clearAllDatas();
+        unsubscribeAll()
+        // if(activeAccountId)return
+        await pb.collection('users').update(pb.authStore.model.id,{online:false})
+    }catch{}finally{
+        isInitialized.value=false;
+        isLoggedIn.value=false;
+        isVerified.value=false;
+        pb.authStore.clear()
+    }
 }
 
 

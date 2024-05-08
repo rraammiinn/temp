@@ -17,7 +17,10 @@ import { useDataStore } from '@/store/dataStore';
 
 const {init,subscribeAll,isInitialized}=useDataStore()
 
+console.log('---> main')
+
 if(!isInitialized){
+    console.log('--->init')
     await init()
     subscribeAll()
 }

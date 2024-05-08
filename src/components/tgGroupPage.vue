@@ -1,7 +1,7 @@
 <template>
     <tg-user-details style="z-index: 888;" :user="user" v-if="showUser"></tg-user-details>
 
-    <tg-group-details @join="async()=>{await allGroupsData.allDatas.get(props.groupId).init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allDatas.get(props.groupId).groupMems.values()" :group="allGroupsData.allDatas.get(props.groupId).group" :block-list="allGroupsData.allDatas.get(props.groupId).blockList" v-if="showGroup"></tg-group-details>
+    <tg-group-details @join="async()=>{await allGroupsData.allDatas.get(props.groupId).init();await messageGenerator.initializeMessages()}" :joined="joined" :owner="owner" :members="allGroupsData.allDatas.get(props.groupId).groupMems" :group="allGroupsData.allDatas.get(props.groupId).group" :block-list="allGroupsData.allDatas.get(props.groupId).blockList" v-if="showGroup"></tg-group-details>
   
   <div class="main">
   

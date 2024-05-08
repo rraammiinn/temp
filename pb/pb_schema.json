@@ -126,127 +126,6 @@
     "options": {}
   },
   {
-    "id": "jq36sjkt311u0x6",
-    "name": "contacts",
-    "type": "base",
-    "system": false,
-    "schema": [
-      {
-        "system": false,
-        "id": "vu3adhzk",
-        "name": "follower",
-        "type": "relation",
-        "required": true,
-        "presentable": false,
-        "unique": false,
-        "options": {
-          "collectionId": "_pb_users_auth_",
-          "cascadeDelete": true,
-          "minSelect": null,
-          "maxSelect": 1,
-          "displayFields": []
-        }
-      },
-      {
-        "system": false,
-        "id": "umuvczvn",
-        "name": "following",
-        "type": "relation",
-        "required": true,
-        "presentable": false,
-        "unique": false,
-        "options": {
-          "collectionId": "_pb_users_auth_",
-          "cascadeDelete": true,
-          "minSelect": null,
-          "maxSelect": 1,
-          "displayFields": []
-        }
-      }
-    ],
-    "indexes": [
-      "CREATE UNIQUE INDEX `idx_p09tgxJ` ON `contacts` (\n  `follower`,\n  `following`\n)"
-    ],
-    "listRule": "@request.auth.id = follower",
-    "viewRule": "@request.auth.id = follower",
-    "createRule": "@request.auth.id = follower && @request.auth.verified = true",
-    "updateRule": "@request.auth.id = follower && @request.auth.verified = true",
-    "deleteRule": "@request.auth.id = follower && @request.auth.verified = true",
-    "options": {}
-  },
-  {
-    "id": "ytayg7zfcl2l50u",
-    "name": "groupMembers",
-    "type": "base",
-    "system": false,
-    "schema": [
-      {
-        "system": false,
-        "id": "uyxqcuzu",
-        "name": "mem",
-        "type": "relation",
-        "required": true,
-        "presentable": false,
-        "unique": false,
-        "options": {
-          "collectionId": "_pb_users_auth_",
-          "cascadeDelete": true,
-          "minSelect": null,
-          "maxSelect": 1,
-          "displayFields": []
-        }
-      },
-      {
-        "system": false,
-        "id": "lxx1sfix",
-        "name": "group",
-        "type": "relation",
-        "required": true,
-        "presentable": false,
-        "unique": false,
-        "options": {
-          "collectionId": "c6ptx6r7mg3vdl7",
-          "cascadeDelete": true,
-          "minSelect": null,
-          "maxSelect": 1,
-          "displayFields": []
-        }
-      },
-      {
-        "system": false,
-        "id": "ckgkv4u4",
-        "name": "lastseen",
-        "type": "date",
-        "required": false,
-        "presentable": false,
-        "unique": false,
-        "options": {
-          "min": "",
-          "max": ""
-        }
-      },
-      {
-        "system": false,
-        "id": "jzvbhxfp",
-        "name": "active",
-        "type": "bool",
-        "required": false,
-        "presentable": false,
-        "unique": false,
-        "options": {}
-      }
-    ],
-    "indexes": [
-      "CREATE UNIQUE INDEX `idx_EHtidLj` ON `groupMembers` (\n  `mem`,\n  `group`\n)"
-    ],
-    "listRule": "group.members.id ?= @request.auth.id || mem = @request.auth.id",
-    "viewRule": "",
-    "createRule": "@request.auth.id = mem && @request.auth.verified = true",
-    "updateRule": "@request.auth.id = mem && @request.auth.verified = true",
-    "deleteRule": "@request.auth.id = mem && @request.auth.verified = true",
-    "options": {}
-  },
-  {
     "id": "7joruwhobymydjb",
     "name": "channels",
     "type": "base",
@@ -787,6 +666,127 @@
     "options": {}
   },
   {
+    "id": "ytayg7zfcl2l50u",
+    "name": "groupMembers",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "uyxqcuzu",
+        "name": "mem",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "system": false,
+        "id": "lxx1sfix",
+        "name": "group",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "c6ptx6r7mg3vdl7",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "system": false,
+        "id": "ckgkv4u4",
+        "name": "lastseen",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "jzvbhxfp",
+        "name": "active",
+        "type": "bool",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {}
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_d3gCQdz` ON `groupMembers` (\n  `group`,\n  `mem`\n)"
+    ],
+    "listRule": "group.members.id ?= @request.auth.id || mem = @request.auth.id",
+    "viewRule": "",
+    "createRule": "@request.auth.id = mem && @request.auth.verified = true",
+    "updateRule": "@request.auth.id = mem && @request.auth.verified = true",
+    "deleteRule": "@request.auth.id = mem && @request.auth.verified = true",
+    "options": {}
+  },
+  {
+    "id": "jq36sjkt311u0x6",
+    "name": "contacts",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "vu3adhzk",
+        "name": "follower",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "system": false,
+        "id": "umuvczvn",
+        "name": "following",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_fABW6E0` ON `contacts` (\n  `following`,\n  `follower`\n)"
+    ],
+    "listRule": "@request.auth.id = follower",
+    "viewRule": "@request.auth.id = follower",
+    "createRule": "@request.auth.id = follower && @request.auth.verified = true",
+    "updateRule": "@request.auth.id = follower && @request.auth.verified = true",
+    "deleteRule": "@request.auth.id = follower && @request.auth.verified = true",
+    "options": {}
+  },
+  {
     "id": "tnbtnhf2ihhp4r8",
     "name": "groupMessages",
     "type": "base",
@@ -873,7 +873,8 @@
     ],
     "indexes": [
       "CREATE INDEX `idx_h7MvPY8` ON `groupMessages` (\n  `group`,\n  `created`\n)",
-      "CREATE INDEX `idx_h7B576T` ON `groupMessages` (`text`)"
+      "CREATE INDEX `idx_h7B576T` ON `groupMessages` (`text`)",
+      "CREATE INDEX `idx_eOuvbc9` ON `groupMessages` (`updated`)"
     ],
     "listRule": "group.members.id ?= @request.auth.id",
     "viewRule": "",

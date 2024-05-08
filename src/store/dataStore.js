@@ -76,6 +76,9 @@ export const useDataStore = defineStore('data',{
         
         contacts:new Map(),
 
+        
+        accounts:JSON.parse(localStorage.getItem('tgAccounts')) ?? {},
+
 
         users:[],
         searchedGroups:[],
@@ -100,6 +103,21 @@ export const useDataStore = defineStore('data',{
         // allChannelMessages:{}
     }),
     actions:{
+        async setAccount(accountId){
+            try{
+                await pb.collection('users').update(pb.authStore.model.id,{online:false})
+            }catch{}finally{
+                const account = JSON.parse(localStorage.getItem('tgAccounts'))?.[accountId]
+                if(account){
+                    localStorage.setItem('pocketbase_auth', JSON.stringify(account))
+                }
+            }
+        },
+        saveAccount(){
+            const account = JSON.parse(localStorage.getItem('pocketbase_auth'))
+            this.accounts[account.model.id] = account
+            localStorage.setItem('tgAccounts', JSON.stringify(this.accounts))
+        },
         // async updateGroups(){await allGroupsData.updateGroups()},
         async updateContacts(){
             try{
@@ -139,6 +157,7 @@ export const useDataStore = defineStore('data',{
         ])
     },
     async init(){
+        // this.saveAccount()
         try{
             createDB()
         }catch{}

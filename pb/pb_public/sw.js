@@ -1,4 +1,4 @@
-const cacheVersion = 0;
+const cacheVersion = 3;
 
 const staticCacheVersion = 0;
 const dynamicCacheVersion = 0;

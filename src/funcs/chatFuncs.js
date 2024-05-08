@@ -58,7 +58,7 @@ async function initializeChatMessages(otherId,initMessageId){
     }
     else{
       if(messages.length){
-        await addOrUpdateAllCacheChatMessages(await getUpdatedChatMessagesBetween(otherId, messages[0].created), messages.at(-1).created)
+        await addOrUpdateAllCacheChatMessages(await getUpdatedChatMessagesBetween(otherId, messages[0].created, messages.at(-1).created))
         messages = await getAllCacheChatMessages(otherId)
 //-------chche masseges need to be updated.
       }else{

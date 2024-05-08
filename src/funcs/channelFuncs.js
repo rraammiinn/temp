@@ -30,6 +30,10 @@ async function getLastSeenChannelMessages(channelId,endDate,number=10){
   return (await pb.collection('channelMessages').getList(1,number,{filter:`channel = "${channelId}" && created <= "${endDate}"`, sort: '-created',$autoCancel:false})).items.reverse()
 }
 
+async function getUpdatedChannelMessagesBetween(channelId, startDate, endDate){
+  return await pb.collection('channelMessages').getFullList({filter:`channel = "${channelId}" && created >= "${startDate}" && created <= "${endDate}" && updated > "${endDate}"`, sort: 'created',$autoCancel:false})
+}
+
 
 
 
@@ -45,17 +49,18 @@ async function initializeChannelMessages(channelId,initMessageId){
 
     try{
       if(initMessageId && ! await getSingleCacheChannelMessage(initMessageId)){
+        messages = []
   
    
-      messages.push(await getChannelMessageById(initMessageId))
-      messages=[...(await getPreviousChannelMessages(channelId,messages[0].created)),messages[0]]
+        messages.push(await getChannelMessageById(initMessageId))
+        messages=[...(await getPreviousChannelMessages(channelId,messages[0].created)),messages[0]]
 
-      await replaceAllCacheChannelMessages(channelId, messages)
+        await replaceAllCacheChannelMessages(channelId, messages)
 
     }
     else{
       if(messages.length){
-        await addOrUpdateAllCacheChannelMessages(await getUpdatedChannelMessagesBetween(channelId, messages[0].created), messages.at(-1).created)
+        await addOrUpdateAllCacheChannelMessages(await getUpdatedChannelMessagesBetween(channelId, messages[0].created, messages.at(-1).created))
         messages = await getAllCacheChannelMessages(channelId)
 //-------chche masseges need to be updated.
       }else{
