@@ -11,7 +11,7 @@
             <v-btn @click="showChannel=false;" icon="mdi-message"></v-btn>
         </div>
             <v-col style="padding: 1rem;">
-                <div style="margin-bottom: 1.5rem;">
+                <div v-if="props.channel.name" style="margin-bottom: 1.5rem;">
                     <h3>{{props.channel.name}}</h3><h5 style="opacity: .5;">channel name</h5>
                 </div>
                 <div style="margin-bottom: 1.5rem;">

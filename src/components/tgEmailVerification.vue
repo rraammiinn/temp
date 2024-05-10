@@ -37,8 +37,11 @@ await refreshAuthStore();
 
 if(pb.authStore?.model?.verified){
     saveAccount()
-    if(activeAccountId)await setAccount(activeAccountId)
-    router.replace('/')
+    if(activeAccountId){
+        await setAccount(activeAccountId)
+        await refreshAuthStore();
+        router.replace('/')
+    }else{router.replace('/')}
 };
 
 pb.collection('users').subscribe(pb.authStore.model.id,async(e)=>{
@@ -49,8 +52,12 @@ pb.collection('users').subscribe(pb.authStore.model.id,async(e)=>{
             pb.collection('users').unsubscribe(pb.authStore.model.id)
             await refreshAuthStore();
             saveAccount()
-            if(activeAccountId)await setAccount(activeAccountId)
-            router.replace('/')
+            if(activeAccountId){
+                await setAccount(activeAccountId)
+                await refreshAuthStore();
+                router.replace('/')
+                return
+            }else{router.replace('/')}
         }
     })
 

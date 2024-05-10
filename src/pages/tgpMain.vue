@@ -7,7 +7,7 @@
 
 <script setup>
 import { inject, provide, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import {useAuthStore} from '@/store/authStore'
 import { storeToRefs } from "pinia";
 import { useOtherStore } from "@/store/otherStore";
@@ -15,14 +15,22 @@ import { useOtherStore } from "@/store/otherStore";
 import { useDataStore } from '@/store/dataStore';
 
 
+// const route = useRoute()
+
+// const reload = route.query?.reload
+
+// if(reload === 'true')router.go()
+
+
 const {init,subscribeAll,isInitialized}=useDataStore()
 
-console.log('---> main')
 
 if(!isInitialized){
-    console.log('--->init')
-    await init()
-    subscribeAll()
+    try{
+      subscribeAll()
+    }catch{}finally{
+      await init()
+    }
 }
 
 const {searchMessage}=storeToRefs(useOtherStore())

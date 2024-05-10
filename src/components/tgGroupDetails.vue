@@ -11,7 +11,7 @@
             <v-btn @click="showGroup=false;showUser=false;" icon="mdi-message"></v-btn>
         </div>
             <v-col style="padding: 1rem;">
-                <div style="margin-bottom: 1.5rem;">
+                <div v-if="props.group.name" style="margin-bottom: 1.5rem;">
                     <h3>{{props.group.name}}</h3><h5 style="opacity: .5;">group name</h5>
                 </div>
                 <div style="margin-bottom: 1.5rem;">
@@ -32,7 +32,7 @@
 
 
 
-        <h3 style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">members</h3>
+        <h3 v-show="Array.from(props.members.values()).filter(member => member.id != pb.authStore.model.id).length" style="font-weight: bold;margin-left: 1rem;margin-top: 3rem;margin-bottom: 1rem;">members</h3>
             <template v-for="member in props.members.values()">
               <v-list-item v-if="member.id != pb.authStore.model.id" @click="$router.push({name:'chat', params:{otherId:member.id},query:{initMessageId:'',showUser:true}})" :key="member.id" class="listItem"
               :prepend-avatar="getUserAvatarUrl(member.id, member.avatar)"

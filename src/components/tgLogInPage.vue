@@ -166,9 +166,12 @@ async function googleLogIn(){
             await pb.collection('users').update(useAuthStore().authData.id, formData);
             await refreshAuthStore();
         }catch{}finally{
-            saveAccount()
-            if(activeAccountId)await setAccount(activeAccountId)
-            router.replace('/')
+            try{
+                saveAccount()
+                if(activeAccountId){await setAccount(activeAccountId);await refreshAuthStore();}
+            }catch{}finally{
+                router.replace('/')
+            }
         }
     }
     }catch{showError('some thing went wrong.')}
