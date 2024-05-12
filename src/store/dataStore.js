@@ -118,6 +118,10 @@ export const useDataStore = defineStore('data',{
             this.accounts[account.model.id] = account
             localStorage.setItem('tgAccounts', JSON.stringify(this.accounts))
         },
+        deleteAccount(accountId){
+            delete this.accounts[accountId]
+            localStorage.setItem('tgAccounts', JSON.stringify(this.accounts))
+        },
         // async updateGroups(){await allGroupsData.updateGroups()},
         async updateContacts(){
             try{
@@ -190,7 +194,12 @@ subscribeUsers(){
             this.allChatsData.allDatas.get(e.record.id).isOnline = e.record.online;
             this.allChatsData.allDatas.get(e.record.id).lastVisited = e.record.updated;
             this.allChatsData.allDatas.get(e.record.id).updated = e.record.updated;
-        }catch{}
+        }catch{}finally{
+            if(Object.keys(this.accounts).includes(e.record.id)){
+                this.accounts[e.record.id].model={...this.accounts[e.record.id].model,...e.record}
+                localStorage.setItem('tgAccounts', JSON.stringify(this.accounts))
+            }
+        }
     })
 },
 

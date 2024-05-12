@@ -159,6 +159,7 @@
           <div style="padding: 1rem;display: flex;opacity: .5;font-size: .5rem;font-weight: bold;" :style="{justifyContent : (props.messageType=='channel') ? 'center' :'space-between'}">
             <span>{{new Date(props.time).toLocaleTimeString([],{ hour12: false })}}</span>
             <div style="display: flex;gap: .25rem;margin-left: .5rem;">
+              <v-icon v-if="props.edited" icon="mdi-pen"></v-icon>
               <v-icon @click="$emit('goToMessage', props.repliedMessageId)" v-if="props.repliedMessageId" icon="mdi-link"></v-icon>
               <v-icon v-if="props.fromYou && props.messageType=='chat'" :icon="props.seen ? 'mdi-check-all' : 'mdi-check'"></v-icon>
             </div>
@@ -232,7 +233,7 @@
     
     const showName=ref(false)
 
-    const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner','repliedMessageId','glow'])
+    const props = defineProps(['seen','text','avatar','time','images','videos','audios','files','name','fromYou','fromOther','id','messageType','userId','isOwner','repliedMessageId','glow', 'edited'])
     const emit = defineEmits(['insert','reply'])
 
     const editMode=ref(false)
