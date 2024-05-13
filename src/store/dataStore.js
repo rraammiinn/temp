@@ -164,16 +164,18 @@ export const useDataStore = defineStore('data',{
         // this.saveAccount()
         try{
             createDB()
-        }catch{}
-        await Promise.allSettled([
-            this.updateChatRels(),
-            this.updateGroupRels(),
-            this.updateChannelRels(),
-            this.updateContacts()
-        ])
-
-
-        await this.updateAllMessages()
+            this.clearAllDatas()
+        }catch{}finally{
+            await Promise.allSettled([
+                this.updateChatRels(),
+                this.updateGroupRels(),
+                this.updateChannelRels(),
+                this.updateContacts()
+            ])
+    
+    
+            await this.updateAllMessages()
+        }
     },
 
     clearAllDatas() {
@@ -181,6 +183,8 @@ export const useDataStore = defineStore('data',{
         this.allGroupsData = new AllGroupsData();
         this.allChannelsData = new AllChannelsData();
     },
+
+    uninitialize(){this.isInitialized=false;},
 
 subscribeContacts(){
     pb.collection('contacts').subscribe('*', this.updateContacts)

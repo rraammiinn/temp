@@ -50,6 +50,7 @@ if(!isInitialized.value && isLoggedIn.value && isVerified.value){
       subscribeAll()
     }catch{}finally{
       await init()
+      await pb.collection('users').update(pb.authStore.model.id,{online:true})
     }
 }
 

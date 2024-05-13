@@ -1,5 +1,5 @@
 <template>
-    <v-list-item @contextmenu.prevent="showActions=true;" @click="()=>{if(!props.isCurrentAccount)$emit('changeAccount', props.account.model.id)}" :title="props.account.model.name" style="padding-left: .5rem;">
+    <v-list-item @contextmenu.prevent="showActions=true;" @click="()=>{if(!props.isCurrentAccount && !showActions)$emit('changeAccount', props.account.model.id)}" :title="props.account.model.name" style="padding-left: .5rem;">
                 <template #prepend>
                     <v-badge v-if="props.isCurrentAccount" icon="mdi-check">
                         <v-avatar :image="getUserAvatarUrl(props.account.model.id, props.account.model.avatar)"></v-avatar>

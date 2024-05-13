@@ -79,7 +79,7 @@ const {showError, showProgressBar, hideProgressBar} = useOtherStore()
 const router=useRouter()
 
 
-const {updateLogInState,updateAuthData} = useAuthStore()
+const {updateLogInState,updateAuthData, logOut} = useAuthStore()
 const {isLoggedIn,authData}=storeToRefs(useAuthStore())
 
 const {unsubscribeAll}=useDataStore()
@@ -88,15 +88,15 @@ const {unsubscribeAll}=useDataStore()
 async function logIn(){
     router.push('/login')
 }
-async function logOut(){
-    try{
-        await pb.collection('users').update(authData.value.id,{online:false})
-    }finally{
-        unsubscribeAll()
-        pb.authStore.clear();
-        updateLogInState()
-    }
-}
+// async function logOut(){
+//     try{
+//         await pb.collection('users').update(authData.value.id,{online:false})
+//     }finally{
+//         unsubscribeAll()
+//         pb.authStore.clear();
+//         updateLogInState()
+//     }
+// }
 
 
 

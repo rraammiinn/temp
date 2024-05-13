@@ -6,6 +6,7 @@
 </template>
 
 <script setup>
+import { pb } from '@/funcs/pb';
 import { inject, provide, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {useAuthStore} from '@/store/authStore'
@@ -30,6 +31,7 @@ if(!isInitialized){
       subscribeAll()
     }catch{}finally{
       await init()
+      await pb.collection('users').update(pb.authStore.model.id,{online:true})
     }
 }
 

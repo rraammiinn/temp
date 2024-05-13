@@ -118,7 +118,7 @@
             setTimeout(()=>{
               try{
                 document.getElementById(clickedImageId.value)?.scrollIntoView?.({inline:'center'})
-              }finally{imageVisibility.value=true;setTimeout(()=>{selectedImageUrl.value=clickedImageId.value},100)}
+              }catch{}finally{imageVisibility.value=true;setTimeout(()=>{selectedImageUrl.value=clickedImageId.value},100)}
             },500)
             // document.getElementById(clickedImageId.value)?.scrollIntoView?.({inline:'center'})
           }
@@ -290,7 +290,7 @@
             // attachStartObserver()
             // attachDateObserver()
           }
-          }finally{
+          }catch{}finally{
             document.getElementById('scrollable').scrollTop=document.getElementById('scrollable').scrollHeight;
             hideProgressBar()
           }

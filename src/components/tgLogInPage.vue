@@ -79,7 +79,7 @@ const route=useRoute()
 
 const activeAccountId = route.query.activeAccountId
 
-const {updateLogInState,updateAuthData,refreshAuthStore}=useAuthStore()
+const {updateLogInState,updateAuthData,refreshAuthStore,reset}=useAuthStore()
 
 const passwordLogInLoading=ref(false)
 const googleLogInLoading=ref(false)
@@ -214,19 +214,19 @@ fileReader.onload = function (event) {
 }
 // input.addEventListener("change", previewAvatar);
 
-async function reset(){
-    try{
-        // clearAllDatas();
-        unsubscribeAll()
-        // if(activeAccountId)return
-        await pb.collection('users').update(pb.authStore.model.id,{online:false})
-    }catch{}finally{
-        isInitialized.value=false;
-        isLoggedIn.value=false;
-        isVerified.value=false;
-        pb.authStore.clear()
-    }
-}
+// async function reset(){
+//     try{
+//         // clearAllDatas();
+//         unsubscribeAll()
+//         // if(activeAccountId)return
+//         await pb.collection('users').update(pb.authStore.model.id,{online:false})
+//     }catch{}finally{
+//         isInitialized.value=false;
+//         isLoggedIn.value=false;
+//         isVerified.value=false;
+//         pb.authStore.clear()
+//     }
+// }
 
 
 
