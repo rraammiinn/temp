@@ -48,9 +48,9 @@ const {userSearch, groupSearch, channelSearch, searchMessage}=storeToRefs(useOth
 if(!isInitialized.value && isLoggedIn.value && isVerified.value){
   try{
       subscribeAll()
+      await pb.collection('users').update(pb.authStore.model.id,{online:true})
     }catch{}finally{
       await init()
-      await pb.collection('users').update(pb.authStore.model.id,{online:true})
     }
 }
 

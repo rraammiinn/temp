@@ -68,10 +68,8 @@ class AllChatsData{
             });
             this.backRels=this.rels.filter(rel=>rel.follower != useAuthStore().authData.id);this.rels=this.rels.filter(rel=>rel.follower == useAuthStore().authData.id);
             
-            console.log(JSON.parse(JSON.stringify(this.rels)))
-            // console.log('rels :', this.rels.map(rel => ({...rel})).map(rel => ({...rel, expand:{...(rel.expand.map(expand => ({follower:expand.follower, following:expand.following})))}})));
             await replaceRels(JSON.parse(JSON.stringify(this.rels)))
-            await replaceBackRels(JSON.parse(JSON.stringify(this.rels)))
+            await replaceBackRels(JSON.parse(JSON.stringify(this.backRels)))
             await saveUsers(JSON.parse(JSON.stringify(this.rels.map(rel => rel.expand.following))))
         }catch{
             this.rels = await getRels()
@@ -85,9 +83,6 @@ class AllChatsData{
                 this.allDatas.set(index, new ChatData(rel,this.backRels.find(i=>i.follower == rel.following)))
                 return this.allDatas.get(index).init()
         }))
-
-
-
 }
 
 }
@@ -128,7 +123,6 @@ class GroupData{
                 await this.updateMembers()
             }catch{
                 this.groupMems = new Map(Object.entries(await getGroupMembers(this.group.id)))
-                console.log('g mems', this.groupMems)
             }
         }
     }

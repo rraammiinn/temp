@@ -7,9 +7,9 @@
 
 <script setup>
 import { pb } from '@/funcs/pb';
-import { inject, provide, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import {useAuthStore} from '@/store/authStore'
+import { provide } from 'vue';
+// import { useRouter, useRoute } from 'vue-router';
+// import {useAuthStore} from '@/store/authStore'
 import { storeToRefs } from "pinia";
 import { useOtherStore } from "@/store/otherStore";
 
@@ -29,18 +29,18 @@ const {init,subscribeAll,isInitialized}=useDataStore()
 if(!isInitialized){
     try{
       subscribeAll()
+      await pb.collection('users').update(pb.authStore.model.id,{online:true})
     }catch{}finally{
       await init()
-      await pb.collection('users').update(pb.authStore.model.id,{online:true})
     }
 }
 
 const {searchMessage}=storeToRefs(useOtherStore())
 
-const router=useRouter()
-const {isLoggedIn,isVerified,authData} = useAuthStore()
-// if(!isLoggedIn){router.push('/login')}
-// if(!isVerified){router.push('/login')}
+// const router=useRouter()
+// const {isLoggedIn,isVerified,authData} = useAuthStore()
+// // if(!isLoggedIn){router.push('/login')}
+// // if(!isVerified){router.push('/login')}
 
 
 

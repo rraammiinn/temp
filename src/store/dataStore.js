@@ -165,15 +165,13 @@ export const useDataStore = defineStore('data',{
         try{
             createDB()
             this.clearAllDatas()
-        }catch{}finally{
             await Promise.allSettled([
                 this.updateChatRels(),
                 this.updateGroupRels(),
                 this.updateChannelRels(),
                 this.updateContacts()
             ])
-    
-    
+        }catch{}finally{
             await this.updateAllMessages()
         }
     },

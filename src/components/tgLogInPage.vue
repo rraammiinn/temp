@@ -47,7 +47,7 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue';
 import {pb} from '@/funcs/pb';
-import { storeToRefs } from 'pinia';
+// import { storeToRefs } from 'pinia';
 
 import {useAuthStore} from '@/store/authStore';
 import { useRouter, useRoute } from 'vue-router';
@@ -60,26 +60,26 @@ import {getUserAvatarUrl} from '@/funcs/commonFuncs';
 
 import { useDataStore } from '@/store/dataStore';
 
-const {isInitialized} = storeToRefs(useDataStore())
+// const {isInitialized} = storeToRefs(useDataStore())
 
-const {clearAllDatas, saveAccount, setAccount, unsubscribeAll} = useDataStore()
+const { saveAccount, setAccount } = useDataStore()
 
-const {showError, showProgressBar, hideProgressBar} = useOtherStore()
+const {showError} = useOtherStore()
+
+const {refreshAuthStore,reset}=useAuthStore()
 
 
-const {isLoggedIn, isVerified} = storeToRefs(useAuthStore())
+// const {isLoggedIn, isVerified} = storeToRefs(useAuthStore())
 
 const router=useRouter()
 const route=useRoute()
 
-// if(isLoggedIn){router.push('/emailVerification')}
 
 
 
 
 const activeAccountId = route.query.activeAccountId
 
-const {updateLogInState,updateAuthData,refreshAuthStore,reset}=useAuthStore()
 
 const passwordLogInLoading=ref(false)
 const googleLogInLoading=ref(false)
@@ -187,48 +187,16 @@ async function checkUserExistence(){
     catch{userExists.value=false}}
 
     
-    // function changePreviewAvatar(){
-    //     // img.value.srcObject=avatar.value?.[0]
-    // }
 
-    // const imgUrl=computed(()=>{URL.createObjectURL(avatar.value?.[0])})
-
-    // watchEffect(()=>{
-    //     const reader = new FileReader()
-    //     reader.onloadend=()=>{img.value.src = reader.result}
-    //     reader.readAsDataURL(avatar?.[0])
-    // })
-
-
-    // const input = document.getElementById('file-input');
 const previewAvatar = () => {
-    // const file = input.files;
     if (avatar.value?.[0]) {
         const fileReader = new FileReader();
-        // const preview = document.getElementById('file-preview');
 fileReader.onload = function (event) {
             preview.value.setAttribute('src', event.target.result);
         }
         fileReader.readAsDataURL(avatar.value[0]);
     }
 }
-// input.addEventListener("change", previewAvatar);
-
-// async function reset(){
-//     try{
-//         // clearAllDatas();
-//         unsubscribeAll()
-//         // if(activeAccountId)return
-//         await pb.collection('users').update(pb.authStore.model.id,{online:false})
-//     }catch{}finally{
-//         isInitialized.value=false;
-//         isLoggedIn.value=false;
-//         isVerified.value=false;
-//         pb.authStore.clear()
-//     }
-// }
-
-
 
 watchEffect(previewAvatar)
 

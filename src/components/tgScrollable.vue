@@ -254,7 +254,7 @@
           startEnabled = await props.messageGenerator.getPreviousMessages()
           hideProgressBar()
           await nextTick()
-          if(previousCard.getBoundingClientRect().y - 500 > scrollableHeight)previousCard.scrollIntoView({block:'nearest'})
+          if(previousCard && previousCard.getBoundingClientRect().y - 500 > scrollableHeight)previousCard.scrollIntoView({block:'nearest'})
 
           previousCard = null;
         }
