@@ -151,7 +151,7 @@ async function subscribe(channelId){
 try{
     const channelRel = await pb.collection('channelMembers').create({"mem":pb.authStore.model.id, "channel":channelId},{expand:'mem,channel'});
     useDataStore().allChannelsData.allDatas.set(channelId, new ChannelData(channelRel))
-}finally{
+}catch{}finally{
   await useDataStore().allChannelsData.allDatas.get(channelId).init()
   useDataStore().allChannelsData.allDatas.get(channelId).active=true
   useDataStore().allChannelsData.allDatas.get(channelId).cacheNewMessages=false

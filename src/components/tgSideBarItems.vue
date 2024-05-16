@@ -1,16 +1,5 @@
 <template>
         <img style="margin-top: -.5rem;width: 100%;" :src="getUserAvatarUrl(authData.id, authData.avatar)" alt="">
-        <!-- <v-list-item :prepend-avatar="getUserAvatarUrl(pb.authStore.model.id, pb.authStore.model.avatar)" :title="pb.authStore.model.name" style="padding-left: .5rem;"></v-list-item> -->
-            <!-- <v-list-item v-for="account in Object.values(accounts)" :key="account.model.id" @click="async()=>{if(account.model.id == pb.authStore.model.id)return;await changeAccount(account.model.id)}" :title="account.model.name" style="padding-left: .5rem;">
-                <template #prepend>
-                    <v-badge v-if="account.model.id == pb.authStore.model.id" icon="mdi-check">
-                        <v-avatar :image="getUserAvatarUrl(account.model.id, account.model.avatar)"></v-avatar>
-                    </v-badge>
-                    <v-avatar v-else :image="getUserAvatarUrl(account.model.id, account.model.avatar)"></v-avatar>
-                </template>
-                <template v-slot:append><v-btn variant="text" icon="mdi-close"></v-btn><v-btn variant="text" color="error" icon="mdi-delete"></v-btn></template>
-            </v-list-item> -->
-
             <tg-account-item v-for="account in Object.values(accounts)" :key="account.model.id" :account="account" :is-current-account="account.model.id == authData.id" @deleteAccount="async(accountId)=>{accountIdToDelete=accountId;showDeleteAccountDialog=true}" @changeAccount="async(accountId)=>{await changeAccount(accountId)}"></tg-account-item>
         <v-list-item @click="$router.push({name:'login', query:{activeAccountId:authData.id}})" prepend-icon="mdi-plus-circle" title="add account" value="add account"></v-list-item>
 
@@ -56,7 +45,7 @@
 </style>
 
 <script setup>
-import {pb} from '@/funcs/pb';
+import {pb, reCreatePB} from '@/funcs/pb';
 import {inject, watchEffect} from 'vue';
 import { ref } from 'vue';
 
@@ -76,7 +65,7 @@ import tgAccountItem from '@/components/tgAccountItem'
 
 const {authData} = storeToRefs(useAuthStore())
 
-const {logOut, reset, refreshAuthStore} = useAuthStore()
+const {logOut, reset, refreshAuthStore, updateLogInState, updateAuthData} = useAuthStore()
 
 const accountIdToDelete = ref('')
 
@@ -101,13 +90,17 @@ const {theme}=storeToRefs(useSettingsStore())
 async function changeAccount(accountId){
     await reset()
     await setAccount(accountId)
-    await refreshAuthStore()
 
     try{
-      subscribeAll()
-    }catch{}finally{
-      await init()
-      await pb.collection('users').update(pb.authStore.model.id,{online:true})
+        await refreshAuthStore()
+        subscribeAll()
+        await pb.collection('users').update(pb.authStore.model.id,{online:true})
+    }catch{
+        reCreatePB()
+        updateLogInState()
+        updateAuthData()
+    }finally{
+        await init()
     }
     // router.go()
 }

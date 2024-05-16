@@ -158,8 +158,12 @@ async function googleLogIn(){
         await refreshAuthStore();
         try{
             const formData = new FormData();
-            formData.append('name', name.value)
-            formData.append('bio', bio.value)
+            if(name.value){
+                formData.append('name', name.value)
+            }
+            if(bio.value){
+                formData.append('bio', bio.value)
+            }
             if(avatar.value?.[0]){
                 formData.append('avatar', avatar.value[0])
             }

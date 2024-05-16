@@ -37,7 +37,7 @@
         try{
             const channel=await pb.collection('channels').getOne(channelId)
             allChannelsData.value.allDatas.set(channelId, new ChannelData(null,channel))
-        }finally{
+        }catch{}finally{
             if(!allChannelsData.value.allDatas.get(channelId)){router.replace('/')}
             else{await allChannelsData.value.allDatas.get(channelId).init()}
         }

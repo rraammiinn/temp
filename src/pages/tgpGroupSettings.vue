@@ -34,7 +34,7 @@
         try{
             const group=await pb.collection('groups').getOne(groupId)
             allGroupsData.value.allDatas.set(groupId, new GroupData(null,group))
-        }finally{
+        }catch{}finally{
             if(!allGroupsData.value.allDatas.get(groupId)){router.replace('/')}
             else{await allGroupsData.value.allDatas.get(groupId).init()}
         }

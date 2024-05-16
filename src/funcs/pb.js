@@ -1,5 +1,9 @@
 import PocketBase from 'pocketbase';
 
-const pb = new PocketBase('/');
+let pb = new PocketBase('/');
 
-export {pb}
+function reCreatePB() {
+    pb = new PocketBase('/');
+}
+
+export {pb, reCreatePB}
